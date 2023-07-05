@@ -1,0 +1,58 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eQuantic.Core.Api.Crud", "src\eQuantic.Core.Api.Crud\eQuantic.Core.Api.Crud.csproj", "{21207471-9BEF-48BD-8854-DDB2E4B4D3BE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EC635AF0-5609-4BF4-8B16-E2CBF1EB6A48}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{ECE438C5-64A5-4F54-BCC3-496F2C131090}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		NuGet.Config = NuGet.Config
+		LICENSE = LICENSE
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{3080CE4F-8079-4FB6-B164-46A5CE130E87}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{55FBF767-92FE-49F8-8B95-4E4996FEF374}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnetcore.yml = .github\workflows\dotnetcore.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eQuantic.Core.Application.Crud", "src\eQuantic.Core.Application.Crud\eQuantic.Core.Application.Crud.csproj", "{A9140C8B-B58C-4891-A11B-51C3FDAC1BB5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eQuantic.Core.Application", "src\eQuantic.Core.Application\eQuantic.Core.Application.csproj", "{2AB85F50-CEC6-45ED-977D-1C62070D713F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eQuantic.Core.Api", "src\eQuantic.Core.Api\eQuantic.Core.Api.csproj", "{D402D6A2-088B-4B5B-96FE-ECD4B0DA61FC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{21207471-9BEF-48BD-8854-DDB2E4B4D3BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21207471-9BEF-48BD-8854-DDB2E4B4D3BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21207471-9BEF-48BD-8854-DDB2E4B4D3BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21207471-9BEF-48BD-8854-DDB2E4B4D3BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9140C8B-B58C-4891-A11B-51C3FDAC1BB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9140C8B-B58C-4891-A11B-51C3FDAC1BB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9140C8B-B58C-4891-A11B-51C3FDAC1BB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9140C8B-B58C-4891-A11B-51C3FDAC1BB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AB85F50-CEC6-45ED-977D-1C62070D713F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AB85F50-CEC6-45ED-977D-1C62070D713F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AB85F50-CEC6-45ED-977D-1C62070D713F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AB85F50-CEC6-45ED-977D-1C62070D713F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D402D6A2-088B-4B5B-96FE-ECD4B0DA61FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D402D6A2-088B-4B5B-96FE-ECD4B0DA61FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D402D6A2-088B-4B5B-96FE-ECD4B0DA61FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D402D6A2-088B-4B5B-96FE-ECD4B0DA61FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{21207471-9BEF-48BD-8854-DDB2E4B4D3BE} = {EC635AF0-5609-4BF4-8B16-E2CBF1EB6A48}
+		{3080CE4F-8079-4FB6-B164-46A5CE130E87} = {ECE438C5-64A5-4F54-BCC3-496F2C131090}
+		{55FBF767-92FE-49F8-8B95-4E4996FEF374} = {3080CE4F-8079-4FB6-B164-46A5CE130E87}
+		{A9140C8B-B58C-4891-A11B-51C3FDAC1BB5} = {EC635AF0-5609-4BF4-8B16-E2CBF1EB6A48}
+		{2AB85F50-CEC6-45ED-977D-1C62070D713F} = {EC635AF0-5609-4BF4-8B16-E2CBF1EB6A48}
+		{D402D6A2-088B-4B5B-96FE-ECD4B0DA61FC} = {EC635AF0-5609-4BF4-8B16-E2CBF1EB6A48}
+	EndGlobalSection
+EndGlobal

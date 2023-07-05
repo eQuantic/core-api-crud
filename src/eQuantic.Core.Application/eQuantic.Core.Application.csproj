@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>eQuantic Application Library</Description>
+        <Copyright>2023</Copyright>
+        <AssemblyTitle>eQuantic.Core.Application</AssemblyTitle>
+        <Version>1.0.0.0</Version>
+        <Authors>eQuantic Systems</Authors>
+        <TargetFrameworks>netstandard2.1;net7.0</TargetFrameworks>
+        <PackageId>eQuantic.Core.Application</PackageId>
+        <PackageTags>eQuantic;Core;Application;Library</PackageTags>
+        <PackageReleaseNotes>Conventions for Application Layer</PackageReleaseNotes>
+        <PackageProjectUrl>https://github.com/eQuantic/core-api-crud</PackageProjectUrl>
+        <PackageOutputPath>../artifacts/</PackageOutputPath>
+        <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+        <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+        <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+        <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+        <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+        <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <RepositoryUrl>https://github.com/eQuantic/core-api-crud</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <FileVersion>1.0.0.0</FileVersion>
+        <PackageIcon>Icon.png</PackageIcon>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>eQuantic.Core.Application</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="eQuantic.Core.Data" Version="3.1.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+        <PackageReference Include="Lamar" Version="8.1.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+        <PackageReference Include="Lamar" Version="12.0.0" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <None Include="Icon.png" Pack="true" PackagePath="Icon.png" />
+        <None Include="Icon_details.png" Pack="true" PackagePath="Icon_details.png" />
+        <None Include="Icon_dialog.png" Pack="true" PackagePath="Icon_dialog.png" />
+        <None Include="Icon_list.png" Pack="true" PackagePath="Icon_list.png" />
+        <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
+</Project>
