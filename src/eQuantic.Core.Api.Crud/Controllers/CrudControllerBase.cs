@@ -46,4 +46,25 @@ public abstract class CrudControllerBase<TEntity, TRequest> : ControllerBase whe
         var item = await _service.GetByIdAsync(request);
         return Ok(item);
     }
+
+    [HttpPost("")]
+    public virtual async Task<IActionResult> Create([FromQuery] CreateRequest<TRequest> request)
+    {
+        var result = await _service.CreateAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = result }, result);
+    }
+
+    [HttpPut("{id:int}")]
+    public virtual async Task<IActionResult> Update([FromQuery] UpdateRequest<TRequest> request)
+    {
+        var result = await _service.UpdateAsync(request);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:int}")]
+    public virtual async Task<IActionResult> Delete([FromQuery] ItemRequest request)
+    {
+        var result = await _service.DeleteAsync(request);
+        return NoContent();
+    }
 }

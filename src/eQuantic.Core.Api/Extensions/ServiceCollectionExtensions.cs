@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection</param>
     /// <returns>The registry</returns>
-    public static ServiceCollection AddApiDocumentation(this ServiceCollection services, Action<DocumentationOptions>? options = null)
+    public static IServiceCollection AddApiDocumentation(this IServiceCollection services, Action<DocumentationOptions>? options = null)
     {
         var docOptions = new DocumentationOptions();
         options?.Invoke(docOptions);
