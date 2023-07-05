@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{ECE438C5-6
 		.gitignore = .gitignore
 		NuGet.Config = NuGet.Config
 		LICENSE = LICENSE
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{3080CE4F-8079-4FB6-B164-46A5CE130E87}"
