@@ -13,6 +13,11 @@ public abstract class EntityDataBase : IEntity<int>
     [Column(Order = 1)]
     public int Id { get; set; }
     
+    /// <summary>
+    /// Implicit operator to compare entity with id
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     public static implicit operator int(EntityDataBase entity)
     {
         return entity.Id;
@@ -25,5 +30,14 @@ public abstract class EntityDataBase : IEntity<int>
     public int GetKey()
     {
         return Id;
+    }
+
+    /// <summary>
+    /// Sets the key
+    /// </summary>
+    /// <param name="key"></param>
+    public void SetKey(int key)
+    {
+        Id = key;
     }
 }
