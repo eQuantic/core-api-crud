@@ -38,7 +38,7 @@ public sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="id"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<Results<Ok<TEntity>, NotFound>> GetReferencedById([FromRoute] int referenceId, [FromRoute] int id, TService service)
+    public async Task<Results<Ok<TEntity>, NotFound>> GetReferencedById([FromRoute] int referenceId, [FromRoute] int id, [FromServices]TService service)
     {
         var request = new ItemRequest<int>(referenceId, id);
         return await GetById(request, service);
@@ -50,7 +50,7 @@ public sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="id"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<Results<Ok<TEntity>, NotFound>> GetById([FromRoute] int id, TService service)
+    public async Task<Results<Ok<TEntity>, NotFound>> GetById([FromRoute] int id, [FromServices]TService service)
     {
         var request = new ItemRequest(id);
         return await GetById(request, service);
@@ -66,7 +66,7 @@ public sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="orderBy"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<Ok<PagedListResult<TEntity>>> GetReferencedPagedList([FromRoute] int referenceId, [FromQuery] int? pageIndex, [FromQuery] int? pageSize, [FromQuery] IFiltering[]? filterBy, [FromQuery] ISorting[]? orderBy, TService service)
+    public async Task<Ok<PagedListResult<TEntity>>> GetReferencedPagedList([FromRoute] int referenceId, [FromQuery] int? pageIndex, [FromQuery] int? pageSize, [FromQuery] IFiltering[]? filterBy, [FromQuery] ISorting[]? orderBy, [FromServices]TService service)
     {
         var request = new PagedListRequest<TEntity,int>(referenceId, pageIndex, pageSize, filterBy, orderBy);
         return await GetPagedList(request, service);
@@ -81,7 +81,7 @@ public sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="orderBy"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<Ok<PagedListResult<TEntity>>> GetPagedList([FromQuery] int? pageIndex, [FromQuery] int? pageSize, [FromQuery] IFiltering[]? filterBy, [FromQuery] ISorting[]? orderBy, TService service)
+    public async Task<Ok<PagedListResult<TEntity>>> GetPagedList([FromQuery] int? pageIndex, [FromQuery] int? pageSize, [FromQuery] IFiltering[]? filterBy, [FromQuery] ISorting[]? orderBy, [FromServices]TService service)
     {
         var request = new PagedListRequest<TEntity>(pageIndex, pageSize, filterBy, orderBy);
         return await GetPagedList(request, service);
@@ -93,7 +93,7 @@ public sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="request"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<CreatedAtRoute<int>> Create([FromBody] TRequest request, TService service)
+    public async Task<CreatedAtRoute<int>> Create([FromBody] TRequest request, [FromServices]TService service)
     {
         var createRequest = new CreateRequest<TRequest>(request);
         return await Create(createRequest, service);
@@ -106,7 +106,7 @@ public sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="request"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<CreatedAtRoute<int>> ReferencedCreate([FromRoute] int referenceId, [FromBody] TRequest request, TService service)
+    public async Task<CreatedAtRoute<int>> ReferencedCreate([FromRoute] int referenceId, [FromBody] TRequest request, [FromServices]TService service)
     {
         var createRequest = new CreateRequest<TRequest, int>(referenceId, request);
         return await Create(createRequest, service);
@@ -119,7 +119,7 @@ public sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="request"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<Results<Ok, BadRequest>> Update([FromRoute] int id, [FromBody] TRequest request, TService service)
+    public async Task<Results<Ok, BadRequest>> Update([FromRoute] int id, [FromBody] TRequest request, [FromServices]TService service)
     {
         var updateRequest = new UpdateRequest<TRequest>(id, request);
         return await Update(updateRequest, service);
@@ -133,7 +133,7 @@ public sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="request"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<Results<Ok, BadRequest>> ReferencedUpdate([FromRoute] int referenceId, [FromRoute] int id, [FromBody] TRequest request, TService service)
+    public async Task<Results<Ok, BadRequest>> ReferencedUpdate([FromRoute] int referenceId, [FromRoute] int id, [FromBody] TRequest request,[FromServices] TService service)
     {
         var updateRequest = new UpdateRequest<TRequest, int>(referenceId, id, request);
         return await Update(updateRequest, service);
@@ -145,7 +145,7 @@ public sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="id"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<Results<Ok, BadRequest>> Delete([FromRoute] int id, TService service)
+    public async Task<Results<Ok, BadRequest>> Delete([FromRoute] int id, [FromServices]TService service)
     {
         var request = new ItemRequest(id);
         return await Delete(request, service);
@@ -158,7 +158,7 @@ public sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="id"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<Results<Ok, BadRequest>> ReferencedDelete([FromRoute] int referenceId, [FromRoute] int id, TService service)
+    public async Task<Results<Ok, BadRequest>> ReferencedDelete([FromRoute] int referenceId, [FromRoute] int id, [FromServices] TService service)
     {
         var request = new ItemRequest<int>(referenceId, id);
         return await Delete(request, service);

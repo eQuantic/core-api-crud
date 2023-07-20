@@ -1,18 +1,38 @@
+using eQuantic.Core.Application.Crud.Enums;
 using Humanizer;
 
 namespace eQuantic.Core.Api.Crud.Options;
 
+public interface ICrudOptions
+{
+    CrudEndpointVerbs Verbs { get; }
+    EndpointOptions Create { get; }
+    EndpointOptions Update { get; }
+    EndpointOptions Get { get; }
+    EndpointOptions List { get; }
+    EndpointOptions Delete { get; }
+    
+    ICrudOptions WithVerbs(CrudEndpointVerbs verbs);
+    ICrudOptions WithReference(Type referenceType);
+    ICrudOptions WithReference<TReferenceEntity>();
+}
 /// <summary>
 /// CRUD options
 /// </summary>
-public class CrudOptions<TEntity>
+public class CrudOptions<TEntity> : ICrudOptions
 {
+    public ICrudOptions WithVerbs(CrudEndpointVerbs verbs)
+    {
+        Verbs = verbs;
+        return this;
+    }
+    
     /// <summary>
     /// Options with referenced entity
     /// </summary>
     /// <param name="referenceType"></param>
     /// <returns></returns>
-    public CrudOptions<TEntity> WithReference(Type referenceType)
+    public ICrudOptions WithReference(Type referenceType)
     {
         Get.WithReference(referenceType);
         List.WithReference(referenceType);
@@ -27,7 +47,7 @@ public class CrudOptions<TEntity>
     /// </summary>
     /// <typeparam name="TReferenceEntity"></typeparam>
     /// <returns></returns>
-    public CrudOptions<TEntity> WithReference<TReferenceEntity>()
+    public ICrudOptions WithReference<TReferenceEntity>()
     {
         Get.WithReference<TReferenceEntity>();
         List.WithReference<TReferenceEntity>();
@@ -36,6 +56,8 @@ public class CrudOptions<TEntity>
         Delete.WithReference<TReferenceEntity>();
         return this;
     }
+
+    public CrudEndpointVerbs Verbs { get; private set; } = CrudEndpointVerbs.All;
 
     /// <summary>
     /// The create endpoint options

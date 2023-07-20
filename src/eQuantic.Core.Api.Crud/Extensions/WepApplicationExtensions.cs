@@ -2,6 +2,8 @@ using System.Reflection;
 using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Api.Crud.Handlers;
 using eQuantic.Core.Api.Crud.Options;
+using eQuantic.Core.Application.Crud.Attributes;
+using eQuantic.Core.Application.Crud.Enums;
 using eQuantic.Core.Application.Entities.Results;
 using Humanizer;
 using Microsoft.AspNetCore.Builder;
@@ -27,9 +29,14 @@ public static class WepApplicationExtensions
         var extensionType = typeof(WepApplicationExtensions);
         
         var types = assembly.GetTypes()
-            .Where(o => o is { IsAbstract: false, IsInterface: false } && o.GetInterfaces().Any(i => i == typeof(ICrudServiceBase)));
+            .Where(o => 
+                o is { IsAbstract: false, IsInterface: false } && 
+                o.GetInterfaces().Any(i => i == typeof(ICrudServiceBase)) &&
+                o.GetCustomAttribute<MapCrudEndpointsAttribute>() != null);
+        
         foreach (var type in types)
         {
+            var crudEndpoints = type.GetCustomAttribute<MapCrudEndpointsAttribute>()!;
             var interfaces = type.GetInterfaces();
             var serviceType = interfaces.FirstOrDefault(o => o.Name == $"I{type.Name}");
 
@@ -49,7 +56,13 @@ public static class WepApplicationExtensions
             var requestType = crudInterface.GenericTypeArguments[1];
 
             var method = extensionType.GetMethod(nameof(MapCrud))?.MakeGenericMethod(entityType, requestType, serviceType);
-            method?.Invoke(null, new object?[]{ app, null });
+            method?.Invoke(null, new object?[]{ app, (Action<ICrudOptions>?)(opt =>
+            {
+                opt.WithVerbs(crudEndpoints.EndpointVerbs);
+
+                if (crudEndpoints.ReferenceType != null)
+                    opt.WithReference(crudEndpoints.ReferenceType);
+            }) });
         }
         return app;
     }
@@ -71,13 +84,21 @@ public static class WepApplicationExtensions
         var crudOptions = new CrudOptions<TEntity>();
         options?.Invoke(crudOptions);
 
-        app
-            .MapGetById<TEntity, TRequest, TService>(crudOptions)
-            .MapGetPagedList<TEntity, TRequest, TService>(crudOptions)
-            .MapCreate<TEntity, TRequest, TService>(crudOptions)
-            .MapUpdate<TEntity, TRequest, TService>(crudOptions)
-            .MapDelete<TEntity, TRequest, TService>(crudOptions);
+        if (crudOptions.Verbs is CrudEndpointVerbs.OnlyGetters or CrudEndpointVerbs.All)
+        {
+            app
+                .MapGetById<TEntity, TRequest, TService>(crudOptions)
+                .MapGetPagedList<TEntity, TRequest, TService>(crudOptions);
+        }
 
+        if (crudOptions.Verbs is CrudEndpointVerbs.OnlyWriters or CrudEndpointVerbs.All)
+        {
+            app
+                .MapCreate<TEntity, TRequest, TService>(crudOptions)
+                .MapUpdate<TEntity, TRequest, TService>(crudOptions)
+                .MapDelete<TEntity, TRequest, TService>(crudOptions);
+        }
+        
         return app;
     }
     

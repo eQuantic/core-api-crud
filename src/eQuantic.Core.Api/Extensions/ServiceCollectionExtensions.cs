@@ -24,17 +24,14 @@ public static class ServiceCollectionExtensions
     {
         var docOptions = new DocumentationOptions();
         options?.Invoke(docOptions);
-
-        var assembly = docOptions.Assembly ?? Assembly.GetEntryAssembly();
-        var name = assembly?.GetName().Name;
         
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = docOptions.Title, Version = "v1" });
             c.DescribeAllParametersInCamelCase();
             
-            if(!string.IsNullOrEmpty(name))
-                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{name}.xml"));
+            if(!string.IsNullOrEmpty(docOptions.XmlCommentsFile))
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, docOptions.XmlCommentsFile));
             
             c.EnableAnnotations();
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
