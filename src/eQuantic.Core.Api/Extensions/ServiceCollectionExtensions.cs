@@ -18,20 +18,24 @@ public static class ServiceCollectionExtensions
     /// Adds the api documentation using the specified registry
     /// </summary>
     /// <param name="services">The service collection</param>
+    /// <param name="options">The documentation options</param>
     /// <returns>The registry</returns>
     public static IServiceCollection AddApiDocumentation(this IServiceCollection services, Action<DocumentationOptions>? options = null)
     {
         var docOptions = new DocumentationOptions();
         options?.Invoke(docOptions);
-        
-        var assembly = Assembly.GetExecutingAssembly();
-        var name = assembly.GetName().Name;
+
+        var assembly = docOptions.Assembly ?? Assembly.GetEntryAssembly();
+        var name = assembly?.GetName().Name;
         
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = docOptions.Title, Version = "v1" });
             c.DescribeAllParametersInCamelCase();
-            c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{name}.xml"));
+            
+            if(!string.IsNullOrEmpty(name))
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{name}.xml"));
+            
             c.EnableAnnotations();
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
