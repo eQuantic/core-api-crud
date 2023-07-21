@@ -4,7 +4,7 @@
         <Description>eQuantic Application Library</Description>
         <Copyright>2023</Copyright>
         <AssemblyTitle>eQuantic.Core.Application</AssemblyTitle>
-        <Version>1.0.4.0</Version>
+        <Version>1.0.5.0</Version>
         <Authors>eQuantic Systems</Authors>
         <TargetFrameworks>netstandard2.1;net7.0</TargetFrameworks>
         <PackageId>eQuantic.Core.Application</PackageId>
@@ -22,8 +22,8 @@
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <RepositoryUrl>https://github.com/eQuantic/core-api-crud</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
-        <AssemblyVersion>1.0.4.0</AssemblyVersion>
-        <FileVersion>1.0.4.0</FileVersion>
+        <AssemblyVersion>1.0.5.0</AssemblyVersion>
+        <FileVersion>1.0.5.0</FileVersion>
         <PackageIcon>Icon.png</PackageIcon>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>

@@ -35,16 +35,10 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
         {
             return null;
         }
+        
+        var result = OnMapEntity(item);
 
-        var mapper = _mapperFactory.GetMapper<TDataEntity, TEntity>();
-        if (mapper == null)
-        {
-            return null;
-        }
-
-        var result = mapper.Map(item);
-
-        await OnBeforeGetByIdAsync(item, result);
+        await OnBeforeGetByIdAsync(item, result, cancellationToken);
         return result;
     }
 
@@ -72,31 +66,28 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
                         .WithProperties(OnGetProperties());
                 }, cancellationToken))
             .ToList();
-        var mapper = _mapperFactory.GetMapper<TDataEntity, TEntity>();
+        
+        var list = pagedList
+            .Select(dataEntity => OnMapEntity(dataEntity)!)
+            .Where(item => item != null)
+            .ToList();
 
-        if (mapper == null)
-        {
-            return null;
-        }
-
-        var list = pagedList.Select(o => mapper.Map(o)!).ToList();
-
-        await OnBeforeGetPagedListAsync(pagedList, list);
+        await OnBeforeGetPagedListAsync(pagedList, list, cancellationToken);
 
         return new PagedList<TEntity>(list, count) { PageIndex = request.PageIndex, PageSize = request.PageSize };
     }
-
+    
     public async Task<int> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
     {
-        var mapper = _mapperFactory.GetMapper<TRequest, TDataEntity>();
-        var item = mapper?.Map(request.Body);
+        var item = OnMapRequest(request.Body);
         if (item == null)
         {
             return default;
         }
 
-        if (request is IReferencedRequest<int> referencedRequest &&
-            item is IWithReferenceId<TDataEntity, int> referencedItem)
+        await OnAfterCreateAsync(item, cancellationToken);
+        
+        if (request is IReferencedRequest<int> referencedRequest && item is IWithReferenceId<TDataEntity, int> referencedItem)
         {
             referencedItem.SetReferenceId(referencedRequest.ReferenceId);
         }
@@ -108,7 +99,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
 
         await _repository.AddAsync(item);
         await _repository.UnitOfWork.CommitAsync();
-
+        await OnBeforeCreateAsync(item, cancellationToken);
+        
         return item.Id;
     }
 
@@ -120,8 +112,9 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
             return false;
         }
 
-        var mapper = _mapperFactory.GetMapper<TRequest, TDataEntity>();
-        mapper?.Map(request.Body, item);
+        await OnAfterUpdateAsync(item, cancellationToken);
+        
+        OnMapRequest(request.Body, item);
 
         if (item is IEntityTrack<TUser> itemWithTrack)
         {
@@ -130,7 +123,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
 
         await _repository.ModifyAsync(item);
         await _repository.UnitOfWork.CommitAsync();
-
+        await OnBeforeUpdateAsync(item, cancellationToken);
+        
         return true;
     }
 
@@ -140,6 +134,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
         if (item == null)
             return false;
 
+        await OnAfterDeleteAsync(item, cancellationToken);
+        
         if (item is IEntityHistory<TUser> itemWithHistory)
         {
             itemWithHistory.DeletedAt = DateTime.UtcNow;
@@ -151,7 +147,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
         }
 
         await _repository.UnitOfWork.CommitAsync();
-
+        await OnBeforeDeleteAsync(item, cancellationToken);
+        
         return true;
     }
 
@@ -159,14 +156,56 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
     {
         return Array.Empty<string>();
     }
+    
+    protected virtual TEntity? OnMapEntity(TDataEntity dataEntity)
+    {
+        var mapper = _mapperFactory.GetMapper<TDataEntity, TEntity>();
+        return mapper?.Map(dataEntity);
+    }
 
-    protected virtual Task OnBeforeGetByIdAsync(TDataEntity? dataEntity, TEntity? entity)
+    protected virtual TDataEntity? OnMapRequest(TRequest? request, TDataEntity? dataEntity = null)
+    {
+        var mapper = _mapperFactory.GetMapper<TRequest, TDataEntity>();
+        return mapper?.Map(request, dataEntity);
+    }
+    
+    protected virtual Task OnBeforeGetByIdAsync(TDataEntity? dataEntity, TEntity? entity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
 
     protected virtual Task OnBeforeGetPagedListAsync(IEnumerable<TDataEntity> dataEntityList,
-        IEnumerable<TEntity> entityList)
+        IEnumerable<TEntity> entityList, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+    
+    protected virtual Task OnAfterCreateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+    
+    protected virtual Task OnBeforeCreateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+    
+    protected virtual Task OnAfterUpdateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+    
+    protected virtual Task OnBeforeUpdateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+    
+    protected virtual Task OnAfterDeleteAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+    
+    protected virtual Task OnBeforeDeleteAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
