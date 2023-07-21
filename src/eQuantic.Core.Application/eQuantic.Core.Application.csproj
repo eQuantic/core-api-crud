@@ -4,7 +4,7 @@
         <Description>eQuantic Application Library</Description>
         <Copyright>2023</Copyright>
         <AssemblyTitle>eQuantic.Core.Application</AssemblyTitle>
-        <Version>1.0.5.0</Version>
+        <Version>1.0.6.0</Version>
         <Authors>eQuantic Systems</Authors>
         <TargetFrameworks>netstandard2.1;net7.0</TargetFrameworks>
         <PackageId>eQuantic.Core.Application</PackageId>
@@ -22,8 +22,8 @@
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <RepositoryUrl>https://github.com/eQuantic/core-api-crud</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
-        <AssemblyVersion>1.0.5.0</AssemblyVersion>
-        <FileVersion>1.0.5.0</FileVersion>
+        <AssemblyVersion>1.0.6.0</AssemblyVersion>
+        <FileVersion>1.0.6.0</FileVersion>
         <PackageIcon>Icon.png</PackageIcon>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -49,5 +49,20 @@
         <None Include="Icon_dialog.png" Pack="true" PackagePath="Icon_dialog.png" />
         <None Include="Icon_list.png" Pack="true" PackagePath="Icon_list.png" />
         <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <EmbeddedResource Update="Resources\ApplicationResource.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>ApplicationResource.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Update="Resources\ApplicationResource.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>ApplicationResource.resx</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>

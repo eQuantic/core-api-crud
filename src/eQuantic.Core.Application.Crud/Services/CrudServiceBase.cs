@@ -15,18 +15,20 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
     where TEntity : class, new()
     where TDataEntity : EntityDataBase, new()
 {
-    private readonly IMapperFactory _mapperFactory;
-    private readonly IAsyncQueryableRepository<ISqlUnitOfWork, TDataEntity, int> _repository;
+    protected IDefaultUnitOfWork UnitOfWork { get; }
+    protected IMapperFactory MapperFactory { get; }
+    protected IAsyncQueryableRepository<ISqlUnitOfWork, TDataEntity, int> Repository { get; }
 
     protected CrudServiceBase(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory)
     {
-        _mapperFactory = mapperFactory;
-        _repository = unitOfWork.GetAsyncQueryableRepository<TDataEntity, int>();
+        UnitOfWork = unitOfWork;
+        MapperFactory = mapperFactory;
+        Repository = unitOfWork.GetAsyncQueryableRepository<TDataEntity, int>();
     }
 
     public async Task<TEntity?> GetByIdAsync(ItemRequest request, CancellationToken cancellationToken = default)
     {
-        var item = await _repository.GetAsync(request.Id, opt =>
+        var item = await Repository.GetAsync(request.Id, opt =>
         {
             opt.WithProperties(OnGetProperties());
         }, cancellationToken);
@@ -34,6 +36,14 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
         if (item == null)
         {
             return null;
+        }
+        
+        if (request is IReferencedRequest<int> referencedRequest && item is IWithReferenceId<TDataEntity, int> referencedItem)
+        {
+            if (referencedItem.GetReferenceId() != referencedRequest.ReferenceId)
+            {
+                
+            }
         }
         
         var result = OnMapEntity(item);
@@ -57,8 +67,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
             ? new EntityFilterSpecification<TDataEntity>(filtering.ToArray())
             : new TrueSpecification<TDataEntity>();
 
-        var count = await _repository.CountAsync(specification, cancellationToken);
-        var pagedList = (await _repository.GetPagedAsync(specification, request.PageIndex, request.PageSize,
+        var count = await Repository.CountAsync(specification, cancellationToken);
+        var pagedList = (await Repository.GetPagedAsync(specification, request.PageIndex, request.PageSize,
                 config =>
                 {
                     config
@@ -97,8 +107,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
             itemWithOwner.CreatedAt = DateTime.UtcNow;
         }
 
-        await _repository.AddAsync(item);
-        await _repository.UnitOfWork.CommitAsync();
+        await Repository.AddAsync(item);
+        await Repository.UnitOfWork.CommitAsync();
         await OnBeforeCreateAsync(item, cancellationToken);
         
         return item.Id;
@@ -121,8 +131,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
             itemWithTrack.UpdatedAt = DateTime.UtcNow;
         }
 
-        await _repository.ModifyAsync(item);
-        await _repository.UnitOfWork.CommitAsync();
+        await Repository.ModifyAsync(item);
+        await Repository.UnitOfWork.CommitAsync();
         await OnBeforeUpdateAsync(item, cancellationToken);
         
         return true;
@@ -139,14 +149,14 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
         if (item is IEntityHistory<TUser> itemWithHistory)
         {
             itemWithHistory.DeletedAt = DateTime.UtcNow;
-            await _repository.ModifyAsync(item);
+            await Repository.ModifyAsync(item);
         }
         else
         {
-            await _repository.RemoveAsync(item);
+            await Repository.RemoveAsync(item);
         }
 
-        await _repository.UnitOfWork.CommitAsync();
+        await Repository.UnitOfWork.CommitAsync();
         await OnBeforeDeleteAsync(item, cancellationToken);
         
         return true;
@@ -159,13 +169,13 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
     
     protected virtual TEntity? OnMapEntity(TDataEntity dataEntity)
     {
-        var mapper = _mapperFactory.GetMapper<TDataEntity, TEntity>();
+        var mapper = MapperFactory.GetMapper<TDataEntity, TEntity>();
         return mapper?.Map(dataEntity);
     }
 
     protected virtual TDataEntity? OnMapRequest(TRequest? request, TDataEntity? dataEntity = null)
     {
-        var mapper = _mapperFactory.GetMapper<TRequest, TDataEntity>();
+        var mapper = MapperFactory.GetMapper<TRequest, TDataEntity>();
         return mapper?.Map(request, dataEntity);
     }
     
@@ -220,7 +230,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
                             new EntityFilterSpecification<TDataEntity>(new IFiltering[] { filterByRef });
         }
 
-        return await _repository.GetFirstAsync(specification, opt => { }, cancellationToken);
+        return await Repository.GetFirstAsync(specification, opt => { }, cancellationToken);
     }
 
     private static IFiltering<TDataEntity>? GetReferenceFiltering<TAnyRequest>(TAnyRequest request)

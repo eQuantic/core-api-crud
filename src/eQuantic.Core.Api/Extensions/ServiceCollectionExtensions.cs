@@ -1,4 +1,5 @@
 using System.Reflection;
+using eQuantic.Core.Api.Middlewares;
 using eQuantic.Core.Api.Options;
 using eQuantic.Core.Api.Resources;
 using eQuantic.Core.Api.Swagger;
@@ -15,7 +16,7 @@ namespace eQuantic.Core.Api.Extensions;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds the api documentation using the specified registry
+    /// Add the api documentation
     /// </summary>
     /// <param name="services">The service collection</param>
     /// <param name="options">The documentation options</param>
@@ -72,6 +73,22 @@ public static class ServiceCollectionExtensions
             c.SchemaFilter<ExpressionSchemaFilter<IFiltering[]>>();
             c.SchemaFilter<ExpressionSchemaFilter<ISorting[]>>();
         });
+        return services;
+    }
+
+    /// <summary>
+    /// Add exception filter
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddExceptionFilter(this IServiceCollection services, Action<ExceptionFilterOptions>? options = null)
+    {
+        var filterOptions = new ExceptionFilterOptions();
+        options?.Invoke(filterOptions);
+
+        services.AddSingleton(filterOptions);
+        services.AddTransient<ExceptionMiddleware>();
         return services;
     }
 }
