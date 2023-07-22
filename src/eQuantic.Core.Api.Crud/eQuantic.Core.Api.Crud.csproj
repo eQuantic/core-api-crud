@@ -3,15 +3,23 @@
     <PropertyGroup>
         <Description>eQuantic API CRUD Library</Description>
         <Copyright>2023</Copyright>
-        <AssemblyTitle>eQuantic.Core.Api.Crud</AssemblyTitle>
-        <Version>1.0.6.0</Version>
         <Authors>eQuantic Systems</Authors>
+        <RootNamespace>eQuantic.Core.Api.Crud</RootNamespace>
+        <AssemblyTitle>eQuantic.Core.Api.Crud</AssemblyTitle>
+        <AssemblyVersion>1.0.7.0</AssemblyVersion>
+        <FileVersion>1.0.7.0</FileVersion>
+        <Version>1.0.7.0</Version>
         <TargetFramework>net7.0</TargetFramework>
+        
         <PackageId>eQuantic.Core.Api.Crud</PackageId>
         <PackageTags>eQuantic;Core;API;CRUD;Library</PackageTags>
         <PackageReleaseNotes>Generic CRUD endpoints for Entities</PackageReleaseNotes>
         <PackageProjectUrl>https://github.com/eQuantic/core-api-crud</PackageProjectUrl>
         <PackageOutputPath>../artifacts/</PackageOutputPath>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>Icon.png</PackageIcon>
+        
         <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
         <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
         <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -19,16 +27,12 @@
         <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
         <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        
         <RepositoryUrl>https://github.com/eQuantic/core-api-crud</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
-        <AssemblyVersion>1.0.6.0</AssemblyVersion>
-        <FileVersion>1.0.6.0</FileVersion>
-        <PackageIcon>Icon.png</PackageIcon>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>eQuantic.Core.Api.Crud</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -41,6 +45,7 @@
         <None Include="Icon_dialog.png" Pack="true" PackagePath="Icon_dialog.png" />
         <None Include="Icon_list.png" Pack="true" PackagePath="Icon_list.png" />
         <None Include="../../LICENSE" Pack="true" PackagePath="" />
+        <None Include="../../README.md" Pack="true" PackagePath=""/>
     </ItemGroup>
 
     <ItemGroup>

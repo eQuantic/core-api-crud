@@ -3,15 +3,23 @@
     <PropertyGroup>
         <Description>eQuantic API Library</Description>
         <Copyright>2023</Copyright>
-        <AssemblyTitle>eQuantic.Core.Api</AssemblyTitle>
-        <Version>1.0.6.0</Version>
         <Authors>eQuantic Systems</Authors>
+        <RootNamespace>eQuantic.Core.Api</RootNamespace>
+        <AssemblyTitle>eQuantic.Core.Api</AssemblyTitle>
+        <AssemblyVersion>1.0.7.0</AssemblyVersion>
+        <FileVersion>1.0.7.0</FileVersion>
+        <Version>1.0.7.0</Version>
         <TargetFramework>net7.0</TargetFramework>
+
         <PackageId>eQuantic.Core.Api</PackageId>
         <PackageTags>eQuantic;Core;API;Library</PackageTags>
         <PackageReleaseNotes>Common API implementations</PackageReleaseNotes>
         <PackageProjectUrl>https://github.com/eQuantic/core-api-crud</PackageProjectUrl>
         <PackageOutputPath>../artifacts/</PackageOutputPath>
+        <PackageIcon>Icon.png</PackageIcon>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        
         <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
         <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
         <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -19,48 +27,45 @@
         <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
         <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+
         <RepositoryUrl>https://github.com/eQuantic/core-api-crud</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
-        <AssemblyVersion>1.0.6.0</AssemblyVersion>
-        <FileVersion>1.0.6.0</FileVersion>
-        <PackageIcon>Icon.png</PackageIcon>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>eQuantic.Core.Api</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="eQuantic.Core.Mvc" Version="2.0.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
+        <ProjectReference Include="..\eQuantic.Core.Application\eQuantic.Core.Application.csproj"/>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="eQuantic.Core.Mvc" Version="2.0.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="Icon.png" Pack="true" PackagePath="Icon.png" />
-        <None Include="Icon_details.png" Pack="true" PackagePath="Icon_details.png" />
-        <None Include="Icon_dialog.png" Pack="true" PackagePath="Icon_dialog.png" />
-        <None Include="Icon_list.png" Pack="true" PackagePath="Icon_list.png" />
-        <None Include="../../LICENSE" Pack="true" PackagePath="" />
+        <None Include="Icon.png" Pack="true" PackagePath="Icon.png"/>
+        <None Include="Icon_details.png" Pack="true" PackagePath="Icon_details.png"/>
+        <None Include="Icon_dialog.png" Pack="true" PackagePath="Icon_dialog.png"/>
+        <None Include="Icon_list.png" Pack="true" PackagePath="Icon_list.png"/>
+        <None Include="../../LICENSE" Pack="true" PackagePath=""/>
+        <None Include="../../README.md" Pack="true" PackagePath=""/>
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Update="Resources\ApiResource.resx">
-        <Generator>ResXFileCodeGenerator</Generator>
-        <LastGenOutput>ApiResource.Designer.cs</LastGenOutput>
-      </EmbeddedResource>
+        <EmbeddedResource Update="Resources\ApiResource.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>ApiResource.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Resources\ApiResource.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>ApiResource.resx</DependentUpon>
-      </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\eQuantic.Core.Application\eQuantic.Core.Application.csproj" />
+        <Compile Update="Resources\ApiResource.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ApiResource.resx</DependentUpon>
+        </Compile>
     </ItemGroup>
 </Project>

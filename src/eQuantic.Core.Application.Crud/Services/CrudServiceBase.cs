@@ -1,5 +1,6 @@
 using eQuantic.Core.Application.Crud.Entities.Requests;
 using eQuantic.Core.Application.Entities.Data;
+using eQuantic.Core.Application.Exceptions;
 using eQuantic.Core.Collections;
 using eQuantic.Core.Data.Repository;
 using eQuantic.Core.Data.Repository.Sql;
@@ -35,14 +36,14 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
 
         if (item == null)
         {
-            return null;
+            throw new EntityNotFoundException<int>(request.Id);
         }
         
         if (request is IReferencedRequest<int> referencedRequest && item is IWithReferenceId<TDataEntity, int> referencedItem)
         {
             if (referencedItem.GetReferenceId() != referencedRequest.ReferenceId)
             {
-                
+                throw new InvalidReferenceException<int>(referencedRequest.ReferenceId);
             }
         }
         
@@ -119,7 +120,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
         var item = await GetItem(request, cancellationToken);
         if (item == null)
         {
-            return false;
+            throw new EntityNotFoundException<int>(request.Id);
         }
 
         await OnAfterUpdateAsync(item, cancellationToken);
@@ -142,7 +143,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : I
     {
         var item = await GetItem(request, cancellationToken);
         if (item == null)
-            return false;
+            throw new EntityNotFoundException<int>(request.Id);
 
         await OnAfterDeleteAsync(item, cancellationToken);
         
