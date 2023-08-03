@@ -13,13 +13,13 @@ namespace eQuantic.Core.Api.Crud.Controllers;
 /// <typeparam name="TRequest"></typeparam>
 public abstract class CrudControllerBase<TEntity, TRequest> : ControllerBase, ICrudController<TEntity, TRequest> where TEntity : class, new()
 {
-    private readonly ICrudServiceBase<TEntity, TRequest> _service;
+    private readonly ICrudService<TEntity, TRequest> _service;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CrudControllerBase{TEntity, TRequest}"/> class
     /// </summary>
     /// <param name="service"></param>
-    protected CrudControllerBase(ICrudServiceBase<TEntity, TRequest> service)
+    protected CrudControllerBase(ICrudService<TEntity, TRequest> service)
     {
         _service = service;
     }

@@ -20,16 +20,20 @@ public static class WepApplicationExtensions
     /// Map all CRUD endpoints
     /// </summary>
     /// <param name="app"></param>
-    /// <param name="assembly"></param>
+    /// <param name="options">Map all CRUD options</param>
     /// <returns></returns>
-    public static WebApplication MapAllCrud(this WebApplication app, Assembly assembly)
+    public static WebApplication MapAllCrud(this WebApplication app, Action<AllCrudOptions>? options = null)
     {
+        var allCrudOptions = new AllCrudOptions();
+        options?.Invoke(allCrudOptions);
+        
         var extensionType = typeof(WepApplicationExtensions);
 
+        var assembly = allCrudOptions.GetAssembly() ?? Assembly.GetExecutingAssembly();
         var types = assembly.GetTypes()
             .Where(o =>
                 o is { IsAbstract: false, IsInterface: false } &&
-                o.GetInterfaces().Any(i => i == typeof(ICrudServiceBase)) &&
+                o.GetInterfaces().Any(i => i == typeof(ICrudService)) &&
                 o.GetCustomAttribute<MapCrudEndpointsAttribute>() != null);
 
         foreach (var type in types)
@@ -45,7 +49,7 @@ public static class WepApplicationExtensions
 
             var crudInterface = interfaces
                 .FirstOrDefault(o =>
-                    o.GenericTypeArguments.Length > 0 && o.GetGenericTypeDefinition() == typeof(ICrudServiceBase<,>));
+                    o.GenericTypeArguments.Length > 0 && o.GetGenericTypeDefinition() == typeof(ICrudService<,>));
 
             if (crudInterface == null)
             {
@@ -54,7 +58,9 @@ public static class WepApplicationExtensions
 
             var entityType = crudInterface.GenericTypeArguments[0];
             var requestType = crudInterface.GenericTypeArguments[1];
-
+            var crudOptions = allCrudOptions.GetOptions().ContainsKey(entityType)
+                ? allCrudOptions.GetOptions()[entityType]
+                : null;
             var method = extensionType.GetMethod(nameof(MapCrud))
                 ?.MakeGenericMethod(entityType, requestType, serviceType);
             method?.Invoke(null, new object?[]
@@ -65,10 +71,41 @@ public static class WepApplicationExtensions
 
                     if (crudEndpoints.ReferenceType != null)
                         opt.WithReference(crudEndpoints.ReferenceType);
+
+                    crudOptions?.Invoke(opt);
                 })
             });
         }
 
+        return app;
+    }
+    
+    /// <summary>
+    /// Map Readers endpoints
+    /// </summary>
+    /// <param name="app">The web application</param>
+    /// <param name="options">The options</param>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TService"></typeparam>
+    /// <returns></returns>
+    public static WebApplication MapReaders<TEntity, TService>(this WebApplication app,
+        Action<CrudOptions<TEntity>>? options = null)
+        where TEntity : class, new()
+        where TService : IReaderService<TEntity>
+    {
+        var crudOptions = new CrudOptions<TEntity>();
+        options?.Invoke(crudOptions);
+
+        if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyGetById) == CrudEndpointVerbs.OnlyGetById)
+        {
+            app.MapGetById<TEntity, TService>(crudOptions);
+        }
+
+        if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyGetPaged) == CrudEndpointVerbs.OnlyGetPaged)
+        {
+            app.MapGetPagedList<TEntity, TService>(crudOptions);
+        }
+        
         return app;
     }
 
@@ -84,20 +121,12 @@ public static class WepApplicationExtensions
     public static WebApplication MapCrud<TEntity, TRequest, TService>(this WebApplication app,
         Action<CrudOptions<TEntity>>? options = null)
         where TEntity : class, new()
-        where TService : ICrudServiceBase<TEntity, TRequest>
+        where TService : ICrudService<TEntity, TRequest>
     {
         var crudOptions = new CrudOptions<TEntity>();
         options?.Invoke(crudOptions);
 
-        if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyGetById) == CrudEndpointVerbs.OnlyGetById)
-        {
-            app.MapGetById<TEntity, TRequest, TService>(crudOptions);
-        }
-
-        if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyGetPaged) == CrudEndpointVerbs.OnlyGetPaged)
-        {
-            app.MapGetPagedList<TEntity, TRequest, TService>(crudOptions);
-        }
+        app.MapReaders<TEntity, TService>(options);
 
         if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyCreate) == CrudEndpointVerbs.OnlyCreate)
         {
@@ -132,13 +161,13 @@ public static class WepApplicationExtensions
         return pattern;
     }
 
-    private static WebApplication MapGetById<TEntity, TRequest, TService>(this WebApplication app,
+    private static WebApplication MapGetById<TEntity, TService>(this WebApplication app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
-        where TService : ICrudServiceBase<TEntity, TRequest>
+        where TService : IReaderService<TEntity>
     {
         var pattern = GetPattern<TEntity>(true, options.Get.ReferenceType);
-        var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService>(options);
+        var handlers = new ReaderEndpointHandlers<TEntity, TService>(options);
         Delegate handler = options.Get.ReferenceType != null
             ? handlers.GetReferencedById
             : handlers.GetById;
@@ -151,13 +180,13 @@ public static class WepApplicationExtensions
         return app;
     }
 
-    private static WebApplication MapGetPagedList<TEntity, TRequest, TService>(this WebApplication app,
+    private static WebApplication MapGetPagedList<TEntity, TService>(this WebApplication app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
-        where TService : ICrudServiceBase<TEntity, TRequest>
+        where TService : IReaderService<TEntity>
     {
         var pattern = GetPattern<TEntity>(false, options.List.ReferenceType);
-        var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService>(options);
+        var handlers = new ReaderEndpointHandlers<TEntity, TService>(options);
         Delegate handler = options.List.ReferenceType != null
             ? handlers.GetReferencedPagedList
             : handlers.GetPagedList;
@@ -172,7 +201,7 @@ public static class WepApplicationExtensions
     private static WebApplication MapCreate<TEntity, TRequest, TService>(this WebApplication app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
-        where TService : ICrudServiceBase<TEntity, TRequest>
+        where TService : ICrudService<TEntity, TRequest>
     {
         var pattern = GetPattern<TEntity>(false, options.Create.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService>(options);
@@ -189,7 +218,7 @@ public static class WepApplicationExtensions
     private static WebApplication MapUpdate<TEntity, TRequest, TService>(this WebApplication app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
-        where TService : ICrudServiceBase<TEntity, TRequest>
+        where TService : ICrudService<TEntity, TRequest>
     {
         var pattern = GetPattern<TEntity>(true, options.Update.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService>(options);
@@ -207,7 +236,7 @@ public static class WepApplicationExtensions
     private static WebApplication MapDelete<TEntity, TRequest, TService>(this WebApplication app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
-        where TService : ICrudServiceBase<TEntity, TRequest>
+        where TService : ICrudService<TEntity, TRequest>
     {
         var pattern = GetPattern<TEntity>(true, options.Delete.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService>(options);

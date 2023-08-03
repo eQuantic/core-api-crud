@@ -118,7 +118,7 @@ public class OrderMapper : IMapper<OrderData, Order>, IMapper<OrderRequest, Orde
 ```
 ### The services
 ```csharp
-public interface IOrderService : ICrudServiceBase<Order, OrderRequest>
+public interface IOrderService : ICrudService<Order, OrderRequest>
 {
     
 }
@@ -182,6 +182,6 @@ or
 
 ```csharp
 ...
-app.MapAllCrud(assembly);
+app.MapAllCrud(opt => opt.FromAssembly(assembly));
 app.Run();
 ```

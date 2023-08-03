@@ -6,7 +6,7 @@ using eQuantic.Mapper;
 
 namespace eQuantic.Core.Api.Sample.Services;
 
-public interface IChildExampleService : ICrudServiceBase<ChildExample, ChildExampleRequest> {}
+public interface IChildExampleService : ICrudService<ChildExample, ChildExampleRequest> {}
 
 [MapCrudEndpoints(ReferenceType = typeof(Example))]
 public class ChildExampleService : CrudServiceBase<ChildExample, ChildExampleRequest, ChildExampleData, UserData>, IChildExampleService

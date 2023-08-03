@@ -6,9 +6,9 @@
         <Authors>eQuantic Systems</Authors>
         <RootNamespace>eQuantic.Core.Api.Crud</RootNamespace>
         <AssemblyTitle>eQuantic.Core.Api.Crud</AssemblyTitle>
-        <AssemblyVersion>1.0.8.0</AssemblyVersion>
-        <FileVersion>1.0.8.0</FileVersion>
-        <Version>1.0.8.0</Version>
+        <AssemblyVersion>1.0.9.0</AssemblyVersion>
+        <FileVersion>1.0.9.0</FileVersion>
+        <Version>1.0.9.0</Version>
         <TargetFramework>net7.0</TargetFramework>
         
         <PackageId>eQuantic.Core.Api.Crud</PackageId>
@@ -45,7 +45,7 @@
         <None Include="Icon_dialog.png" Pack="true" PackagePath="Icon_dialog.png" />
         <None Include="Icon_list.png" Pack="true" PackagePath="Icon_list.png" />
         <None Include="../../LICENSE" Pack="true" PackagePath="" />
-        <None Include="../../README.md" Pack="true" PackagePath=""/>
+        <None Include="../../README.md" Pack="true" PackagePath="" />
     </ItemGroup>
 
     <ItemGroup>

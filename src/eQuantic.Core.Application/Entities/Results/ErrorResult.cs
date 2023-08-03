@@ -2,7 +2,7 @@ namespace eQuantic.Core.Application.Entities.Results;
 
 public class ErrorResult
 {
-    public string Message { get; set; }
+    public string? Message { get; set; }
     public string? Details { get; set; }
     
     public ErrorResult()

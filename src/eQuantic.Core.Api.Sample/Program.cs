@@ -45,6 +45,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 app.MapControllers();
-app.MapAllCrud(assembly);
+app.MapAllCrud(opt => opt.FromAssembly(assembly));
 
 app.Run();
