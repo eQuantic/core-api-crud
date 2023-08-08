@@ -33,7 +33,8 @@ public static class WepApplicationExtensions
         var types = assembly.GetTypes()
             .Where(o =>
                 o is { IsAbstract: false, IsInterface: false } &&
-                o.GetInterfaces().Any(i => i == typeof(ICrudService)) &&
+                o.GetInterfaces()
+                    .Any(i => i == typeof(IReaderService)) &&
                 o.GetCustomAttribute<MapCrudEndpointsAttribute>() != null);
 
         foreach (var type in types)
@@ -47,39 +48,27 @@ public static class WepApplicationExtensions
                 continue;
             }
 
-            var crudInterface = interfaces
-                .FirstOrDefault(o =>
-                    o.GenericTypeArguments.Length > 0 && o.GetGenericTypeDefinition() == typeof(ICrudService<,>));
+            var crudInterface = GetCrudServiceInterface(interfaces);
 
             if (crudInterface == null)
             {
+                var readerInterface = GetReaderServiceInterface(interfaces);
+
+                if (readerInterface == null)
+                {
+                    continue;
+                }
+                
+                InvokeMapReaders(app, readerInterface, allCrudOptions, extensionType, serviceType, crudEndpoints);
                 continue;
             }
 
-            var entityType = crudInterface.GenericTypeArguments[0];
-            var requestType = crudInterface.GenericTypeArguments[1];
-            var crudOptions = allCrudOptions.GetOptions().ContainsKey(entityType)
-                ? allCrudOptions.GetOptions()[entityType]
-                : null;
-            var method = extensionType.GetMethod(nameof(MapCrud))
-                ?.MakeGenericMethod(entityType, requestType, serviceType);
-            method?.Invoke(null, new object?[]
-            {
-                app, (Action<ICrudOptions>?)(opt =>
-                {
-                    opt.WithVerbs(crudEndpoints.EndpointVerbs);
-
-                    if (crudEndpoints.ReferenceType != null)
-                        opt.WithReference(crudEndpoints.ReferenceType);
-
-                    crudOptions?.Invoke(opt);
-                })
-            });
+            InvokeMapCrud(app, crudInterface, allCrudOptions, extensionType, serviceType, crudEndpoints);
         }
 
         return app;
     }
-    
+
     /// <summary>
     /// Map Readers endpoints
     /// </summary>
@@ -145,7 +134,76 @@ public static class WepApplicationExtensions
         
         return app;
     }
+    
+    private static Type? GetCrudServiceInterface(IEnumerable<Type> interfaces)
+    {
+        return interfaces
+            .FirstOrDefault(o =>
+                o.GenericTypeArguments.Length > 0 && o.GetGenericTypeDefinition() == typeof(ICrudService<,>));
+    }
+    
+    private static Type? GetReaderServiceInterface(IEnumerable<Type> interfaces)
+    {
+        return interfaces
+            .FirstOrDefault(o =>
+                o.GenericTypeArguments.Length > 0 && o.GetGenericTypeDefinition() == typeof(IReaderService<>));
+    }
+    
+    private static Action<ICrudOptions>? GetCrudOptions(AllCrudOptions allCrudOptions, Type entityType)
+    {
+        return allCrudOptions.GetOptions().ContainsKey(entityType)
+            ? allCrudOptions.GetOptions()[entityType]
+            : null;
+    }
 
+    private static void InvokeMapCrud(WebApplication app, Type crudInterface, AllCrudOptions allCrudOptions,
+        Type extensionType, Type serviceType, MapCrudEndpointsAttribute crudEndpoints)
+    {
+        var entityType = crudInterface.GenericTypeArguments[0];
+        var requestType = crudInterface.GenericTypeArguments[1];
+        var crudOptions = GetCrudOptions(allCrudOptions, entityType);
+        var method = extensionType.GetMethod(nameof(MapCrud))
+            ?.MakeGenericMethod(entityType, requestType, serviceType);
+        
+        InvokeMethod(app, crudEndpoints, method, allCrudOptions, crudOptions);
+    }
+    
+    private static void InvokeMapReaders(WebApplication app, Type crudInterface, AllCrudOptions allCrudOptions,
+        Type extensionType, Type serviceType, MapCrudEndpointsAttribute crudEndpoints)
+    {
+        var entityType = crudInterface.GenericTypeArguments[0];
+        var crudOptions = GetCrudOptions(allCrudOptions, entityType);
+        var method = extensionType.GetMethod(nameof(MapReaders))
+            ?.MakeGenericMethod(entityType, serviceType);
+        
+        InvokeMethod(app, crudEndpoints, method, allCrudOptions, crudOptions);
+    }
+
+    private static void InvokeMethod(
+        WebApplication app, 
+        MapCrudEndpointsAttribute crudEndpoints, 
+        MethodBase? method,
+        AllCrudOptions allCrudOptions,
+        Action<ICrudOptions>? crudOptions)
+    {
+        method?.Invoke(null, new object?[]
+        {
+            app, (Action<ICrudOptions>?)(opt =>
+            {
+                opt.WithVerbs(crudEndpoints.EndpointVerbs);
+
+                if (crudEndpoints.ReferenceType != null)
+                    opt.WithReference(crudEndpoints.ReferenceType);
+
+                if (allCrudOptions.GetRequireAuth() == true)
+                {
+                    opt.RequireAuthorization();
+                }
+                crudOptions?.Invoke(opt);
+            })
+        });
+    }
+    
     private static string GetPattern<TEntity>(bool withId = false, Type? referenceType = null)
     {
         var entityType = typeof(TEntity);
@@ -253,6 +311,7 @@ public static class WepApplicationExtensions
     private static RouteHandlerBuilder SetOptions<TEntity>(this RouteHandlerBuilder endpoint, EndpointOptions options)
     {
         endpoint.WithName(options.Name);
+
         if (!string.IsNullOrEmpty(options.Summary))
         {
             endpoint.WithSummary(options.Summary);
@@ -270,6 +329,10 @@ public static class WepApplicationExtensions
 
         endpoint.WithOpenApi();
 
+        if (options.RequireAuth == true)
+        {
+            endpoint.RequireAuthorization();
+        }
         return endpoint;
     }
 }

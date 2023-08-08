@@ -11,7 +11,8 @@ public interface ICrudOptions
     EndpointOptions Get { get; }
     EndpointOptions List { get; }
     EndpointOptions Delete { get; }
-    
+
+    ICrudOptions RequireAuthorization();
     ICrudOptions WithVerbs(CrudEndpointVerbs verbs);
     ICrudOptions WithReference(Type referenceType);
     ICrudOptions WithReference<TReferenceEntity>();
@@ -24,6 +25,16 @@ public class CrudOptions<TEntity> : ICrudOptions
     public ICrudOptions WithVerbs(CrudEndpointVerbs verbs)
     {
         Verbs = verbs;
+        return this;
+    }
+
+    public ICrudOptions RequireAuthorization()
+    {
+        Get.RequireAuthorization();
+        List.RequireAuthorization();
+        Create.RequireAuthorization();
+        Update.RequireAuthorization();
+        Delete.RequireAuthorization();
         return this;
     }
     
@@ -165,29 +176,40 @@ public class EndpointOptions
         Summary = summary;
         return this;
     }
+
+    public EndpointOptions RequireAuthorization()
+    {
+        RequireAuth = true;
+        return this;
+    }
     
     /// <summary>
     /// The reference entity type
     /// </summary>
-    public Type? ReferenceType { get; private set; }
+    internal Type? ReferenceType { get; private set; }
 
     /// <summary>
     /// The endpoint name
     /// </summary>
-    public string Name { get; private set; } = string.Empty;
+    internal string Name { get; private set; } = string.Empty;
     
     /// <summary>
     /// The endpoint description
     /// </summary>
-    public string? Description { get; private set; }
+    internal string? Description { get; private set; }
     
     /// <summary>
     /// The endpoint summary
     /// </summary>
-    public string? Summary { get; private set; }
+    internal string? Summary { get; private set; }
 
     /// <summary>
     /// The endpoint tags
     /// </summary>
-    public string[] Tags { get; private set; } = Array.Empty<string>();
+    internal string[] Tags { get; private set; } = Array.Empty<string>();
+    
+    /// <summary>
+    /// The endpoint authorization
+    /// </summary>
+    internal bool? RequireAuth { get; private set; }
 }

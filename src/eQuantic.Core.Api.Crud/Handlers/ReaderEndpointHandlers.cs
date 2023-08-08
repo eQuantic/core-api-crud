@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace eQuantic.Core.Api.Crud.Handlers;
 
-public class ReaderEndpointHandlers<TEntity, TService>
+internal class ReaderEndpointHandlers<TEntity, TService>
     where TEntity : class, new()
     where TService : IReaderService<TEntity>
 {

@@ -6,10 +6,17 @@ public class AllCrudOptions
 {
     private Assembly? _assembly = null;
     private readonly Dictionary<Type, Action<ICrudOptions>> _options = new();
-
+    private bool? _requireAuth = null;
+    
     public AllCrudOptions FromAssembly(Assembly assembly)
     {
         _assembly = assembly;
+        return this;
+    }
+    
+    public AllCrudOptions AllRequireAuthorization()
+    {
+        _requireAuth = true;
         return this;
     }
     
@@ -20,6 +27,7 @@ public class AllCrudOptions
 
     internal Assembly? GetAssembly() => _assembly;
     internal Dictionary<Type, Action<ICrudOptions>> GetOptions() => _options;
+    internal bool? GetRequireAuth() => _requireAuth;
     
     public class EntityCrudOptions<TEntity>
     {

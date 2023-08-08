@@ -1,9 +1,6 @@
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Application.Crud.Entities.Requests;
 using eQuantic.Core.Application.Crud.Services;
-using eQuantic.Core.Application.Entities.Results;
-using eQuantic.Linq.Filter;
-using eQuantic.Linq.Sorter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +13,7 @@ namespace eQuantic.Core.Api.Crud.Handlers;
 /// <typeparam name="TEntity"></typeparam>
 /// <typeparam name="TRequest"></typeparam>
 /// <typeparam name="TService"></typeparam>
-public sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
+internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     where TEntity : class, new()
     where TService : ICrudService<TEntity, TRequest>
 {
