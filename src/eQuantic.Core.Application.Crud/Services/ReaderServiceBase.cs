@@ -4,8 +4,11 @@ using eQuantic.Core.Application.Exceptions;
 using eQuantic.Core.Collections;
 using eQuantic.Core.Data.Repository;
 using eQuantic.Core.Data.Repository.Sql;
+using eQuantic.Linq.Casting;
 using eQuantic.Linq.Filter;
+using eQuantic.Linq.Filter.Casting;
 using eQuantic.Linq.Filter.Extensions;
+using eQuantic.Linq.Sorter.Casting;
 using eQuantic.Linq.Sorter.Extensions;
 using eQuantic.Linq.Specification;
 using eQuantic.Mapper;
@@ -57,12 +60,20 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity> : IReaderService<T
         CancellationToken cancellationToken = default)
     {
         var filtering = request.Filtering
-            .Cast<TDataEntity>(opt => opt.ExcludeUnmapped()).ToList();
+            .Cast<TDataEntity>(opt =>
+            {
+                OnCastEntity(opt);
+                OnCastFiltering(opt);
+            }).ToList();
 
         SetReferenceFiltering(request, filtering);
 
         var sorting = request.Sorting
-            .Cast<TDataEntity>(opt => opt.ExcludeUnmapped());
+            .Cast<TDataEntity>(opt =>
+            {
+                OnCastEntity(opt);
+                OnCastSorting(opt);
+            });
 
         Specification<TDataEntity> specification = filtering.Any()
             ? new EntityFilterSpecification<TDataEntity>(filtering.ToArray())
@@ -91,6 +102,19 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity> : IReaderService<T
     protected virtual string[] OnGetProperties()
     {
         return Array.Empty<string>();
+    }
+    
+    protected virtual void OnCastEntity<TCastOptions>(TCastOptions options)
+        where TCastOptions : ICastOptions<TCastOptions, TDataEntity>
+    {
+    }
+    
+    protected virtual void OnCastFiltering(FilteringCastOptions<TDataEntity> options)
+    {
+    }
+    
+    protected virtual void OnCastSorting(SortingCastOptions<TDataEntity> options)
+    {
     }
     
     protected virtual TEntity? OnMapEntity(TDataEntity dataEntity)
