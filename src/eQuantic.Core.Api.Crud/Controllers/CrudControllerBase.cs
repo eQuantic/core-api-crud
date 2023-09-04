@@ -11,15 +11,16 @@ namespace eQuantic.Core.Api.Crud.Controllers;
 /// </summary>
 /// <typeparam name="TEntity"></typeparam>
 /// <typeparam name="TRequest"></typeparam>
-public abstract class CrudControllerBase<TEntity, TRequest> : ControllerBase, ICrudController<TEntity, TRequest> where TEntity : class, new()
+/// <typeparam name="TKey"></typeparam>
+public abstract class CrudControllerBase<TEntity, TRequest, TKey> : ControllerBase, ICrudController<TEntity, TRequest, TKey> where TEntity : class, new()
 {
-    private readonly ICrudService<TEntity, TRequest> _service;
+    private readonly ICrudService<TEntity, TRequest, TKey> _service;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CrudControllerBase{TEntity, TRequest}"/> class
+    /// Initializes a new instance of the <see cref="CrudControllerBase{TEntity, TRequest, TKey}"/> class
     /// </summary>
     /// <param name="service"></param>
-    protected CrudControllerBase(ICrudService<TEntity, TRequest> service)
+    protected CrudControllerBase(ICrudService<TEntity, TRequest, TKey> service)
     {
         _service = service;
     }
@@ -44,7 +45,7 @@ public abstract class CrudControllerBase<TEntity, TRequest> : ControllerBase, IC
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{id:int}")]
-    public virtual async Task<IActionResult> GetById([FromRoute] ItemRequest request, CancellationToken cancellationToken = default)
+    public virtual async Task<IActionResult> GetById([FromRoute] ItemRequest<TKey> request, CancellationToken cancellationToken = default)
     {
         var item = await _service.GetByIdAsync(request, cancellationToken);
         return Ok(item);
@@ -80,7 +81,7 @@ public abstract class CrudControllerBase<TEntity, TRequest> : ControllerBase, IC
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPut("{id:int}")]
-    public virtual async Task<IActionResult> Update([FromQuery] UpdateRequest<TRequest> request, CancellationToken cancellationToken = default)
+    public virtual async Task<IActionResult> Update([FromQuery] UpdateRequest<TRequest, TKey> request, CancellationToken cancellationToken = default)
     {
         var result = await _service.UpdateAsync(request, cancellationToken);
         return NoContent();
@@ -93,7 +94,7 @@ public abstract class CrudControllerBase<TEntity, TRequest> : ControllerBase, IC
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpDelete("{id:int}")]
-    public virtual async Task<IActionResult> Delete([FromQuery] ItemRequest request, CancellationToken cancellationToken = default)
+    public virtual async Task<IActionResult> Delete([FromQuery] ItemRequest<TKey> request, CancellationToken cancellationToken = default)
     {
         var result = await _service.DeleteAsync(request, cancellationToken);
         return NoContent();

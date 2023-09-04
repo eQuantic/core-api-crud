@@ -1,6 +1,8 @@
 using eQuantic.Core.Application.Crud.Entities.Requests;
 using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Core.Application.Exceptions;
+using eQuantic.Core.Data.EntityFramework.Repository;
+using eQuantic.Core.Data.EntityFramework.Specifications;
 using eQuantic.Core.Data.Repository;
 using eQuantic.Linq.Filter;
 using eQuantic.Linq.Specification;
@@ -8,15 +10,24 @@ using eQuantic.Mapper;
 
 namespace eQuantic.Core.Application.Crud.Services;
 
-public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : ReaderServiceBase<TEntity, TDataEntity>, ICrudService<TEntity, TRequest>
+public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, int>
     where TEntity : class, new()
-    where TDataEntity : EntityDataBase, new()
+    where TDataEntity : class, IEntity<int>, new()
+{
+    protected CrudServiceBase(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory) : base(unitOfWork, mapperFactory)
+    {
+    }
+}
+public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey> 
+    : ReaderServiceBase<TEntity, TDataEntity, TKey>, ICrudService<TEntity, TRequest, TKey>
+    where TEntity : class, new()
+    where TDataEntity : class, IEntity<TKey>, new()
 {
     protected CrudServiceBase(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory) : base(unitOfWork, mapperFactory)
     {
     }
     
-    public async Task<int> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
+    public async Task<TKey> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
     {
         var item = OnMapRequest(request.Body);
         if (item == null)
@@ -40,15 +51,15 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : R
         await Repository.UnitOfWork.CommitAsync(cancellationToken);
         await OnBeforeCreateAsync(item, cancellationToken);
         
-        return item.Id;
+        return item.GetKey();
     }
 
-    public async Task<bool> UpdateAsync(UpdateRequest<TRequest> request, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateAsync(UpdateRequest<TRequest, TKey> request, CancellationToken cancellationToken = default)
     {
         var item = await GetItem(request, cancellationToken);
         if (item == null)
         {
-            throw new EntityNotFoundException<int>(request.Id);
+            throw new EntityNotFoundException<TKey>(request.Id);
         }
 
         await OnAfterUpdateAsync(item, cancellationToken);
@@ -67,11 +78,11 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : R
         return true;
     }
 
-    public async Task<bool> DeleteAsync(ItemRequest request, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(ItemRequest<TKey> request, CancellationToken cancellationToken = default)
     {
         var item = await GetItem(request, cancellationToken);
         if (item == null)
-            throw new EntityNotFoundException<int>(request.Id);
+            throw new EntityNotFoundException<TKey>(request.Id);
 
         await OnAfterDeleteAsync(item, cancellationToken);
         
@@ -127,9 +138,9 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : R
         return Task.CompletedTask;
     }
 
-    private async Task<TDataEntity?> GetItem(ItemRequest request, CancellationToken cancellationToken = default)
+    private async Task<TDataEntity?> GetItem(ItemRequest<TKey> request, CancellationToken cancellationToken = default)
     {
-        Specification<TDataEntity> specification = new DirectSpecification<TDataEntity>(o => o.Id == request.Id);
+        Specification<TDataEntity> specification = new GetEntityByIdSpecification<TDataEntity, TKey>(request.Id, UnitOfWork as UnitOfWork);
         var filterByRef = GetReferenceFiltering(request);
         if (filterByRef != null)
         {

@@ -10,14 +10,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace eQuantic.Core.Api.Crud.Handlers;
 
-internal class ReaderEndpointHandlers<TEntity, TService>
+internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     where TEntity : class, new()
-    where TService : IReaderService<TEntity>
+    where TService : IReaderService<TEntity, TKey>
 {
     private readonly CrudOptions<TEntity> _options;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ReaderEndpointHandlers{TEntity, TService}"/> class
+    /// Initializes a new instance of the <see cref="ReaderEndpointHandlers{TEntity, TService, TKey}"/> class
     /// </summary>
     /// <param name="options"></param>
     public ReaderEndpointHandlers(CrudOptions<TEntity> options)
@@ -34,10 +34,10 @@ internal class ReaderEndpointHandlers<TEntity, TService>
     /// <returns></returns>
     public async Task<Results<Ok<TEntity>, NotFound>> GetReferencedById(
         [FromRoute] int referenceId, 
-        [FromRoute] int id, 
+        [FromRoute] TKey id, 
         [FromServices]TService service)
     {
-        var request = new ItemRequest<int>(referenceId, id);
+        var request = new ItemRequest<TKey, int>(referenceId, id);
         return await GetById(request, service);
     }
     
@@ -48,10 +48,10 @@ internal class ReaderEndpointHandlers<TEntity, TService>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<Results<Ok<TEntity>, NotFound>> GetById(
-        [FromRoute] int id, 
+        [FromRoute] TKey id, 
         [FromServices]TService service)
     {
-        var request = new ItemRequest(id);
+        var request = new ItemRequest<TKey>(id);
         return await GetById(request, service);
     }
 
@@ -97,7 +97,7 @@ internal class ReaderEndpointHandlers<TEntity, TService>
         return await GetPagedList(request, service);
     }
     
-    private static async Task<Results<Ok<TEntity>, NotFound>> GetById(ItemRequest request, TService service)
+    private static async Task<Results<Ok<TEntity>, NotFound>> GetById(ItemRequest<TKey> request, TService service)
     {
         var result = await service.GetByIdAsync(request);
         if (result != null)

@@ -2,28 +2,32 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace eQuantic.Core.Application.Crud.Entities.Requests;
 
+public class ItemRequest : ItemRequest<int>
+{
+}
+
 /// <summary>
 /// The item request class
 /// </summary>
-public class ItemRequest
+public class ItemRequest<TKey>
 {
     /// <summary>
     /// Gets or sets the value of the id
     /// </summary>
     [FromRoute]
-    public int Id { get; set; }
+    public TKey Id { get; set; }
 
     public ItemRequest()
     {
     }
 
-    public ItemRequest(int id)
+    public ItemRequest(TKey id)
     {
         Id = id;
     }
 }
 
-public class ItemRequest<TReferenceKey> : ItemRequest, IReferencedRequest<TReferenceKey>
+public class ItemRequest<TKey, TReferenceKey> : ItemRequest<TKey>, IReferencedRequest<TReferenceKey>
 {
     /// <summary>
     /// Gets or sets the value of the reference identifier
@@ -36,7 +40,7 @@ public class ItemRequest<TReferenceKey> : ItemRequest, IReferencedRequest<TRefer
         
     }
 
-    public ItemRequest(TReferenceKey referenceId, int id) : base(id)
+    public ItemRequest(TReferenceKey referenceId, TKey id) : base(id)
     {
         ReferenceId = referenceId;
     }

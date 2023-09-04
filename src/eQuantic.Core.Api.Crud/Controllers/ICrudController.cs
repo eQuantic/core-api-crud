@@ -8,7 +8,8 @@ namespace eQuantic.Core.Api.Crud.Controllers;
 /// </summary>
 /// <typeparam name="TEntity"></typeparam>
 /// <typeparam name="TRequest"></typeparam>
-public interface ICrudController<TEntity, TRequest> where TEntity : class, new()
+/// <typeparam name="TKey"></typeparam>
+public interface ICrudController<TEntity, TRequest, TKey> where TEntity : class, new()
 {
     /// <summary>
     /// Get entity by identifier
@@ -16,7 +17,7 @@ public interface ICrudController<TEntity, TRequest> where TEntity : class, new()
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<IActionResult> GetById(ItemRequest request, CancellationToken cancellationToken = default);
+    Task<IActionResult> GetById(ItemRequest<TKey> request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get paged list of entity
@@ -41,7 +42,7 @@ public interface ICrudController<TEntity, TRequest> where TEntity : class, new()
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<IActionResult> Update([FromQuery] UpdateRequest<TRequest> request,
+    Task<IActionResult> Update([FromQuery] UpdateRequest<TRequest, TKey> request,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -50,5 +51,5 @@ public interface ICrudController<TEntity, TRequest> where TEntity : class, new()
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<IActionResult> Delete([FromQuery] ItemRequest request, CancellationToken cancellationToken = default);
+    Task<IActionResult> Delete([FromQuery] ItemRequest<TKey> request, CancellationToken cancellationToken = default);
 }

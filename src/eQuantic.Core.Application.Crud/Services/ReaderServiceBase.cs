@@ -15,22 +15,31 @@ using eQuantic.Mapper;
 
 namespace eQuantic.Core.Application.Crud.Services;
 
-public abstract class ReaderServiceBase<TEntity, TDataEntity> : IReaderService<TEntity>
+public abstract class ReaderServiceBase<TEntity, TDataEntity> : ReaderServiceBase<TEntity, TDataEntity, int>
     where TEntity : class, new()
-    where TDataEntity : EntityDataBase, new()
+    where TDataEntity : class, IEntity<int>, new()
+{
+    protected ReaderServiceBase(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory) : base(unitOfWork, mapperFactory)
+    {
+    }
+}
+
+public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderService<TEntity, TKey>
+    where TEntity : class, new()
+    where TDataEntity : class, IEntity<TKey>, new()
 {
     protected IDefaultUnitOfWork UnitOfWork { get; }
     protected IMapperFactory MapperFactory { get; }
-    protected IAsyncQueryableRepository<ISqlUnitOfWork, TDataEntity, int> Repository { get; }
+    protected IAsyncQueryableRepository<ISqlUnitOfWork, TDataEntity, TKey> Repository { get; }
 
     protected ReaderServiceBase(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory)
     {
         UnitOfWork = unitOfWork;
         MapperFactory = mapperFactory;
-        Repository = unitOfWork.GetAsyncQueryableRepository<TDataEntity, int>();
+        Repository = unitOfWork.GetAsyncQueryableRepository<TDataEntity, TKey>();
     }
 
-    public async Task<TEntity?> GetByIdAsync(ItemRequest request, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> GetByIdAsync(ItemRequest<TKey> request, CancellationToken cancellationToken = default)
     {
         var item = await Repository.GetAsync(request.Id, opt =>
         {
@@ -39,7 +48,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity> : IReaderService<T
 
         if (item == null)
         {
-            throw new EntityNotFoundException<int>(request.Id);
+            throw new EntityNotFoundException<TKey>(request.Id);
         }
         
         if (request is IReferencedRequest<int> referencedRequest && item is IWithReferenceId<TDataEntity, int> referencedItem)

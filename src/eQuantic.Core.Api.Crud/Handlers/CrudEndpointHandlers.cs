@@ -13,9 +13,10 @@ namespace eQuantic.Core.Api.Crud.Handlers;
 /// <typeparam name="TEntity"></typeparam>
 /// <typeparam name="TRequest"></typeparam>
 /// <typeparam name="TService"></typeparam>
-internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
+/// <typeparam name="TKey"></typeparam>
+internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
     where TEntity : class, new()
-    where TService : ICrudService<TEntity, TRequest>
+    where TService : ICrudService<TEntity, TRequest, TKey>
 {
     private readonly CrudOptions<TEntity> _options;
 
@@ -34,7 +35,7 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="request"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<CreatedAtRoute<int>> Create(
+    public async Task<CreatedAtRoute<TKey>> Create(
         [FromBody] TRequest request, 
         [FromServices]TService service)
     {
@@ -49,7 +50,7 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="request"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    public async Task<CreatedAtRoute<int>> ReferencedCreate(
+    public async Task<CreatedAtRoute<TKey>> ReferencedCreate(
         [FromRoute] int referenceId, 
         [FromBody] TRequest request, 
         [FromServices]TService service)
@@ -66,11 +67,11 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<Results<Ok, BadRequest>> Update(
-        [FromRoute] int id, 
+        [FromRoute] TKey id, 
         [FromBody] TRequest request, 
         [FromServices]TService service)
     {
-        var updateRequest = new UpdateRequest<TRequest>(id, request);
+        var updateRequest = new UpdateRequest<TRequest, TKey>(id, request);
         return await Update(updateRequest, service);
     }
     
@@ -84,11 +85,11 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <returns></returns>
     public async Task<Results<Ok, BadRequest>> ReferencedUpdate(
         [FromRoute] int referenceId, 
-        [FromRoute] int id, 
+        [FromRoute] TKey id, 
         [FromBody] TRequest request,
         [FromServices] TService service)
     {
-        var updateRequest = new UpdateRequest<TRequest, int>(referenceId, id, request);
+        var updateRequest = new UpdateRequest<TRequest, TKey, int>(referenceId, id, request);
         return await Update(updateRequest, service);
     }
     
@@ -99,10 +100,10 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<Results<Ok, BadRequest>> Delete(
-        [FromRoute] int id, 
+        [FromRoute] TKey id, 
         [FromServices]TService service)
     {
-        var request = new ItemRequest(id);
+        var request = new ItemRequest<TKey>(id);
         return await Delete(request, service);
     }
     
@@ -115,14 +116,14 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     /// <returns></returns>
     public async Task<Results<Ok, BadRequest>> ReferencedDelete(
         [FromRoute] int referenceId, 
-        [FromRoute] int id, 
+        [FromRoute] TKey id, 
         [FromServices] TService service)
     {
-        var request = new ItemRequest<int>(referenceId, id);
+        var request = new ItemRequest<TKey, int>(referenceId, id);
         return await Delete(request, service);
     }
     
-    private async Task<CreatedAtRoute<int>> Create(
+    private async Task<CreatedAtRoute<TKey>> Create(
         CreateRequest<TRequest> request, 
         TService service)
     {
@@ -134,7 +135,7 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     }
     
     private static async Task<Results<Ok, BadRequest>> Update(
-        UpdateRequest<TRequest> request, 
+        UpdateRequest<TRequest, TKey> request, 
         TService service)
     {
         var result = await service.UpdateAsync(request);
@@ -142,7 +143,7 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService>
     }
     
     private static async Task<Results<Ok, BadRequest>> Delete(
-        ItemRequest request, 
+        ItemRequest<TKey> request, 
         TService service)
     {
         var result = await service.DeleteAsync(request);
