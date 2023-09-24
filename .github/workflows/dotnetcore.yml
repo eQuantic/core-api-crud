@@ -12,6 +12,7 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 8.0.x
+          dotnet-quality: 'preview'
       - name: Build eQuantic.Api.Crud Library
         run: dotnet build --configuration Release
       - name: Push package into Nuget.org
