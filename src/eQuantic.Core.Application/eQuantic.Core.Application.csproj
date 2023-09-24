@@ -6,10 +6,10 @@
         <Authors>eQuantic Systems</Authors>
         <RootNamespace>eQuantic.Core.Application</RootNamespace>
         <AssemblyTitle>eQuantic.Core.Application</AssemblyTitle>
-        <AssemblyVersion>1.1.0.0</AssemblyVersion>
-        <FileVersion>1.1.0.0</FileVersion>
-        <Version>1.1.0.0</Version>
-        <TargetFrameworks>netstandard2.1;net7.0</TargetFrameworks>
+        <AssemblyVersion>1.1.1.0</AssemblyVersion>
+        <FileVersion>1.1.1.0</FileVersion>
+        <Version>1.1.1.0</Version>
+        <TargetFrameworks>netstandard2.1;net7.0;net8.0</TargetFrameworks>
         
         <PackageId>eQuantic.Core.Application</PackageId>
         <PackageTags>eQuantic;Core;Application;Library</PackageTags>
@@ -44,6 +44,10 @@
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+        <PackageReference Include="Lamar" Version="12.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
         <PackageReference Include="Lamar" Version="12.0.0" />
     </ItemGroup>
     

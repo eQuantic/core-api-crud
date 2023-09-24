@@ -218,10 +218,10 @@ public static class WepApplicationExtensions
         var pattern = $"/{prefix}";
         if (referenceType != null)
         {
-            pattern = $"/{referenceType.Name.Pluralize().Camelize()}/{{referenceId:int}}{pattern}";
+            pattern = $"/{referenceType.Name.Pluralize().Camelize()}/{{referenceId}}{pattern}";
         }
 
-        if (withId) pattern = $"{pattern}/{{id:int}}";
+        if (withId) pattern = $"{pattern}/{{id}}";
         return pattern;
     }
 
