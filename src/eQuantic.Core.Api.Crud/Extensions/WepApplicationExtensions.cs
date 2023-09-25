@@ -275,7 +275,7 @@ public static class WepApplicationExtensions
         app
             .MapPost(pattern, handler)
             .SetOptions<TEntity>(options.Create)
-            .Produces<int>(StatusCodes.Status201Created);
+            .Produces<TKey>(StatusCodes.Status201Created);
         return app;
     }
 
