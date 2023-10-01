@@ -210,7 +210,7 @@ public static class WepApplicationExtensions
         });
     }
     
-    private static string GetPattern<TEntity>(bool withId = false, Type? referenceType = null)
+    private static string GetPattern<TEntity, TKey>(bool withId = false, Type? referenceType = null)
     {
         var entityType = typeof(TEntity);
         var entityName = entityType.Name;
@@ -221,7 +221,20 @@ public static class WepApplicationExtensions
             pattern = $"/{referenceType.Name.Pluralize().Camelize()}/{{referenceId}}{pattern}";
         }
 
-        if (withId) pattern = $"{pattern}/{{id}}";
+        var keyType = typeof(TKey);
+
+        if (!withId)
+            return pattern;
+        
+        if (keyType == typeof(string) || keyType == typeof(Guid) || keyType.IsPrimitive)
+        {
+            pattern = $"{pattern}/{{id}}";
+        }
+        else
+        {
+            pattern = $"{pattern}/{{{string.Join("}/{", keyType.GetProperties().Select(o => o.Name.Camelize()))}}}";
+        }
+
         return pattern;
     }
 
@@ -230,7 +243,7 @@ public static class WepApplicationExtensions
         where TEntity : class, new()
         where TService : IReaderService<TEntity, TKey>
     {
-        var pattern = GetPattern<TEntity>(true, options.Get.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(true, options.Get.ReferenceType);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
         Delegate handler = options.Get.ReferenceType != null
             ? handlers.GetReferencedById
@@ -249,7 +262,7 @@ public static class WepApplicationExtensions
         where TEntity : class, new()
         where TService : IReaderService<TEntity, TKey>
     {
-        var pattern = GetPattern<TEntity>(false, options.List.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(false, options.List.ReferenceType);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
         Delegate handler = options.List.ReferenceType != null
             ? handlers.GetReferencedPagedList
@@ -267,7 +280,7 @@ public static class WepApplicationExtensions
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
     {
-        var pattern = GetPattern<TEntity>(false, options.Create.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(false, options.Create.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Create.ReferenceType != null
             ? handlers.ReferencedCreate
@@ -284,7 +297,7 @@ public static class WepApplicationExtensions
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
     {
-        var pattern = GetPattern<TEntity>(true, options.Update.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(true, options.Update.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Update.ReferenceType != null
             ? handlers.ReferencedUpdate
@@ -302,7 +315,7 @@ public static class WepApplicationExtensions
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
     {
-        var pattern = GetPattern<TEntity>(true, options.Delete.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(true, options.Delete.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Delete.ReferenceType != null
             ? handlers.ReferencedDelete
