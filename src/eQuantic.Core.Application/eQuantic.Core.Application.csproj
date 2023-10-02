@@ -6,9 +6,9 @@
         <Authors>eQuantic Systems</Authors>
         <RootNamespace>eQuantic.Core.Application</RootNamespace>
         <AssemblyTitle>eQuantic.Core.Application</AssemblyTitle>
-        <AssemblyVersion>1.1.3.0</AssemblyVersion>
-        <FileVersion>1.1.3.0</FileVersion>
-        <Version>1.1.3.0</Version>
+        <AssemblyVersion>1.1.4.0</AssemblyVersion>
+        <FileVersion>1.1.4.0</FileVersion>
+        <Version>1.1.4.0</Version>
         <TargetFrameworks>netstandard2.1;net7.0;net8.0</TargetFrameworks>
         
         <PackageId>eQuantic.Core.Application</PackageId>

@@ -42,6 +42,21 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     }
     
     /// <summary>
+    /// Get referenced entity by complex identifier
+    /// </summary>
+    /// <param name="referenceId"></param>
+    /// <param name="id"></param>
+    /// <param name="service"></param>
+    /// <returns></returns>
+    public Task<Results<Ok<TEntity>, NotFound>> GetReferencedByComplexId(
+        [FromRoute] int referenceId, 
+        [AsParameters] TKey id, 
+        [FromServices]TService service)
+    {
+        return GetReferencedById(referenceId, id, service);
+    }
+    
+    /// <summary>
     /// Get entity by identifier
     /// </summary>
     /// <param name="id"></param>
@@ -55,6 +70,19 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
         return await GetById(request, service);
     }
 
+    /// <summary>
+    /// Get entity by complex identifier
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="service"></param>
+    /// <returns></returns>
+    public Task<Results<Ok<TEntity>, NotFound>> GetByComplexId(
+        [AsParameters] TKey id, 
+        [FromServices]TService service)
+    {
+        return GetById(id, service);
+    }
+    
     /// <summary>
     /// Get paged list of referenced entity by criteria
     /// </summary>

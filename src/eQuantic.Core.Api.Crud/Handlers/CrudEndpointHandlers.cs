@@ -71,8 +71,24 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
         [FromBody] TRequest request, 
         [FromServices]TService service)
     {
+        if (id == null) throw new ArgumentNullException(nameof(id));
         var updateRequest = new UpdateRequest<TRequest, TKey>(id, request);
         return await Update(updateRequest, service);
+    }
+    
+    /// <summary>
+    /// Update an entity by complex identifier
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <param name="service"></param>
+    /// <returns></returns>
+    public Task<Results<Ok, BadRequest>> UpdateByComplexId(
+        [AsParameters] TKey id, 
+        [FromBody] TRequest request, 
+        [FromServices]TService service)
+    {
+        return Update(id, request, service);
     }
     
     /// <summary>
@@ -94,17 +110,48 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
     }
     
     /// <summary>
+    /// Update a referenced entity by complex identifier
+    /// </summary>
+    /// <param name="referenceId"></param>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <param name="service"></param>
+    /// <returns></returns>
+    public Task<Results<Ok, BadRequest>> ReferencedUpdateByComplexId(
+        [FromRoute] int referenceId, 
+        [AsParameters] TKey id, 
+        [FromBody] TRequest request,
+        [FromServices] TService service)
+    {
+        return ReferencedUpdate(referenceId, id, request, service);
+    }
+    
+    /// <summary>
     /// Delete an entity
     /// </summary>
     /// <param name="id"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<Results<Ok, BadRequest>> Delete(
-        [FromRoute] TKey id, 
+        [FromRoute] TKey id,
         [FromServices]TService service)
     {
+        if (id == null) throw new ArgumentNullException(nameof(id));
         var request = new ItemRequest<TKey>(id);
         return await Delete(request, service);
+    }
+    
+    /// <summary>
+    /// Delete an entity by complex identifier
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="service"></param>
+    /// <returns></returns>
+    public Task<Results<Ok, BadRequest>> DeleteByComplexId(
+        [AsParameters] TKey id,
+        [FromServices]TService service)
+    {
+        return Delete(id, service);
     }
     
     /// <summary>
@@ -121,6 +168,21 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
     {
         var request = new ItemRequest<TKey, int>(referenceId, id);
         return await Delete(request, service);
+    }
+    
+    /// <summary>
+    /// Delete a referenced entity by complex identifier
+    /// </summary>
+    /// <param name="referenceId"></param>
+    /// <param name="id"></param>
+    /// <param name="service"></param>
+    /// <returns></returns>
+    public Task<Results<Ok, BadRequest>> ReferencedDeleteByComplexId(
+        [FromRoute] int referenceId, 
+        [AsParameters] TKey id, 
+        [FromServices] TService service)
+    {
+        return ReferencedDelete(referenceId, id, service);
     }
     
     private async Task<CreatedAtRoute<TKey>> Create(

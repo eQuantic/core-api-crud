@@ -1,4 +1,6 @@
 using eQuantic.Core.Api.Sample.Entities;
+using eQuantic.Core.Api.Sample.Entities.Data;
+using eQuantic.Core.Api.Sample.Entities.Requests;
 using eQuantic.Core.Application.Crud.Attributes;
 using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Data.Repository;

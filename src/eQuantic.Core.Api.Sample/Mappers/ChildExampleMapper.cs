@@ -1,4 +1,6 @@
 using eQuantic.Core.Api.Sample.Entities;
+using eQuantic.Core.Api.Sample.Entities.Data;
+using eQuantic.Core.Api.Sample.Entities.Requests;
 using eQuantic.Mapper;
 
 namespace eQuantic.Core.Api.Sample.Mappers;

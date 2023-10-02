@@ -1,7 +1,7 @@
 using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Linq.Filter;
 
-namespace eQuantic.Core.Api.Sample.Entities;
+namespace eQuantic.Core.Api.Sample.Entities.Data;
 
 public class ChildExampleData : EntityDataBase, IWithReferenceId<ChildExampleData, int>
 {

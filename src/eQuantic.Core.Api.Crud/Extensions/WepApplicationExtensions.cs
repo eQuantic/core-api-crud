@@ -220,24 +220,27 @@ public static class WepApplicationExtensions
         {
             pattern = $"/{referenceType.Name.Pluralize().Camelize()}/{{referenceId}}{pattern}";
         }
-
-        var keyType = typeof(TKey);
-
+        
         if (!withId)
             return pattern;
         
-        if (keyType == typeof(string) || keyType == typeof(Guid) || keyType.IsPrimitive)
-        {
-            pattern = $"{pattern}/{{id}}";
-        }
-        else
-        {
-            pattern = $"{pattern}/{{{string.Join("}/{", keyType.GetProperties().Select(o => o.Name.Camelize()))}}}";
-        }
+        pattern = IsPrimitiveKey<TKey>() ? $"{pattern}/{{id}}" : $"{pattern}/{{{string.Join("}/{", GetRoutesFromComplexKey<TKey>())}}}";
 
         return pattern;
     }
 
+    private static bool IsPrimitiveKey<TKey>()
+    {
+        var keyType = typeof(TKey);
+        return keyType == typeof(string) || keyType == typeof(Guid) || keyType.IsPrimitive;
+    }
+
+    private static string[] GetRoutesFromComplexKey<TKey>()
+    {
+        var keyType = typeof(TKey);
+        return keyType.GetProperties().Select(o => o.Name.Camelize()!).ToArray();
+    }
+    
     private static WebApplication MapGetById<TEntity, TService, TKey>(this WebApplication app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
@@ -246,8 +249,8 @@ public static class WepApplicationExtensions
         var pattern = GetPattern<TEntity, TKey>(true, options.Get.ReferenceType);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
         Delegate handler = options.Get.ReferenceType != null
-            ? handlers.GetReferencedById
-            : handlers.GetById;
+            ? (IsPrimitiveKey<TKey>() ? handlers.GetReferencedById : handlers.GetReferencedByComplexId)
+            : (IsPrimitiveKey<TKey>() ? handlers.GetById : handlers.GetByComplexId);
 
         app
             .MapGet(pattern, handler)
@@ -300,8 +303,8 @@ public static class WepApplicationExtensions
         var pattern = GetPattern<TEntity, TKey>(true, options.Update.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Update.ReferenceType != null
-            ? handlers.ReferencedUpdate
-            : handlers.Update;
+            ? (IsPrimitiveKey<TKey>() ? handlers.ReferencedUpdate : handlers.ReferencedUpdateByComplexId)
+            : (IsPrimitiveKey<TKey>() ? handlers.Update : handlers.UpdateByComplexId);
         app
             .MapPut(pattern, handler)
             .SetOptions<TEntity>(options.Update)
@@ -318,8 +321,8 @@ public static class WepApplicationExtensions
         var pattern = GetPattern<TEntity, TKey>(true, options.Delete.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Delete.ReferenceType != null
-            ? handlers.ReferencedDelete
-            : handlers.Delete;
+            ? (IsPrimitiveKey<TKey>() ? handlers.ReferencedDelete : handlers.ReferencedDeleteByComplexId)
+            : (IsPrimitiveKey<TKey>() ? handlers.Delete : handlers.DeleteByComplexId);
         app
             .MapDelete(pattern, handler)
             .SetOptions<TEntity>(options.Delete)
