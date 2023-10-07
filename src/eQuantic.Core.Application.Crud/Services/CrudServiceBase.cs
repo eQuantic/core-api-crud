@@ -7,6 +7,7 @@ using eQuantic.Core.Data.Repository;
 using eQuantic.Linq.Filter;
 using eQuantic.Linq.Specification;
 using eQuantic.Mapper;
+using Microsoft.Extensions.Logging;
 
 namespace eQuantic.Core.Application.Crud.Services;
 
@@ -14,7 +15,10 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : C
     where TEntity : class, new()
     where TDataEntity : class, IEntity<int>, new()
 {
-    protected CrudServiceBase(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory) : base(unitOfWork, mapperFactory)
+    protected CrudServiceBase(
+        IDefaultUnitOfWork unitOfWork, 
+        IMapperFactory mapperFactory, 
+        ILogger logger) : base(unitOfWork, mapperFactory, logger)
     {
     }
 }
@@ -23,7 +27,10 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
     where TEntity : class, new()
     where TDataEntity : class, IEntity<TKey>, new()
 {
-    protected CrudServiceBase(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory) : base(unitOfWork, mapperFactory)
+    protected CrudServiceBase(
+        IDefaultUnitOfWork unitOfWork, 
+        IMapperFactory mapperFactory, 
+        ILogger logger) : base(unitOfWork, mapperFactory, logger)
     {
     }
     
@@ -32,7 +39,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         var item = OnMapRequest(request.Body);
         if (item == null)
         {
-            return default;
+            Logger.LogError("{ServiceName} - Create: Bad request of {Name}", GetType().Name, typeof(TRequest).Name);
+            throw new InvalidEntityRequestException();
         }
 
         await OnAfterCreateAsync(item, cancellationToken);
@@ -59,7 +67,9 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         var item = await GetItem(request, cancellationToken);
         if (item == null)
         {
-            throw new EntityNotFoundException<TKey>(request.Id);
+            var ex = new EntityNotFoundException<TKey>(request.Id);
+            Logger.LogError(ex, "{ServiceName} - Create: Entity of {Name} not found", GetType().Name, typeof(TEntity).Name);
+            throw ex;
         }
 
         await OnAfterUpdateAsync(item, cancellationToken);
@@ -82,7 +92,12 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
     {
         var item = await GetItem(request, cancellationToken);
         if (item == null)
-            throw new EntityNotFoundException<TKey>(request.Id);
+        {
+            var ex = new EntityNotFoundException<TKey>(request.Id);
+            Logger.LogError(ex, "{ServiceName} - Delete: Entity of {Name} not found", GetType().Name, typeof(TEntity).Name);
+            throw ex;
+        }
+            
 
         await OnAfterDeleteAsync(item, cancellationToken);
         
@@ -105,7 +120,13 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
     protected virtual TDataEntity? OnMapRequest(TRequest? request, TDataEntity? dataEntity = null)
     {
         var mapper = MapperFactory.GetMapper<TRequest, TDataEntity>();
-        return mapper?.Map(request, dataEntity);
+
+        if (mapper != null) 
+            return mapper.Map(request, dataEntity);
+        
+        var ex = new DependencyNotFoundException(typeof(IMapper<TRequest, TDataEntity>));
+        Logger.LogError(ex, "{ServiceName} - OnMapRequest: Mapper not found", GetType().Name);
+        throw ex;
     }
 
     protected virtual Task OnAfterCreateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)

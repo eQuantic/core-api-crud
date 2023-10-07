@@ -39,7 +39,8 @@ public class ExceptionMiddleware : IMiddleware
         context.Response.StatusCode = exception switch
         {
             EntityNotFoundException => StatusCodes.Status404NotFound,
-            InvalidReferenceException => StatusCodes.Status400BadRequest,
+            InvalidEntityReferenceException => StatusCodes.Status400BadRequest,
+            InvalidEntityRequestException => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
 

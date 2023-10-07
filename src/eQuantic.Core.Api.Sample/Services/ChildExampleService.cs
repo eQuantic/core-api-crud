@@ -13,7 +13,10 @@ public interface IChildExampleService : ICrudService<ChildExample, ChildExampleR
 [MapCrudEndpoints(ReferenceType = typeof(Example))]
 public class ChildExampleService : CrudServiceBase<ChildExample, ChildExampleRequest, ChildExampleData, UserData>, IChildExampleService
 {
-    public ChildExampleService(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory) : base(unitOfWork, mapperFactory)
+    public ChildExampleService(
+        IDefaultUnitOfWork unitOfWork, 
+        IMapperFactory mapperFactory, 
+        ILogger<ChildExampleService> logger) : base(unitOfWork, mapperFactory, logger)
     {
     }
 }

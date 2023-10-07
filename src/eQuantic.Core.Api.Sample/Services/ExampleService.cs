@@ -13,7 +13,10 @@ public interface IExampleService : ICrudService<Example, ExampleRequest> {}
 [MapCrudEndpoints]
 public class ExampleService : CrudServiceBase<Example, ExampleRequest, ExampleData, UserData>, IExampleService
 {
-    public ExampleService(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory) : base(unitOfWork, mapperFactory)
+    public ExampleService(
+        IDefaultUnitOfWork unitOfWork, 
+        IMapperFactory mapperFactory, 
+        ILogger<ExampleService> logger) : base(unitOfWork, mapperFactory, logger)
     {
     }
 }

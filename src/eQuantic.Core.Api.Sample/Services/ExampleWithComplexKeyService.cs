@@ -13,7 +13,10 @@ public interface IExampleWithComplexKeyService : ICrudService<ExampleWithComplex
 [MapCrudEndpoints]
 public class ExampleWithComplexKeyService : CrudServiceBase<ExampleWithComplexKey, ExampleWithComplexKeyRequest, ExampleWithComplexKeyData, UserData, ExampleWithComplexKeyData.ExampleKey>, IExampleWithComplexKeyService
 {
-    public ExampleWithComplexKeyService(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory) : base(unitOfWork, mapperFactory)
+    public ExampleWithComplexKeyService(
+        IDefaultUnitOfWork unitOfWork, 
+        IMapperFactory mapperFactory, 
+        ILogger<ExampleWithComplexKeyService> logger) : base(unitOfWork, mapperFactory, logger)
     {
     }
 }

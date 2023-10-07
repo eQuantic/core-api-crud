@@ -12,6 +12,7 @@ using eQuantic.Linq.Sorter.Casting;
 using eQuantic.Linq.Sorter.Extensions;
 using eQuantic.Linq.Specification;
 using eQuantic.Mapper;
+using Microsoft.Extensions.Logging;
 
 namespace eQuantic.Core.Application.Crud.Services;
 
@@ -19,7 +20,10 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity> : ReaderServiceBas
     where TEntity : class, new()
     where TDataEntity : class, IEntity<int>, new()
 {
-    protected ReaderServiceBase(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory) : base(unitOfWork, mapperFactory)
+    protected ReaderServiceBase(
+        IDefaultUnitOfWork unitOfWork, 
+        IMapperFactory mapperFactory, 
+        ILogger logger) : base(unitOfWork, mapperFactory, logger)
     {
     }
 }
@@ -28,12 +32,17 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
     where TEntity : class, new()
     where TDataEntity : class, IEntity<TKey>, new()
 {
+    protected readonly ILogger Logger;
     protected IDefaultUnitOfWork UnitOfWork { get; }
     protected IMapperFactory MapperFactory { get; }
     protected IAsyncQueryableRepository<ISqlUnitOfWork, TDataEntity, TKey> Repository { get; }
 
-    protected ReaderServiceBase(IDefaultUnitOfWork unitOfWork, IMapperFactory mapperFactory)
+    protected ReaderServiceBase(
+        IDefaultUnitOfWork unitOfWork, 
+        IMapperFactory mapperFactory, 
+        ILogger logger)
     {
+        Logger = logger;
         UnitOfWork = unitOfWork;
         MapperFactory = mapperFactory;
         Repository = unitOfWork.GetAsyncQueryableRepository<TDataEntity, TKey>();
@@ -48,14 +57,16 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
 
         if (item == null)
         {
-            throw new EntityNotFoundException<TKey>(request.Id);
+            var ex = new EntityNotFoundException<TKey>(request.Id);
+            Logger.LogError(ex, "{ServiceName} - GetById: Entity of {EntityName} not found", GetType().Name, typeof(TEntity).Name);
+            throw ex;
         }
         
         if (request is IReferencedRequest<int> referencedRequest && item is IWithReferenceId<TDataEntity, int> referencedItem)
         {
             if (referencedItem.GetReferenceId() != referencedRequest.ReferenceId)
             {
-                throw new InvalidReferenceException<int>(referencedRequest.ReferenceId);
+                throw new InvalidEntityReferenceException<int>(referencedRequest.ReferenceId);
             }
         }
         
@@ -129,7 +140,13 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
     protected virtual TEntity? OnMapEntity(TDataEntity dataEntity)
     {
         var mapper = MapperFactory.GetMapper<TDataEntity, TEntity>();
-        return mapper?.Map(dataEntity);
+        if (mapper != null) 
+            return mapper.Map(dataEntity);
+
+        var mapperType = typeof(IMapper<TDataEntity, TEntity>);
+        var ex = new DependencyNotFoundException(mapperType);
+        Logger.LogError(ex, "{ServiceName}: Mapper of {MapperName} not found", GetType().Name, mapperType.Name);
+        throw ex;
     }
 
     protected virtual Task OnBeforeGetByIdAsync(TDataEntity? dataEntity, TEntity? entity, CancellationToken cancellationToken = default)
