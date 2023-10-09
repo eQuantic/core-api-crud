@@ -40,7 +40,7 @@ public class PagedListRequest<TEntity>
     public PagedListRequest(int? pageIndex, int? pageSize, IFiltering[]? filtering, ISorting[]? sorting)
     {
         if (pageIndex.HasValue) PageIndex = pageIndex.Value;
-        if (pageSize.HasValue) PageIndex = pageSize.Value;
+        if (pageSize.HasValue) PageSize = pageSize.Value;
         if (filtering != null) Filtering = filtering;
         if (sorting != null) Sorting = sorting;
     }
