@@ -11,9 +11,9 @@
         <Version>1.2.0.0</Version>
         <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
 
-        <PackageId>eQuantic.Core.Persistence</PackageId>
+        <PackageId>eQuantic.Core.Api.Crud.Client</PackageId>
         <PackageTags>eQuantic;Core;Api;CRUD;Client;Library</PackageTags>
-        <PackageReleaseNotes>Conventions for Persistence Layer</PackageReleaseNotes>
+        <PackageReleaseNotes>Conventions for API CRUD Client Layer</PackageReleaseNotes>
         <PackageProjectUrl>https://github.com/eQuantic/core-api-crud</PackageProjectUrl>
         <PackageOutputPath>../artifacts/</PackageOutputPath>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -46,8 +46,6 @@
     <ItemGroup>
         <PackageReference Include="eQuantic.Core" Version="1.7.0" />
         <PackageReference Include="eQuantic.Linq" Version="1.1.6" />
-        
-        
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
