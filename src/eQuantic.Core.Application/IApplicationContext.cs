@@ -1,6 +1,10 @@
 namespace eQuantic.Core.Application;
 
-public interface IApplicationContext
+public interface IApplicationContext : IApplicationContext<string>
+{
+}
+
+public interface IApplicationContext<TUserKey>
 {
     /// <summary>
     /// Get last update date of application.
@@ -30,5 +34,5 @@ public interface IApplicationContext
     /// Get current user
     /// </summary>
     /// <returns></returns>
-    Task<int> GetCurrentUserIdAsync();
+    Task<TUserKey> GetCurrentUserIdAsync();
 }

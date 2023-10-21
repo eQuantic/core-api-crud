@@ -6,9 +6,9 @@
         <Authors>eQuantic Systems</Authors>
         <RootNamespace>eQuantic.Core.Application</RootNamespace>
         <AssemblyTitle>eQuantic.Core.Application</AssemblyTitle>
-        <AssemblyVersion>1.1.6.0</AssemblyVersion>
-        <FileVersion>1.1.6.0</FileVersion>
-        <Version>1.1.6.0</Version>
+        <AssemblyVersion>1.2.0.0</AssemblyVersion>
+        <FileVersion>1.2.0.0</FileVersion>
+        <Version>1.2.0.0</Version>
         <TargetFrameworks>netstandard2.1;net7.0;net8.0</TargetFrameworks>
         
         <PackageId>eQuantic.Core.Application</PackageId>
@@ -36,7 +36,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="eQuantic.Core.Data" Version="4.0.3" />
+        <PackageReference Include="eQuantic.Core.Data" Version="4.1.0" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
