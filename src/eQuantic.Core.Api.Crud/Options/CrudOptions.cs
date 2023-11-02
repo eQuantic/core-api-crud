@@ -5,6 +5,7 @@ namespace eQuantic.Core.Api.Crud.Options;
 
 public interface ICrudOptions
 {
+    string? Prefix { get; }
     CrudEndpointVerbs Verbs { get; }
     EndpointOptions Create { get; }
     EndpointOptions Update { get; }
@@ -13,6 +14,7 @@ public interface ICrudOptions
     EndpointOptions Delete { get; }
 
     ICrudOptions RequireAuthorization();
+    ICrudOptions WithGroup(string prefix);
     ICrudOptions WithVerbs(CrudEndpointVerbs verbs);
     ICrudOptions WithReference(Type referenceType);
     ICrudOptions WithReference<TReferenceEntity>();
@@ -22,6 +24,12 @@ public interface ICrudOptions
 /// </summary>
 public class CrudOptions<TEntity> : ICrudOptions
 {
+    public ICrudOptions WithGroup(string prefix)
+    {
+        Prefix = prefix;
+        return this;
+    }
+
     public ICrudOptions WithVerbs(CrudEndpointVerbs verbs)
     {
         Verbs = verbs;
@@ -68,6 +76,7 @@ public class CrudOptions<TEntity> : ICrudOptions
         return this;
     }
 
+    public string? Prefix { get; private set; }
     public CrudEndpointVerbs Verbs { get; private set; } = CrudEndpointVerbs.All;
 
     /// <summary>

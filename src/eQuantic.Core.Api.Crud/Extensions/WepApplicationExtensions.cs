@@ -8,6 +8,7 @@ using eQuantic.Core.Application.Entities.Results;
 using Humanizer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace eQuantic.Core.Api.Crud.Extensions;
 
@@ -78,7 +79,7 @@ public static class WepApplicationExtensions
     /// <typeparam name="TService"></typeparam>
     /// <typeparam name="TKey"></typeparam>
     /// <returns></returns>
-    public static WebApplication MapReaders<TEntity, TService, TKey>(this WebApplication app,
+    public static IEndpointRouteBuilder MapReaders<TEntity, TService, TKey>(this WebApplication app,
         Action<CrudOptions<TEntity>>? options = null)
         where TEntity : class, new()
         where TService : IReaderService<TEntity, TKey>
@@ -86,17 +87,21 @@ public static class WepApplicationExtensions
         var crudOptions = new CrudOptions<TEntity>();
         options?.Invoke(crudOptions);
 
+        var routeBuilder = !string.IsNullOrEmpty(crudOptions.Prefix) ? 
+            (IEndpointRouteBuilder)app.MapGroup(crudOptions.Prefix) : 
+            app;
+        
         if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyGetById) == CrudEndpointVerbs.OnlyGetById)
         {
-            app.MapGetById<TEntity, TService, TKey>(crudOptions);
+            routeBuilder.MapGetById<TEntity, TService, TKey>(crudOptions);
         }
 
         if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyGetPaged) == CrudEndpointVerbs.OnlyGetPaged)
         {
-            app.MapGetPagedList<TEntity, TService, TKey>(crudOptions);
+            routeBuilder.MapGetPagedList<TEntity, TService, TKey>(crudOptions);
         }
         
-        return app;
+        return routeBuilder;
     }
 
     /// <summary>
@@ -109,7 +114,7 @@ public static class WepApplicationExtensions
     /// <typeparam name="TService"></typeparam>
     /// <typeparam name="TKey"></typeparam>
     /// <returns></returns>
-    public static WebApplication MapCrud<TEntity, TRequest, TService, TKey>(this WebApplication app,
+    public static IEndpointRouteBuilder MapCrud<TEntity, TRequest, TService, TKey>(this WebApplication app,
         Action<CrudOptions<TEntity>>? options = null)
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
@@ -117,24 +122,24 @@ public static class WepApplicationExtensions
         var crudOptions = new CrudOptions<TEntity>();
         options?.Invoke(crudOptions);
 
-        app.MapReaders<TEntity, TService, TKey>(options);
+        var routeBuilder = app.MapReaders<TEntity, TService, TKey>(options);
 
         if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyCreate) == CrudEndpointVerbs.OnlyCreate)
         {
-            app.MapCreate<TEntity, TRequest, TService, TKey>(crudOptions);
+            routeBuilder.MapCreate<TEntity, TRequest, TService, TKey>(crudOptions);
         }
         
         if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyUpdate) == CrudEndpointVerbs.OnlyUpdate)
         {
-            app.MapUpdate<TEntity, TRequest, TService, TKey>(crudOptions);
+            routeBuilder.MapUpdate<TEntity, TRequest, TService, TKey>(crudOptions);
         }
         
         if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyDelete) == CrudEndpointVerbs.OnlyDelete)
         {
-            app.MapDelete<TEntity, TRequest, TService, TKey>(crudOptions);
+            routeBuilder.MapDelete<TEntity, TRequest, TService, TKey>(crudOptions);
         }
         
-        return app;
+        return routeBuilder;
     }
     
     private static Type? GetCrudServiceInterface(IEnumerable<Type> interfaces)
@@ -241,7 +246,7 @@ public static class WepApplicationExtensions
         return keyType.GetProperties().Select(o => o.Name.Camelize()!).ToArray();
     }
     
-    private static WebApplication MapGetById<TEntity, TService, TKey>(this WebApplication app,
+    private static IEndpointRouteBuilder MapGetById<TEntity, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
         where TService : IReaderService<TEntity, TKey>
@@ -260,7 +265,7 @@ public static class WepApplicationExtensions
         return app;
     }
 
-    private static WebApplication MapGetPagedList<TEntity, TService, TKey>(this WebApplication app,
+    private static IEndpointRouteBuilder MapGetPagedList<TEntity, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
         where TService : IReaderService<TEntity, TKey>
@@ -278,7 +283,7 @@ public static class WepApplicationExtensions
         return app;
     }
 
-    private static WebApplication MapCreate<TEntity, TRequest, TService, TKey>(this WebApplication app,
+    private static IEndpointRouteBuilder MapCreate<TEntity, TRequest, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
@@ -295,7 +300,7 @@ public static class WepApplicationExtensions
         return app;
     }
 
-    private static WebApplication MapUpdate<TEntity, TRequest, TService, TKey>(this WebApplication app,
+    private static IEndpointRouteBuilder MapUpdate<TEntity, TRequest, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
@@ -313,7 +318,7 @@ public static class WepApplicationExtensions
         return app;
     }
 
-    private static WebApplication MapDelete<TEntity, TRequest, TService, TKey>(this WebApplication app,
+    private static IEndpointRouteBuilder MapDelete<TEntity, TRequest, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
