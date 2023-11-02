@@ -1,5 +1,6 @@
 using eQuantic.Core.Application.Crud.Enums;
 using Humanizer;
+using Microsoft.OpenApi.Models;
 
 namespace eQuantic.Core.Api.Crud.Options;
 
@@ -15,6 +16,7 @@ public interface ICrudOptions
 
     ICrudOptions RequireAuthorization();
     ICrudOptions WithGroup(string prefix);
+    ICrudOptions WithParameter(OpenApiParameter parameter);
     ICrudOptions WithVerbs(CrudEndpointVerbs verbs);
     ICrudOptions WithReference(Type referenceType);
     ICrudOptions WithReference<TReferenceEntity>();
@@ -27,6 +29,16 @@ public class CrudOptions<TEntity> : ICrudOptions
     public ICrudOptions WithGroup(string prefix)
     {
         Prefix = prefix;
+        return this;
+    }
+    
+    public ICrudOptions WithParameter(OpenApiParameter parameter)
+    {
+        Get.WithParameter(parameter);
+        List.WithParameter(parameter);
+        Create.WithParameter(parameter);
+        Update.WithParameter(parameter);
+        Delete.WithParameter(parameter);
         return this;
     }
 
@@ -75,7 +87,7 @@ public class CrudOptions<TEntity> : ICrudOptions
         Delete.WithReference<TReferenceEntity>();
         return this;
     }
-
+    
     public string? Prefix { get; private set; }
     public CrudEndpointVerbs Verbs { get; private set; } = CrudEndpointVerbs.All;
 
@@ -153,6 +165,12 @@ public class EndpointOptions
         return this;
     }
     
+    public EndpointOptions WithParameter(OpenApiParameter parameter)
+    {
+        Parameters.Add(parameter);
+        return this;
+    }
+    
     /// <summary>
     /// Options with tags
     /// </summary>
@@ -221,4 +239,6 @@ public class EndpointOptions
     /// The endpoint authorization
     /// </summary>
     internal bool? RequireAuth { get; private set; }
+    
+    internal List<OpenApiParameter> Parameters { get; private set; } = new();
 }

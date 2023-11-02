@@ -354,8 +354,19 @@ public static class WepApplicationExtensions
             endpoint.WithTags(options.Tags);
         }
 
-        endpoint.WithOpenApi();
+        endpoint.WithOpenApi(o =>
+        {
+            if (options.Parameters.Count == 0) 
+                return o;
+            
+            for (var i = options.Parameters.Count - 1; i >= 0; i--)
+            {
+                o.Parameters.Insert(0, options.Parameters[i]);
+            }
+            return o;
+        });
 
+        
         if (options.RequireAuth == true)
         {
             endpoint.RequireAuthorization();
