@@ -48,7 +48,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
         Repository = unitOfWork.GetAsyncQueryableRepository<TDataEntity, TKey>();
     }
 
-    public async Task<TEntity?> GetByIdAsync(ItemRequest<TKey> request, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity?> GetByIdAsync(ItemRequest<TKey> request, CancellationToken cancellationToken = default)
     {
         var item = await Repository.GetAsync(request.Id, opt =>
         {
@@ -76,7 +76,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
         return result;
     }
 
-    public async Task<IPagedEnumerable<TEntity>?> GetPagedListAsync(PagedListRequest<TEntity> request,
+    public virtual async Task<IPagedEnumerable<TEntity>?> GetPagedListAsync(PagedListRequest<TEntity> request,
         CancellationToken cancellationToken = default)
     {
         var filtering = request.Filtering
@@ -99,6 +99,8 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
             ? new EntityFilterSpecification<TDataEntity>(filtering.ToArray())
             : new TrueSpecification<TDataEntity>();
 
+        await OnAfterGetPagedListAsync(request, specification, cancellationToken);
+        
         var count = await Repository.CountAsync(specification, cancellationToken);
         var pagedList = (await Repository.GetPagedAsync(specification, request.PageIndex, request.PageSize,
                 config =>
@@ -136,7 +138,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
     protected virtual void OnCastSorting(SortingCastOptions<TDataEntity> options)
     {
     }
-    
+
     protected virtual TEntity? OnMapEntity(TDataEntity dataEntity)
     {
         var mapper = MapperFactory.GetMapper<TDataEntity, TEntity>();
@@ -153,13 +155,18 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
     {
         return Task.CompletedTask;
     }
-
+    
     protected virtual Task OnBeforeGetPagedListAsync(IEnumerable<TDataEntity> dataEntityList,
         IEnumerable<TEntity> entityList, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
 
+    protected virtual Task OnAfterGetPagedListAsync(PagedListRequest<TEntity> request, Specification<TDataEntity> specification, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+    
     private static IFiltering<TDataEntity>? GetReferenceFiltering<TAnyRequest>(TAnyRequest request)
     {
         if (request is not IReferencedRequest<int> referencedRequest)

@@ -34,7 +34,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
     {
     }
     
-    public async Task<TKey> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
+    public virtual async Task<TKey> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
     {
         var item = OnMapRequest(request.Body);
         if (item == null)
@@ -62,7 +62,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return item.GetKey();
     }
 
-    public async Task<bool> UpdateAsync(UpdateRequest<TRequest, TKey> request, CancellationToken cancellationToken = default)
+    public virtual async Task<bool> UpdateAsync(UpdateRequest<TRequest, TKey> request, CancellationToken cancellationToken = default)
     {
         var item = await GetItem(request, cancellationToken);
         if (item == null)
@@ -88,7 +88,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return true;
     }
 
-    public async Task<bool> DeleteAsync(ItemRequest<TKey> request, CancellationToken cancellationToken = default)
+    public virtual async Task<bool> DeleteAsync(ItemRequest<TKey> request, CancellationToken cancellationToken = default)
     {
         var item = await GetItem(request, cancellationToken);
         if (item == null)
