@@ -79,15 +79,6 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
     public virtual async Task<IPagedEnumerable<TEntity>?> GetPagedListAsync(PagedListRequest<TEntity> request,
         CancellationToken cancellationToken = default)
     {
-        var filtering = request.Filtering
-            .Cast<TDataEntity>(opt =>
-            {
-                OnCastEntity(opt);
-                OnCastFiltering(opt);
-            }).ToList();
-
-        SetReferenceFiltering(request, filtering);
-
         var sorting = request.Sorting
             .Cast<TDataEntity>(opt =>
             {
@@ -95,9 +86,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
                 OnCastSorting(opt);
             });
 
-        Specification<TDataEntity> specification = filtering.Any()
-            ? new EntityFilterSpecification<TDataEntity>(filtering.ToArray())
-            : new TrueSpecification<TDataEntity>();
+        var specification = OnGetSpecification(request);
 
         await OnAfterGetPagedListAsync(request, specification, cancellationToken);
         
@@ -139,6 +128,24 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
     {
     }
 
+    protected virtual Specification<TDataEntity> OnGetSpecification(PagedListRequest<TEntity> request)
+    {
+        var filtering = request.Filtering
+            .Cast<TDataEntity>(opt =>
+            {
+                OnCastEntity(opt);
+                OnCastFiltering(opt);
+            }).ToList();
+
+        SetReferenceFiltering(request, filtering);
+        
+        Specification<TDataEntity> specification = filtering.Any()
+            ? new EntityFilterSpecification<TDataEntity>(filtering.ToArray())
+            : new TrueSpecification<TDataEntity>();
+
+        return specification;
+    }
+    
     protected virtual TEntity? OnMapEntity(TDataEntity dataEntity)
     {
         var mapper = MapperFactory.GetMapper<TDataEntity, TEntity>();
@@ -151,18 +158,26 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
         throw ex;
     }
 
-    protected virtual Task OnBeforeGetByIdAsync(TDataEntity? dataEntity, TEntity? entity, CancellationToken cancellationToken = default)
+    protected virtual Task OnBeforeGetByIdAsync(
+        TDataEntity? dataEntity, 
+        TEntity? entity, 
+        CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
     
-    protected virtual Task OnBeforeGetPagedListAsync(IEnumerable<TDataEntity> dataEntityList,
-        IEnumerable<TEntity> entityList, CancellationToken cancellationToken = default)
+    protected virtual Task OnBeforeGetPagedListAsync(
+        IEnumerable<TDataEntity> dataEntityList,
+        IEnumerable<TEntity> entityList, 
+        CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
 
-    protected virtual Task OnAfterGetPagedListAsync(PagedListRequest<TEntity> request, Specification<TDataEntity> specification, CancellationToken cancellationToken = default)
+    protected virtual Task OnAfterGetPagedListAsync(
+        PagedListRequest<TEntity> request, 
+        Specification<TDataEntity> specification, 
+        CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
