@@ -11,27 +11,34 @@ using Microsoft.Extensions.Logging;
 
 namespace eQuantic.Core.Application.Crud.Services;
 
-public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, int>
+public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, int, int>
     where TEntity : class, new()
     where TDataEntity : class, IEntity<int>, new()
 {
     protected CrudServiceBase(
+        IApplicationContext<int> applicationContext,
         IDefaultUnitOfWork unitOfWork, 
         IMapperFactory mapperFactory, 
-        ILogger logger) : base(unitOfWork, mapperFactory, logger)
+        ILogger logger) 
+        : base(applicationContext, unitOfWork, mapperFactory, logger)
     {
     }
 }
-public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey> 
+public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey> 
     : ReaderServiceBase<TEntity, TDataEntity, TKey>, ICrudService<TEntity, TRequest, TKey>
     where TEntity : class, new()
     where TDataEntity : class, IEntity<TKey>, new()
 {
+    public IApplicationContext<TUserKey> ApplicationContext { get; }
+
     protected CrudServiceBase(
+        IApplicationContext<TUserKey> applicationContext,
         IDefaultUnitOfWork unitOfWork, 
         IMapperFactory mapperFactory, 
-        ILogger logger) : base(unitOfWork, mapperFactory, logger)
+        ILogger logger) 
+        : base(unitOfWork, mapperFactory, logger)
     {
+        ApplicationContext = applicationContext;
     }
     
     public virtual async Task<TKey> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
@@ -49,10 +56,16 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         {
             referencedItem.SetReferenceId(referencedRequest.ReferenceId);
         }
-
-        if (item is IEntityOwned<TUser> itemWithOwner)
+        
+        if (item is IEntityTimeMark itemWithTimeMark)
         {
-            itemWithOwner.CreatedAt = DateTime.UtcNow;
+            itemWithTimeMark.CreatedAt = DateTime.UtcNow;
+        }
+
+        if (item is IEntityOwned<TUser, TUserKey> itemWithOwner)
+        {
+            var userId = await ApplicationContext.GetCurrentUserIdAsync();
+            itemWithOwner.CreatedById = userId;
         }
 
         await Repository.AddAsync(item);
@@ -76,9 +89,15 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         
         OnMapRequest(request.Body, item);
 
-        if (item is IEntityTrack<TUser> itemWithTrack)
+        if (item is IEntityTimeTrack itemWithTimeTrack)
         {
-            itemWithTrack.UpdatedAt = DateTime.UtcNow;
+            itemWithTimeTrack.UpdatedAt = DateTime.UtcNow;
+        }
+        
+        if (item is IEntityTrack<TUser, TUserKey> itemWithTrack)
+        {
+            var userId = await ApplicationContext.GetCurrentUserIdAsync();
+            itemWithTrack.UpdatedById = userId;
         }
 
         await Repository.ModifyAsync(item);
@@ -97,13 +116,25 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             Logger.LogError(ex, "{ServiceName} - Delete: Entity of {Name} not found", GetType().Name, typeof(TEntity).Name);
             throw ex;
         }
-            
-
-        await OnAfterDeleteAsync(item, cancellationToken);
         
-        if (item is IEntityHistory<TUser> itemWithHistory)
+        await OnAfterDeleteAsync(item, cancellationToken);
+
+        var softDelete = false;
+        if (item is IEntityTimeEnded itemWithTimeEnded)
         {
-            itemWithHistory.DeletedAt = DateTime.UtcNow;
+            softDelete = true;
+            itemWithTimeEnded.DeletedAt = DateTime.UtcNow;
+        }
+        
+        if (item is IEntityHistory<TUser, TUserKey> itemWithHistory)
+        {
+            softDelete = true;
+            var userId = await ApplicationContext.GetCurrentUserIdAsync();
+            itemWithHistory.DeletedById = userId;
+        }
+
+        if (softDelete)
+        {
             await Repository.ModifyAsync(item);
         }
         else

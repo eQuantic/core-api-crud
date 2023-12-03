@@ -1,11 +1,15 @@
 namespace eQuantic.Core.Application.Entities.Data;
 
-public interface IEntityHistory<TUser> : IEntityTimeEnded
+public interface IEntityHistory<TUser> : IEntityHistory<TUser, int>
+{
+}
+
+public interface IEntityHistory<TUser, TKey> : IEntityTimeEnded
 {
     /// <summary>
     /// Gets or sets the value of the deleted by id
     /// </summary>
-    int? DeletedById { get; set; }
+    TKey? DeletedById { get; set; }
     
     /// <summary>
     /// Gets or sets the value of the deleted by

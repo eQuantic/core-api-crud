@@ -4,6 +4,7 @@ using eQuantic.Core.Api.Crud.Extensions;
 using eQuantic.Core.Api.Extensions;
 using eQuantic.Core.Api.Sample;
 using eQuantic.Core.Api.Sample.Services;
+using eQuantic.Core.Application;
 using eQuantic.Core.Data.EntityFramework.Repository.Extensions;
 using eQuantic.Core.Mvc.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ builder.Services.AddQueryableRepositories<ExampleUnitOfWork>(opt =>
 
 builder.Services
     .AddMappers(opt => opt.FromAssembly(assembly))
+    .AddTransient<IApplicationContext<int>, ApplicationContext>()
     .AddTransient<IExampleService, ExampleService>()
     .AddControllers()
     .AddJsonOptions(options =>

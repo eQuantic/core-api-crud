@@ -1,11 +1,15 @@
 namespace eQuantic.Core.Application.Entities.Data;
 
-public interface IEntityTrack<TUser> : IEntityTimeTrack
+public interface IEntityTrack<TUser> : IEntityTrack<TUser, int>
+{
+}
+
+public interface IEntityTrack<TUser, TKey> : IEntityTimeTrack
 {
     /// <summary>
     /// Gets or sets the value of the updated by id
     /// </summary>
-    int? UpdatedById { get; set; }
+    TKey? UpdatedById { get; set; }
     
     /// <summary>
     /// Gets or sets the value of the updated by

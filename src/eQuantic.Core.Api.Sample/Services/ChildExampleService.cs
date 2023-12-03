@@ -1,6 +1,7 @@
 using eQuantic.Core.Api.Sample.Entities;
 using eQuantic.Core.Api.Sample.Entities.Data;
 using eQuantic.Core.Api.Sample.Entities.Requests;
+using eQuantic.Core.Application;
 using eQuantic.Core.Application.Crud.Attributes;
 using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Data.Repository;
@@ -14,9 +15,11 @@ public interface IChildExampleService : ICrudService<ChildExample, ChildExampleR
 public class ChildExampleService : CrudServiceBase<ChildExample, ChildExampleRequest, ChildExampleData, UserData>, IChildExampleService
 {
     public ChildExampleService(
+        IApplicationContext<int> applicationContext,
         IDefaultUnitOfWork unitOfWork, 
         IMapperFactory mapperFactory, 
-        ILogger<ChildExampleService> logger) : base(unitOfWork, mapperFactory, logger)
+        ILogger<ChildExampleService> logger) 
+        : base(applicationContext, unitOfWork, mapperFactory, logger)
     {
     }
 }
