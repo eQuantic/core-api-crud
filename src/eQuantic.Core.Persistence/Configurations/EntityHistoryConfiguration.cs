@@ -4,12 +4,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace eQuantic.Core.Persistence.Configurations;
 
+public class EntityHistoryConfiguration<TEntity> : EntityHistoryConfiguration<TEntity, int>
+    where TEntity : class, IEntityOwned<int>, IEntityTrack<int>, IEntityHistory<int>
+{
+}
+
 /// <summary>
 /// The entity history configuration class
 /// </summary>
-/// <seealso cref="EntityTrackConfiguration{TEntity,TUser}"/>
-public class EntityHistoryConfiguration<TEntity> : EntityTrackConfiguration<TEntity> 
-    where TEntity : class, IEntityTimeMark, IEntityTimeTrack, IEntityTimeEnded
+/// <seealso cref="EntityTimeEndedConfiguration{TEntity}"/>
+public class EntityHistoryConfiguration<TEntity, TUserKey> : EntityTimeEndedConfiguration<TEntity> 
+    where TEntity : class, IEntityOwned<TUserKey>, IEntityTrack<TUserKey>, IEntityHistory<TUserKey>
 {
     /// <summary>
     /// Configures the builder
@@ -19,7 +24,13 @@ public class EntityHistoryConfiguration<TEntity> : EntityTrackConfiguration<TEnt
     {
         base.Configure(builder);
 
-        builder.Property(x => x.DeletedAt)
+        builder.Property(o => o.CreatedById)
+            .IsRequired();
+        
+        builder.Property(x => x.UpdatedById)
+            .IsRequired(false);
+        
+        builder.Property(x => x.DeletedById)
             .IsRequired(false);
     }
 }
@@ -28,8 +39,8 @@ public class EntityHistoryConfiguration<TEntity> : EntityTrackConfiguration<TEnt
 /// The entity history configuration class
 /// </summary>
 /// <seealso cref="EntityTrackConfiguration{TEntity,TUser}"/>
-public class EntityHistoryConfiguration<TEntity, TUser> : EntityTrackConfiguration<TEntity, TUser> 
-    where TEntity : EntityHistoryDataBase<TUser> 
+public class EntityHistoryConfiguration<TEntity, TUser, TUserKey> : EntityTrackConfiguration<TEntity, TUser, TUserKey> 
+    where TEntity : class, IEntityOwned<TUser, TUserKey>, IEntityTrack<TUser, TUserKey>, IEntityHistory<TUser, TUserKey>
     where TUser : class
 {
     /// <summary>

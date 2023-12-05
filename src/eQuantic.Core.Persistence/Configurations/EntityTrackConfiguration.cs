@@ -8,8 +8,17 @@ namespace eQuantic.Core.Persistence.Configurations;
 /// The entity time track configuration class
 /// </summary>
 /// <seealso cref="EntityOwnedConfiguration{TEntity,TUser}"/>
-public class EntityTrackConfiguration<TEntity> : EntityTimeMarkConfiguration<TEntity>
-    where TEntity : class, IEntityTimeMark, IEntityTimeTrack
+public class EntityTrackConfiguration<TEntity> : EntityTrackConfiguration<TEntity, int>
+    where TEntity : class, IEntityOwned<int>, IEntityTrack<int>
+{
+}
+
+/// <summary>
+/// The entity time track configuration class
+/// </summary>
+/// <seealso cref="EntityOwnedConfiguration{TEntity,TUser}"/>
+public class EntityTrackConfiguration<TEntity, TUserKey> : EntityTimeTrackConfiguration<TEntity>
+    where TEntity : class, IEntityOwned<TUserKey>, IEntityTrack<TUserKey>
 {
     /// <summary>
     /// Configures the builder
@@ -19,7 +28,10 @@ public class EntityTrackConfiguration<TEntity> : EntityTimeMarkConfiguration<TEn
     {
         base.Configure(builder);
         
-        builder.Property(x => x.UpdatedAt)
+        builder.Property(o => o.CreatedById)
+            .IsRequired();
+        
+        builder.Property(x => x.UpdatedById)
             .IsRequired(false);
     }
 }
@@ -28,8 +40,8 @@ public class EntityTrackConfiguration<TEntity> : EntityTimeMarkConfiguration<TEn
 /// The entity track configuration class
 /// </summary>
 /// <seealso cref="EntityOwnedConfiguration{TEntity,TUser}"/>
-public class EntityTrackConfiguration<TEntity, TUser> : EntityOwnedConfiguration<TEntity, TUser>
-    where TEntity : class, IEntityTrack<TUser>, IEntityOwned<TUser>
+public class EntityTrackConfiguration<TEntity, TUser, TUserKey> : EntityOwnedConfiguration<TEntity, TUser, TUserKey>
+    where TEntity : class, IEntityTrack<TUser, TUserKey>, IEntityOwned<TUser, TUserKey>
     where TUser : class
 {
     /// <summary>

@@ -4,15 +4,8 @@ using eQuantic.Core.Data.Repository;
 
 namespace eQuantic.Core.Application.Entities.Data;
 
-public abstract class EntityDataBase : IEntity<int>
+public abstract class EntityDataBase : EntityDataBase<int>
 {
-    /// <summary>
-    /// Gets or sets the value of the id
-    /// </summary>
-    [Key]
-    [Column(Order = 1)]
-    public int Id { get; set; }
-    
     /// <summary>
     /// Implicit operator to compare entity with id
     /// </summary>
@@ -22,12 +15,22 @@ public abstract class EntityDataBase : IEntity<int>
     {
         return entity.Id;
     }
+}
+
+public abstract class EntityDataBase<TKey> : IEntity<TKey>
+{
+    /// <summary>
+    /// Gets or sets the value of the id
+    /// </summary>
+    [Key]
+    [Column(Order = 1)]
+    public TKey Id { get; set; }
     
     /// <summary>
     /// Gets the key
     /// </summary>
     /// <returns>The id</returns>
-    public int GetKey()
+    public TKey GetKey()
     {
         return Id;
     }
@@ -36,7 +39,7 @@ public abstract class EntityDataBase : IEntity<int>
     /// Sets the key
     /// </summary>
     /// <param name="key"></param>
-    public void SetKey(int key)
+    public void SetKey(TKey key)
     {
         Id = key;
     }

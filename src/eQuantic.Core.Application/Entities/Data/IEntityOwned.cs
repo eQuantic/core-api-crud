@@ -1,16 +1,19 @@
 namespace eQuantic.Core.Application.Entities.Data;
 
-public interface IEntityOwned<TUser> : IEntityOwned<TUser, int>
+public interface IEntityOwned : IEntityOwned<int>
 {
 }
 
-public interface IEntityOwned<TUser, TKey> : IEntityTimeMark
+public interface IEntityOwned<TUserKey> : IEntityTimeMark
 {
     /// <summary>
     /// Gets or sets the value of the created by id
     /// </summary>
-    TKey CreatedById { get; set; }
-    
+    TUserKey CreatedById { get; set; }
+}
+
+public interface IEntityOwned<TUser, TUserKey> : IEntityOwned<TUserKey>
+{
     /// <summary>
     /// Gets or sets the value of the created by
     /// </summary>

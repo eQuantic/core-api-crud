@@ -4,3 +4,8 @@ public abstract class EntityTimeTrackDataBase : EntityTimeMarkDataBase, IEntityT
 {
     public DateTime? UpdatedAt { get; set; }
 }
+
+public abstract class EntityTimeTrackDataBase<TKey> : EntityTimeMarkDataBase<TKey>, IEntityTimeTrack
+{
+    public DateTime? UpdatedAt { get; set; }
+}
