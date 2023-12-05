@@ -2,30 +2,28 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace eQuantic.Core.Application.Entities.Data;
 
-public abstract class EntityTrackDataBase : EntityOwnedDataBase
+public abstract class EntityTrackDataBase : EntityTrackDataBase<int>, IEntityTrack
 {
-    public DateTime? UpdatedAt { get; set; }
-    public int UpdatedById { get; set; }
 }
 
-public abstract class EntityTrackDataBase<TUser> 
-    : EntityTrackDataBase, IEntityOwned<TUser, int>, IEntityTrack<TUser, int>
+public abstract class EntityTrackDataBase<TUserKey> 
+    : EntityOwnedDataBase<TUserKey>, IEntityTrack<TUserKey>
 {
-    public TUser? CreatedBy { get; set; }
-    public TUser? UpdatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public TUserKey? UpdatedById { get; set; }
 }
 
 /// <summary>
 /// The entity track data base class
 /// </summary>
 /// <seealso cref="EntityDataBase"/>
-public abstract class EntityTrackDataBase<TUser, TKey> 
-    : EntityOwnedDataBase<TUser, TKey>, IEntityTrack<TUser, TKey>
+public abstract class EntityTrackDataBase<TUser, TUserKey> 
+    : EntityOwnedDataBase<TUser, TUserKey>, IEntityTrack<TUser, TUserKey>
 {
     /// <summary>
     /// Gets or sets the value of the updated by id
     /// </summary>
-    public TKey? UpdatedById { get; set; }
+    public TUserKey? UpdatedById { get; set; }
     
     /// <summary>
     /// Gets or sets the value of the updated by

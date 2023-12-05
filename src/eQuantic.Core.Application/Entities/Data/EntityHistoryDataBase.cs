@@ -2,19 +2,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace eQuantic.Core.Application.Entities.Data;
 
-public abstract class EntityHistoryDataBase : EntityTrackDataBase
+public abstract class EntityHistoryDataBase : EntityHistoryDataBase<int>, IEntityHistory
 {
-    public DateTime? DeletedAt { get; set; }
-    public int DeletedById { get; set; }
 }
 
-
-public abstract class EntityHistoryDataBase<TUser> 
-    : EntityHistoryDataBase, IEntityOwned<TUser, int>, IEntityTrack<TUser, int>, IEntityHistory<TUser, int>
+public abstract class EntityHistoryDataBase<TUserKey> 
+    : EntityTrackDataBase<TUserKey>, IEntityHistory<TUserKey>
 {
-    public TUser? CreatedBy { get; set; }
-    public TUser? UpdatedBy { get; set; }
-    public TUser? DeletedBy { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public TUserKey? DeletedById { get; set; }
 }
 
 /// <summary>

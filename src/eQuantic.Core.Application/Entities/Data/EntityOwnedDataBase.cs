@@ -2,22 +2,21 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace eQuantic.Core.Application.Entities.Data;
 
-public class EntityOwnedDataBase : EntityDataBase, IEntityOwned
+public abstract class EntityOwnedDataBase : EntityOwnedDataBase<int>, IEntityOwned
 {
-    public DateTime CreatedAt { get; set; }
-    public int CreatedById { get; set; }
 }
 
-public class EntityOwnedDataBase<TUser> : EntityOwnedDataBase, IEntityOwned<TUser, int>
+public abstract class EntityOwnedDataBase<TUserKey> : EntityDataBase, IEntityOwned<TUserKey>
 {
-    public TUser? CreatedBy { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public TUserKey CreatedById { get; set; } = default!;
 }
 
 /// <summary>
 /// The entity owned data base class
 /// </summary>
 /// <seealso cref="EntityDataBase"/>
-public class EntityOwnedDataBase<TUser, TUserKey> : EntityDataBase, IEntityOwned<TUser, TUserKey>
+public abstract class EntityOwnedDataBase<TUser, TUserKey> : EntityDataBase, IEntityOwned<TUser, TUserKey>
 {
     /// <summary>
     /// Gets or sets the value of the created by id
