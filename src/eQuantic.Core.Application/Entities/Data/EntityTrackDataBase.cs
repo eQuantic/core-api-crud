@@ -8,6 +8,7 @@ public abstract class EntityTrackDataBase : EntityTrackDataBase<int>, IEntityTra
 
 public abstract class EntityTrackDataBase<TUserKey> 
     : EntityOwnedDataBase<TUserKey>, IEntityTrack<TUserKey>
+    where TUserKey : struct
 {
     public DateTime? UpdatedAt { get; set; }
     public TUserKey? UpdatedById { get; set; }
@@ -19,6 +20,7 @@ public abstract class EntityTrackDataBase<TUserKey>
 /// <seealso cref="EntityDataBase"/>
 public abstract class EntityTrackDataBase<TUser, TUserKey> 
     : EntityOwnedDataBase<TUser, TUserKey>, IEntityTrack<TUser, TUserKey>
+    where TUserKey : struct
 {
     /// <summary>
     /// Gets or sets the value of the updated by id

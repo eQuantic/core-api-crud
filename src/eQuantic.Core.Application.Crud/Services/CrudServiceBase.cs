@@ -28,6 +28,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
     : ReaderServiceBase<TEntity, TDataEntity, TKey>, ICrudService<TEntity, TRequest, TKey>
     where TEntity : class, new()
     where TDataEntity : class, IEntity<TKey>, new()
+    where TUserKey : struct
 {
     public IApplicationContext<TUserKey> ApplicationContext { get; }
 

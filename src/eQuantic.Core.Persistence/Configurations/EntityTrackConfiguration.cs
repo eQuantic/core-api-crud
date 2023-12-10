@@ -19,6 +19,7 @@ public class EntityTrackConfiguration<TEntity> : EntityTrackConfiguration<TEntit
 /// <seealso cref="EntityOwnedConfiguration{TEntity,TUser}"/>
 public class EntityTrackConfiguration<TEntity, TUserKey> : EntityTimeTrackConfiguration<TEntity>
     where TEntity : class, IEntityOwned<TUserKey>, IEntityTrack<TUserKey>
+    where TUserKey : struct
 {
     /// <summary>
     /// Configures the builder
@@ -43,6 +44,7 @@ public class EntityTrackConfiguration<TEntity, TUserKey> : EntityTimeTrackConfig
 public class EntityTrackConfiguration<TEntity, TUser, TUserKey> : EntityOwnedConfiguration<TEntity, TUser, TUserKey>
     where TEntity : class, IEntityTrack<TUser, TUserKey>, IEntityOwned<TUser, TUserKey>
     where TUser : class
+    where TUserKey : struct
 {
     /// <summary>
     /// Configures the builder
@@ -55,6 +57,9 @@ public class EntityTrackConfiguration<TEntity, TUser, TUserKey> : EntityOwnedCon
         builder.Property(x => x.UpdatedAt)
             .IsRequired(false);
 
+        builder.Property(x => x.UpdatedById)
+            .IsRequired(false);
+        
         builder.HasOne(o => o.UpdatedBy)
             .WithMany()
             .HasForeignKey(x => x.UpdatedById)

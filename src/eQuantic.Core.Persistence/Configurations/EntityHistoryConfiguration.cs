@@ -15,6 +15,7 @@ public class EntityHistoryConfiguration<TEntity> : EntityHistoryConfiguration<TE
 /// <seealso cref="EntityTimeEndedConfiguration{TEntity}"/>
 public class EntityHistoryConfiguration<TEntity, TUserKey> : EntityTimeEndedConfiguration<TEntity> 
     where TEntity : class, IEntityOwned<TUserKey>, IEntityTrack<TUserKey>, IEntityHistory<TUserKey>
+    where TUserKey : struct
 {
     /// <summary>
     /// Configures the builder
@@ -42,6 +43,7 @@ public class EntityHistoryConfiguration<TEntity, TUserKey> : EntityTimeEndedConf
 public class EntityHistoryConfiguration<TEntity, TUser, TUserKey> : EntityTrackConfiguration<TEntity, TUser, TUserKey> 
     where TEntity : class, IEntityOwned<TUser, TUserKey>, IEntityTrack<TUser, TUserKey>, IEntityHistory<TUser, TUserKey>
     where TUser : class
+    where TUserKey : struct
 {
     /// <summary>
     /// Configures the builder
@@ -52,6 +54,9 @@ public class EntityHistoryConfiguration<TEntity, TUser, TUserKey> : EntityTrackC
         base.Configure(builder);
 
         builder.Property(x => x.DeletedAt)
+            .IsRequired(false);
+        
+        builder.Property(x => x.DeletedById)
             .IsRequired(false);
         
         builder.HasOne(o => o.DeletedBy)

@@ -24,8 +24,8 @@ public abstract class EntityDataBase<TKey> : IEntity<TKey>
     /// </summary>
     [Key]
     [Column(Order = 1)]
-    public TKey Id { get; set; }
-    
+    public TKey Id { get; set; } = default!;
+
     /// <summary>
     /// Gets the key
     /// </summary>
