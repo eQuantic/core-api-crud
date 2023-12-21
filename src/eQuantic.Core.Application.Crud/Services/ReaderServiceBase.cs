@@ -3,7 +3,6 @@ using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Core.Application.Exceptions;
 using eQuantic.Core.Collections;
 using eQuantic.Core.Data.Repository;
-using eQuantic.Core.Data.Repository.Sql;
 using eQuantic.Linq.Casting;
 using eQuantic.Linq.Filter;
 using eQuantic.Linq.Filter.Casting;
@@ -21,7 +20,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity> : ReaderServiceBas
     where TDataEntity : class, IEntity<int>, new()
 {
     protected ReaderServiceBase(
-        IDefaultUnitOfWork unitOfWork, 
+        IQueryableUnitOfWork unitOfWork, 
         IMapperFactory mapperFactory, 
         ILogger logger) : base(unitOfWork, mapperFactory, logger)
     {
@@ -33,19 +32,19 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
     where TDataEntity : class, IEntity<TKey>, new()
 {
     protected readonly ILogger Logger;
-    protected IDefaultUnitOfWork UnitOfWork { get; }
+    protected IQueryableUnitOfWork UnitOfWork { get; }
     protected IMapperFactory MapperFactory { get; }
-    protected IAsyncQueryableRepository<ISqlUnitOfWork, TDataEntity, TKey> Repository { get; }
+    protected IAsyncQueryableRepository<IQueryableUnitOfWork, TDataEntity, TKey> Repository { get; }
 
     protected ReaderServiceBase(
-        IDefaultUnitOfWork unitOfWork, 
+        IQueryableUnitOfWork unitOfWork, 
         IMapperFactory mapperFactory, 
         ILogger logger)
     {
         Logger = logger;
         UnitOfWork = unitOfWork;
         MapperFactory = mapperFactory;
-        Repository = unitOfWork.GetAsyncQueryableRepository<TDataEntity, TKey>();
+        Repository = unitOfWork.GetAsyncQueryableRepository<IQueryableUnitOfWork, TDataEntity, TKey>();
     }
 
     public virtual async Task<TEntity?> GetByIdAsync(ItemRequest<TKey> request, CancellationToken cancellationToken = default)

@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="eQuantic.Core.Data.EntityFramework" Version="4.1.3" />
+        <PackageReference Include="eQuantic.Core.Data.EntityFramework" Version="4.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>

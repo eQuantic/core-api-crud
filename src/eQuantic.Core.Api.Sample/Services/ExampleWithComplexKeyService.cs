@@ -16,7 +16,7 @@ public class ExampleWithComplexKeyService : CrudServiceBase<ExampleWithComplexKe
 {
     public ExampleWithComplexKeyService(
         IApplicationContext<int> applicationContext,
-        IDefaultUnitOfWork unitOfWork, 
+        IQueryableUnitOfWork unitOfWork, 
         IMapperFactory mapperFactory, 
         ILogger<ExampleWithComplexKeyService> logger) 
         : base(applicationContext, unitOfWork, mapperFactory, logger)

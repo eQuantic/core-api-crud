@@ -15,7 +15,7 @@ public class ItemRequest<TKey>
     /// Gets or sets the value of the id
     /// </summary>
     [FromRoute]
-    public TKey Id { get; set; }
+    public TKey Id { get; set; } = default!;
 
     public ItemRequest()
     {

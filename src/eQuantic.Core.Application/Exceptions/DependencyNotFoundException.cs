@@ -24,9 +24,4 @@ public class DependencyNotFoundException: Exception
         : base(message, innerException)
     {
     }
-    
-    protected DependencyNotFoundException(SerializationInfo info, StreamingContext context) 
-        : base(info, context)
-    {
-    }
 }

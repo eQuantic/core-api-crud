@@ -1,4 +1,3 @@
-using System.Runtime.Serialization;
 using eQuantic.Core.Application.Resources;
 
 namespace eQuantic.Core.Application.Exceptions;
@@ -17,11 +16,6 @@ public class EntityNotFoundException : Exception
 
     public EntityNotFoundException(string message, Exception innerException) 
         : base(message, innerException)
-    {
-    }
-    
-    protected EntityNotFoundException(SerializationInfo info, StreamingContext context) 
-        : base(info, context)
     {
     }
 }
@@ -49,10 +43,5 @@ public class EntityNotFoundException<TKey> : EntityNotFoundException
         : base(message, innerException)
     {
         Id = id;
-    }
-    
-    protected EntityNotFoundException(SerializationInfo info, StreamingContext context) 
-        : base(info, context)
-    {
     }
 }

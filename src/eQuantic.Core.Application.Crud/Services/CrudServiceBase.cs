@@ -17,7 +17,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : C
 {
     protected CrudServiceBase(
         IApplicationContext<int> applicationContext,
-        IDefaultUnitOfWork unitOfWork, 
+        IQueryableUnitOfWork unitOfWork, 
         IMapperFactory mapperFactory, 
         ILogger logger) 
         : base(applicationContext, unitOfWork, mapperFactory, logger)
@@ -34,7 +34,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
 
     protected CrudServiceBase(
         IApplicationContext<TUserKey> applicationContext,
-        IDefaultUnitOfWork unitOfWork, 
+        IQueryableUnitOfWork unitOfWork, 
         IMapperFactory mapperFactory, 
         ILogger logger) 
         : base(unitOfWork, mapperFactory, logger)

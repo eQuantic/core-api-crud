@@ -16,7 +16,7 @@ public class ChildExampleService : CrudServiceBase<ChildExample, ChildExampleReq
 {
     public ChildExampleService(
         IApplicationContext<int> applicationContext,
-        IDefaultUnitOfWork unitOfWork, 
+        IQueryableUnitOfWork unitOfWork, 
         IMapperFactory mapperFactory, 
         ILogger<ChildExampleService> logger) 
         : base(applicationContext, unitOfWork, mapperFactory, logger)

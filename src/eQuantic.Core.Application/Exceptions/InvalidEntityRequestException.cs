@@ -17,9 +17,4 @@ public class InvalidEntityRequestException : Exception
         : base(message, innerException)
     {
     }
-    
-    protected InvalidEntityRequestException(SerializationInfo info, StreamingContext context) 
-        : base(info, context)
-    {
-    }
 }

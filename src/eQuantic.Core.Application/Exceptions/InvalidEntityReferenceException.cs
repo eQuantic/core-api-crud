@@ -19,11 +19,6 @@ public class InvalidEntityReferenceException : Exception
         : base(message, innerException)
     {
     }
-    
-    protected InvalidEntityReferenceException(SerializationInfo info, StreamingContext context) 
-        : base(info, context)
-    {
-    }
 }
 
 [Serializable]
@@ -49,10 +44,5 @@ public class InvalidEntityReferenceException<TReferenceKey> : InvalidEntityRefer
         : base(message, innerException)
     {
         Id = id;
-    }
-    
-    protected InvalidEntityReferenceException(SerializationInfo info, StreamingContext context) 
-        : base(info, context)
-    {
     }
 }
