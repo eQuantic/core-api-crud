@@ -6,6 +6,7 @@ namespace eQuantic.Core.Api.Crud.Options;
 
 public interface ICrudOptions
 {
+    RouteFormat RouteFormat { get; }
     string? Prefix { get; }
     CrudEndpointVerbs Verbs { get; }
     EndpointOptions Create { get; }
@@ -15,6 +16,7 @@ public interface ICrudOptions
     EndpointOptions Delete { get; }
 
     ICrudOptions RequireAuthorization();
+    ICrudOptions WithRouteFormat(RouteFormat format);
     ICrudOptions WithGroup(string prefix);
     ICrudOptions WithParameter(OpenApiParameter parameter);
     ICrudOptions WithVerbs(CrudEndpointVerbs verbs);
@@ -26,6 +28,12 @@ public interface ICrudOptions
 /// </summary>
 public class CrudOptions<TEntity> : ICrudOptions
 {
+    public ICrudOptions WithRouteFormat(RouteFormat format)
+    {
+        RouteFormat = format;
+        return this;
+    }
+    
     public ICrudOptions WithGroup(string prefix)
     {
         Prefix = prefix;
@@ -87,7 +95,8 @@ public class CrudOptions<TEntity> : ICrudOptions
         Delete.WithReference<TReferenceEntity>();
         return this;
     }
-    
+
+    public RouteFormat RouteFormat { get; private set; } = RouteFormat.CamelCase;
     public string? Prefix { get; private set; }
     public CrudEndpointVerbs Verbs { get; private set; } = CrudEndpointVerbs.All;
 

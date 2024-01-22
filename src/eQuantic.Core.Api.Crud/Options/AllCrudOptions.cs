@@ -7,6 +7,7 @@ public class AllCrudOptions
     private Assembly? _assembly = null;
     private readonly Dictionary<Type, Action<ICrudOptions>> _options = new();
     private bool? _requireAuth = null;
+    private RouteFormat? _routeFormat;
     
     public AllCrudOptions FromAssembly(Assembly assembly)
     {
@@ -19,6 +20,12 @@ public class AllCrudOptions
         _requireAuth = true;
         return this;
     }
+
+    public AllCrudOptions WithRouteFormat(RouteFormat format)
+    {
+        _routeFormat = format;
+        return this;
+    }
     
     public EntityCrudOptions<TEntity> For<TEntity>()
     {
@@ -28,6 +35,7 @@ public class AllCrudOptions
     internal Assembly? GetAssembly() => _assembly;
     internal Dictionary<Type, Action<ICrudOptions>> GetOptions() => _options;
     internal bool? GetRequireAuth() => _requireAuth;
+    internal RouteFormat? GetRouteFormat() => _routeFormat;
     
     public class EntityCrudOptions<TEntity>
     {

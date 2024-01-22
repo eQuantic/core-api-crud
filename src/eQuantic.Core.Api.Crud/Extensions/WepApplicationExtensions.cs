@@ -27,7 +27,7 @@ public static class WepApplicationExtensions
     {
         var allCrudOptions = new AllCrudOptions();
         options?.Invoke(allCrudOptions);
-        
+
         var extensionType = typeof(WepApplicationExtensions);
 
         var assembly = allCrudOptions.GetAssembly() ?? Assembly.GetExecutingAssembly();
@@ -59,7 +59,7 @@ public static class WepApplicationExtensions
                 {
                     continue;
                 }
-                
+
                 InvokeMapReaders(app, readerInterface, allCrudOptions, extensionType, serviceType, crudEndpoints);
                 continue;
             }
@@ -87,10 +87,10 @@ public static class WepApplicationExtensions
         var crudOptions = new CrudOptions<TEntity>();
         options?.Invoke(crudOptions);
 
-        var routeBuilder = !string.IsNullOrEmpty(crudOptions.Prefix) ? 
-            (IEndpointRouteBuilder)app.MapGroup(crudOptions.Prefix) : 
-            app;
-        
+        var routeBuilder = !string.IsNullOrEmpty(crudOptions.Prefix)
+            ? (IEndpointRouteBuilder)app.MapGroup(crudOptions.Prefix)
+            : app;
+
         if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyGetById) == CrudEndpointVerbs.OnlyGetById)
         {
             routeBuilder.MapGetById<TEntity, TService, TKey>(crudOptions);
@@ -100,7 +100,7 @@ public static class WepApplicationExtensions
         {
             routeBuilder.MapGetPagedList<TEntity, TService, TKey>(crudOptions);
         }
-        
+
         return routeBuilder;
     }
 
@@ -128,34 +128,34 @@ public static class WepApplicationExtensions
         {
             routeBuilder.MapCreate<TEntity, TRequest, TService, TKey>(crudOptions);
         }
-        
+
         if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyUpdate) == CrudEndpointVerbs.OnlyUpdate)
         {
             routeBuilder.MapUpdate<TEntity, TRequest, TService, TKey>(crudOptions);
         }
-        
+
         if ((crudOptions.Verbs & CrudEndpointVerbs.OnlyDelete) == CrudEndpointVerbs.OnlyDelete)
         {
             routeBuilder.MapDelete<TEntity, TRequest, TService, TKey>(crudOptions);
         }
-        
+
         return routeBuilder;
     }
-    
+
     private static Type? GetCrudServiceInterface(IEnumerable<Type> interfaces)
     {
         return interfaces
             .FirstOrDefault(o =>
                 o.GenericTypeArguments.Length > 0 && o.GetGenericTypeDefinition() == typeof(ICrudService<,,>));
     }
-    
+
     private static Type? GetReaderServiceInterface(IEnumerable<Type> interfaces)
     {
         return interfaces
             .FirstOrDefault(o =>
                 o.GenericTypeArguments.Length > 0 && o.GetGenericTypeDefinition() == typeof(IReaderService<,>));
     }
-    
+
     private static Action<ICrudOptions>? GetCrudOptions(AllCrudOptions allCrudOptions, Type entityType)
     {
         return allCrudOptions.GetOptions().ContainsKey(entityType)
@@ -169,30 +169,30 @@ public static class WepApplicationExtensions
         var entityType = crudInterface.GenericTypeArguments[0];
         var requestType = crudInterface.GenericTypeArguments[1];
         var keyType = crudInterface.GenericTypeArguments[2];
-        
+
         var crudOptions = GetCrudOptions(allCrudOptions, entityType);
         var method = extensionType.GetMethod(nameof(MapCrud))
             ?.MakeGenericMethod(entityType, requestType, serviceType, keyType);
-        
+
         InvokeMethod(app, crudEndpoints, method, allCrudOptions, crudOptions);
     }
-    
+
     private static void InvokeMapReaders(WebApplication app, Type crudInterface, AllCrudOptions allCrudOptions,
         Type extensionType, Type serviceType, MapCrudEndpointsAttribute crudEndpoints)
     {
         var entityType = crudInterface.GenericTypeArguments[0];
         var keyType = crudInterface.GenericTypeArguments[1];
-        
+
         var crudOptions = GetCrudOptions(allCrudOptions, entityType);
         var method = extensionType.GetMethod(nameof(MapReaders))
             ?.MakeGenericMethod(entityType, serviceType, keyType);
-        
+
         InvokeMethod(app, crudEndpoints, method, allCrudOptions, crudOptions);
     }
 
     private static void InvokeMethod(
-        WebApplication app, 
-        MapCrudEndpointsAttribute crudEndpoints, 
+        WebApplication app,
+        MapCrudEndpointsAttribute crudEndpoints,
         MethodBase? method,
         AllCrudOptions allCrudOptions,
         Action<ICrudOptions>? crudOptions)
@@ -210,28 +210,52 @@ public static class WepApplicationExtensions
                 {
                     opt.RequireAuthorization();
                 }
+
+                var routeFormat = allCrudOptions.GetRouteFormat();
+                if (routeFormat.HasValue)
+                {
+                    opt.WithRouteFormat(routeFormat.Value);
+                }
+
                 crudOptions?.Invoke(opt);
             })
         });
     }
-    
-    private static string GetPattern<TEntity, TKey>(bool withId = false, Type? referenceType = null)
+
+    private static string GetPattern<TEntity, TKey>(
+        RouteFormat format,
+        bool withId = false, 
+        Type? referenceType = null)
     {
         var entityType = typeof(TEntity);
         var entityName = entityType.Name;
-        var prefix = entityName.Pluralize().Camelize();
+        var prefix = entityName.ChangeCase(format);
         var pattern = $"/{prefix}";
         if (referenceType != null)
         {
-            pattern = $"/{referenceType.Name.Pluralize().Camelize()}/{{referenceId}}{pattern}";
+            pattern = $"/{referenceType.Name.ChangeCase(format)}/{{referenceId}}{pattern}";
         }
-        
+
         if (!withId)
             return pattern;
-        
-        pattern = IsPrimitiveKey<TKey>() ? $"{pattern}/{{id}}" : $"{pattern}/{{{string.Join("}/{", GetRoutesFromComplexKey<TKey>())}}}";
+
+        pattern = IsPrimitiveKey<TKey>()
+            ? $"{pattern}/{{id}}"
+            : $"{pattern}/{{{string.Join("}/{", GetRoutesFromComplexKey<TKey>())}}}";
 
         return pattern;
+    }
+
+    private static string ChangeCase(this string name, RouteFormat format)
+    {
+        var route = name.Pluralize();
+        return format switch
+        {
+            RouteFormat.CamelCase => route.Camelize(),
+            RouteFormat.PascalCase => route.Pascalize(),
+            RouteFormat.SnakeCase => route.Kebaberize(),
+            _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
+        };
     }
 
     private static bool IsPrimitiveKey<TKey>()
@@ -245,13 +269,13 @@ public static class WepApplicationExtensions
         var keyType = typeof(TKey);
         return keyType.GetProperties().Select(o => o.Name.Camelize()!).ToArray();
     }
-    
+
     private static IEndpointRouteBuilder MapGetById<TEntity, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
         where TService : IReaderService<TEntity, TKey>
     {
-        var pattern = GetPattern<TEntity, TKey>(true, options.Get.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Get.ReferenceType);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
         Delegate handler = options.Get.ReferenceType != null
             ? (IsPrimitiveKey<TKey>() ? handlers.GetReferencedById : handlers.GetReferencedByComplexId)
@@ -270,7 +294,7 @@ public static class WepApplicationExtensions
         where TEntity : class, new()
         where TService : IReaderService<TEntity, TKey>
     {
-        var pattern = GetPattern<TEntity, TKey>(false, options.List.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.List.ReferenceType);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
         Delegate handler = options.List.ReferenceType != null
             ? handlers.GetReferencedPagedList
@@ -288,7 +312,7 @@ public static class WepApplicationExtensions
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
     {
-        var pattern = GetPattern<TEntity, TKey>(false, options.Create.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.Create.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Create.ReferenceType != null
             ? handlers.ReferencedCreate
@@ -305,7 +329,7 @@ public static class WepApplicationExtensions
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
     {
-        var pattern = GetPattern<TEntity, TKey>(true, options.Update.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Update.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Update.ReferenceType != null
             ? (IsPrimitiveKey<TKey>() ? handlers.ReferencedUpdate : handlers.ReferencedUpdateByComplexId)
@@ -323,7 +347,7 @@ public static class WepApplicationExtensions
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
     {
-        var pattern = GetPattern<TEntity, TKey>(true, options.Delete.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Delete.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Delete.ReferenceType != null
             ? (IsPrimitiveKey<TKey>() ? handlers.ReferencedDelete : handlers.ReferencedDeleteByComplexId)
@@ -356,21 +380,23 @@ public static class WepApplicationExtensions
 
         endpoint.WithOpenApi(o =>
         {
-            if (options.Parameters.Count == 0) 
+            if (options.Parameters.Count == 0)
                 return o;
-            
+
             for (var i = options.Parameters.Count - 1; i >= 0; i--)
             {
                 o.Parameters.Insert(0, options.Parameters[i]);
             }
+
             return o;
         });
 
-        
+
         if (options.RequireAuth == true)
         {
             endpoint.RequireAuthorization();
         }
+
         return endpoint;
     }
 }
