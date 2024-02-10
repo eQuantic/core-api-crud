@@ -1,7 +1,7 @@
 using System.Net.Mime;
+using eQuantic.Core.Api.Error.Results;
 using eQuantic.Core.Api.Options;
-using eQuantic.Core.Application.Entities.Results;
-using eQuantic.Core.Application.Exceptions;
+using eQuantic.Core.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

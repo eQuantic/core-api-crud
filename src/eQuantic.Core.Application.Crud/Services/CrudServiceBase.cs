@@ -1,9 +1,9 @@
 using eQuantic.Core.Application.Crud.Entities.Requests;
 using eQuantic.Core.Application.Entities.Data;
-using eQuantic.Core.Application.Exceptions;
 using eQuantic.Core.Data.EntityFramework.Repository;
 using eQuantic.Core.Data.EntityFramework.Specifications;
 using eQuantic.Core.Data.Repository;
+using eQuantic.Core.Exceptions;
 using eQuantic.Linq.Filter;
 using eQuantic.Linq.Specification;
 using eQuantic.Mapper;

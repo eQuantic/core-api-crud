@@ -1,6 +1,6 @@
-using eQuantic.Core.Application.Resources;
+using eQuantic.Core.Exceptions.Resources;
 
-namespace eQuantic.Core.Application.Exceptions;
+namespace eQuantic.Core.Exceptions;
 
 [Serializable]
 public class EntityNotFoundException : Exception
@@ -29,7 +29,7 @@ public class EntityNotFoundException<TKey> : EntityNotFoundException
     {
     }
     
-    public EntityNotFoundException(TKey id) : this(id, ApplicationResource.EntityNotFound)
+    public EntityNotFoundException(TKey id) : this(id, ExceptionsResource.EntityNotFound)
     {
     }
 

@@ -1,8 +1,8 @@
 using eQuantic.Core.Application.Crud.Entities.Requests;
 using eQuantic.Core.Application.Entities.Data;
-using eQuantic.Core.Application.Exceptions;
 using eQuantic.Core.Collections;
 using eQuantic.Core.Data.Repository;
+using eQuantic.Core.Exceptions;
 using eQuantic.Linq.Casting;
 using eQuantic.Linq.Filter;
 using eQuantic.Linq.Filter.Casting;

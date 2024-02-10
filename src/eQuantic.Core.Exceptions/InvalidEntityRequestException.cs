@@ -1,6 +1,4 @@
-using System.Runtime.Serialization;
-
-namespace eQuantic.Core.Application.Exceptions;
+namespace eQuantic.Core.Exceptions;
 
 public class InvalidEntityRequestException : Exception
 {

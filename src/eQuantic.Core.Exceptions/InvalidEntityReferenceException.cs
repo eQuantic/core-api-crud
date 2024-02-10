@@ -1,7 +1,6 @@
-using System.Runtime.Serialization;
-using eQuantic.Core.Application.Resources;
+using eQuantic.Core.Exceptions.Resources;
 
-namespace eQuantic.Core.Application.Exceptions;
+namespace eQuantic.Core.Exceptions;
 
 [Serializable]
 public class InvalidEntityReferenceException : Exception
@@ -30,7 +29,7 @@ public class InvalidEntityReferenceException<TReferenceKey> : InvalidEntityRefer
     {
     }
     
-    public InvalidEntityReferenceException(TReferenceKey id) : this(id, ApplicationResource.InvalidReference)
+    public InvalidEntityReferenceException(TReferenceKey id) : this(id, ExceptionsResource.InvalidReference)
     {
     }
 

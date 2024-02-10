@@ -7,28 +7,25 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace eQuantic.Core.Application.Resources {
-    using System;
-    
-    
+namespace eQuantic.Core.Exceptions.Resources {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class ApplicationResource {
+    internal class ExceptionsResource {
         
         private static System.Resources.ResourceManager resourceMan;
         
         private static System.Globalization.CultureInfo resourceCulture;
         
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal ApplicationResource() {
+        internal ExceptionsResource() {
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         internal static System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.Equals(null, resourceMan)) {
-                    System.Resources.ResourceManager temp = new System.Resources.ResourceManager("eQuantic.Core.Application.Resources.ApplicationResource", typeof(ApplicationResource).Assembly);
+                    System.Resources.ResourceManager temp = new System.Resources.ResourceManager("eQuantic.Core.Exceptions.Resources.ExceptionsResource", typeof(ExceptionsResource).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

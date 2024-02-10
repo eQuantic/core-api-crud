@@ -1,25 +1,25 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Description>eQuantic Application CRUD Library</Description>
+        <Description>eQuantic API Error Library</Description>
         <Copyright>2023</Copyright>
         <Authors>eQuantic Systems</Authors>
-        <RootNamespace>eQuantic.Core.Application.Crud</RootNamespace>
-        <AssemblyTitle>eQuantic.Core.Application.Crud</AssemblyTitle>
+        <RootNamespace>eQuantic.Core.Api.Error</RootNamespace>
+        <AssemblyTitle>eQuantic.Core.Api.Error</AssemblyTitle>
         <AssemblyVersion>1.6.2.0</AssemblyVersion>
         <FileVersion>1.6.2.0</FileVersion>
         <Version>1.6.2.0</Version>
-        <TargetFrameworks>netstandard2.1;net7.0;net8.0</TargetFrameworks>
-        
-        <PackageId>eQuantic.Core.Application.Crud</PackageId>
-        <PackageTags>eQuantic;Core;Application;CRUD;Library</PackageTags>
-        <PackageReleaseNotes>Generic CRUD endpoints for Entities</PackageReleaseNotes>
+        <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
+
+        <PackageId>eQuantic.Core.Api.Error</PackageId>
+        <PackageTags>eQuantic;Core;Api;Error;Library</PackageTags>
+        <PackageReleaseNotes>Conventions for API Error Layer</PackageReleaseNotes>
         <PackageProjectUrl>https://github.com/eQuantic/core-api-crud</PackageProjectUrl>
         <PackageOutputPath>../artifacts/</PackageOutputPath>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>Icon.png</PackageIcon>
-        
+
         <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
         <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
         <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -27,26 +27,13 @@
         <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
         <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        
+
         <RepositoryUrl>https://github.com/eQuantic/core-api-crud</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="eQuantic.Core.Data.EntityFramework" Version="4.2.0" />
-        <PackageReference Include="eQuantic.Mapper" Version="1.1.5" />
-        <PackageReference Include="Humanizer" Version="2.14.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\eQuantic.Core.Application\eQuantic.Core.Application.csproj" />
-      <ProjectReference Include="..\eQuantic.Core.Exceptions\eQuantic.Core.Exceptions.csproj" />
-    </ItemGroup>
-
     <ItemGroup>
         <None Include="Icon.png" Pack="true" PackagePath="Icon.png" />
         <None Include="Icon_details.png" Pack="true" PackagePath="Icon_details.png" />
