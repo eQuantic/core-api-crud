@@ -1,19 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Description>eQuantic API Error Library</Description>
+        <Description>eQuantic API Client Library</Description>
         <Copyright>2023</Copyright>
         <Authors>eQuantic Systems</Authors>
-        <RootNamespace>eQuantic.Core.Api.Error</RootNamespace>
-        <AssemblyTitle>eQuantic.Core.Api.Error</AssemblyTitle>
+        <RootNamespace>eQuantic.Core.Api.Client</RootNamespace>
+        <AssemblyTitle>eQuantic.Core.Api.Client</AssemblyTitle>
         <AssemblyVersion>1.6.3.0</AssemblyVersion>
         <FileVersion>1.6.3.0</FileVersion>
         <Version>1.6.3.0</Version>
         <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
 
-        <PackageId>eQuantic.Core.Api.Error</PackageId>
-        <PackageTags>eQuantic;Core;Api;Error;Library</PackageTags>
-        <PackageReleaseNotes>Conventions for API Error Layer</PackageReleaseNotes>
+        <PackageId>eQuantic.Core.Api.Client</PackageId>
+        <PackageTags>eQuantic;Core;Api;Client;Library</PackageTags>
+        <PackageReleaseNotes>Conventions for API Client Layer</PackageReleaseNotes>
         <PackageProjectUrl>https://github.com/eQuantic/core-api-crud</PackageProjectUrl>
         <PackageOutputPath>../artifacts/</PackageOutputPath>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -34,6 +34,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
+
     <ItemGroup>
         <None Include="Icon.png" Pack="true" PackagePath="Icon.png" />
         <None Include="Icon_details.png" Pack="true" PackagePath="Icon_details.png" />

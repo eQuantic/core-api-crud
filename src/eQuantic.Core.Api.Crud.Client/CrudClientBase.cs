@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Web;
-using eQuantic.Core.Api.Crud.Client.Models;
+using eQuantic.Core.Api.Client.Results;
 using eQuantic.Core.Collections;
 using eQuantic.Linq.Filter;
 using eQuantic.Linq.Sorter;

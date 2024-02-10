@@ -1,10 +1,10 @@
-namespace eQuantic.Core.Api.Crud.Client.Models;
+namespace eQuantic.Core.Api.Client.Results;
 
 /// <summary>
 /// Paged List Result
 /// </summary>
 /// <typeparam name="T"></typeparam>Re
-internal class PagedListResult<T>
+public class PagedListResult<T> : BasicResult
 {
     /// <summary>
     /// Gets or sets the items.
