@@ -39,8 +39,10 @@ public class ExceptionMiddleware : IMiddleware
         context.Response.StatusCode = exception switch
         {
             EntityNotFoundException => StatusCodes.Status404NotFound,
+            DependencyNotFoundException => StatusCodes.Status404NotFound,
             InvalidEntityReferenceException => StatusCodes.Status400BadRequest,
             InvalidEntityRequestException => StatusCodes.Status400BadRequest,
+            HttpRequestException ex => (int?)ex.StatusCode ?? StatusCodes.Status500InternalServerError,
             _ => StatusCodes.Status500InternalServerError
         };
 
@@ -62,6 +64,9 @@ public class ExceptionMiddleware : IMiddleware
 
         var response = new ErrorResult(message, _environment.IsDevelopment() ? exception.StackTrace : null);
 
+        if(context.Response.StatusCode == StatusCodes.Status500InternalServerError)
+            _logger.LogError(0, exception, message);
+        
         await context.Response.WriteAsJsonAsync(response);
     }
 }
