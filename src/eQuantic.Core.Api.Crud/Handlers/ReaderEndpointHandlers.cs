@@ -1,7 +1,7 @@
 using eQuantic.Core.Api.Crud.Options;
-using eQuantic.Core.Application.Crud.Entities.Requests;
 using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Application.Entities.Results;
+using eQuantic.Core.Domain.Entities.Requests;
 using eQuantic.Linq.Filter;
 using eQuantic.Linq.Sorter;
 using Microsoft.AspNetCore.Http;

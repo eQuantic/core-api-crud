@@ -1,7 +1,7 @@
 using System.Reflection;
-using eQuantic.Core.Application.Crud.Entities.Requests;
 using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Application.Entities.Results;
+using eQuantic.Core.Domain.Entities.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eQuantic.Core.Api.Crud.Controllers;

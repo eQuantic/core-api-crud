@@ -1,6 +1,6 @@
 using eQuantic.Core.Api.Crud.Options;
-using eQuantic.Core.Application.Crud.Entities.Requests;
 using eQuantic.Core.Application.Crud.Services;
+using eQuantic.Core.Domain.Entities.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

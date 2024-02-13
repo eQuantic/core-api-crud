@@ -2,7 +2,7 @@ using eQuantic.Linq.Filter;
 using eQuantic.Linq.Sorter;
 using Microsoft.AspNetCore.Mvc;
 
-namespace eQuantic.Core.Application.Crud.Entities.Requests;
+namespace eQuantic.Core.Domain.Entities.Requests;
 
 /// <summary>
 /// The paged list request class

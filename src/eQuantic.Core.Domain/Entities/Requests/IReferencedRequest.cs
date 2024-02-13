@@ -1,4 +1,4 @@
-namespace eQuantic.Core.Application.Crud.Entities.Requests;
+namespace eQuantic.Core.Domain.Entities.Requests;
 
 public interface IReferencedRequest<TReferenceKey>
 {

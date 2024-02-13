@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace eQuantic.Core.Application.Crud.Entities.Requests;
+namespace eQuantic.Core.Domain.Entities.Requests;
 
 /// <summary>
 /// The update request class

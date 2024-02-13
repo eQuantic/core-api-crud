@@ -1,6 +1,6 @@
-using eQuantic.Core.Application.Crud.Entities.Requests;
 using eQuantic.Core.Application.Services;
 using eQuantic.Core.Collections;
+using eQuantic.Core.Domain.Entities.Requests;
 
 namespace eQuantic.Core.Application.Crud.Services;
 
