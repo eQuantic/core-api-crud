@@ -7,7 +7,7 @@ namespace eQuantic.Core.Domain.Entities.Requests;
 /// <summary>
 /// The paged list request class
 /// </summary>
-public class PagedListRequest<TEntity>
+public class PagedListRequest<TEntity> : BasicRequest
 {
     /// <summary>
     /// Gets or sets the value of the page index

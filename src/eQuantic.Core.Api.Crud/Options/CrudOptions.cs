@@ -20,8 +20,8 @@ public interface ICrudOptions
     ICrudOptions WithGroup(string prefix);
     ICrudOptions WithParameter(OpenApiParameter parameter);
     ICrudOptions WithVerbs(CrudEndpointVerbs verbs);
-    ICrudOptions WithReference(Type referenceType);
-    ICrudOptions WithReference<TReferenceEntity>();
+    ICrudOptions WithReference(Type referenceType, Type referenceKeyType);
+    ICrudOptions WithReference<TReferenceEntity, TReferenceKey>();
 }
 /// <summary>
 /// CRUD options
@@ -65,34 +65,36 @@ public class CrudOptions<TEntity> : ICrudOptions
         Delete.RequireAuthorization();
         return this;
     }
-    
+
     /// <summary>
     /// Options with referenced entity
     /// </summary>
     /// <param name="referenceType"></param>
+    /// <param name="referenceKeyType"></param>
     /// <returns></returns>
-    public ICrudOptions WithReference(Type referenceType)
+    public ICrudOptions WithReference(Type referenceType, Type referenceKeyType)
     {
-        Get.WithReference(referenceType);
-        List.WithReference(referenceType);
-        Create.WithReference(referenceType);
-        Update.WithReference(referenceType);
-        Delete.WithReference(referenceType);
+        Get.WithReference(referenceType, referenceKeyType);
+        List.WithReference(referenceType, referenceKeyType);
+        Create.WithReference(referenceType, referenceKeyType);
+        Update.WithReference(referenceType, referenceKeyType);
+        Delete.WithReference(referenceType, referenceKeyType);
         return this;
     }
-    
+
     /// <summary>
     /// Options with referenced entity
     /// </summary>
     /// <typeparam name="TReferenceEntity"></typeparam>
+    /// <typeparam name="TReferenceKey"></typeparam>
     /// <returns></returns>
-    public ICrudOptions WithReference<TReferenceEntity>()
+    public ICrudOptions WithReference<TReferenceEntity, TReferenceKey>()
     {
-        Get.WithReference<TReferenceEntity>();
-        List.WithReference<TReferenceEntity>();
-        Create.WithReference<TReferenceEntity>();
-        Update.WithReference<TReferenceEntity>();
-        Delete.WithReference<TReferenceEntity>();
+        Get.WithReference<TReferenceEntity, TReferenceKey>();
+        List.WithReference<TReferenceEntity, TReferenceKey>();
+        Create.WithReference<TReferenceEntity, TReferenceKey>();
+        Update.WithReference<TReferenceEntity, TReferenceKey>();
+        Delete.WithReference<TReferenceEntity, TReferenceKey>();
         return this;
     }
 
@@ -145,21 +147,25 @@ public class EndpointOptions
     /// Options with reference
     /// </summary>
     /// <param name="referenceType"></param>
+    /// <param name="referenceKeyType"></param>
     /// <returns></returns>
-    public EndpointOptions WithReference(Type referenceType)
+    public EndpointOptions WithReference(Type referenceType, Type referenceKeyType)
     {
         ReferenceType = referenceType;
+        ReferenceKeyType = referenceKeyType;
         return this;
     }
-    
+
     /// <summary>
     /// Options with reference
     /// </summary>
     /// <typeparam name="TReferenceEntity"></typeparam>
+    /// <typeparam name="TReferenceKey"></typeparam>
     /// <returns></returns>
-    public EndpointOptions WithReference<TReferenceEntity>()
+    public EndpointOptions WithReference<TReferenceEntity, TReferenceKey>()
     {
         ReferenceType = typeof(TReferenceEntity);
+        ReferenceKeyType = typeof(TReferenceKey);
         return this;
     }
     
@@ -223,6 +229,11 @@ public class EndpointOptions
     /// The reference entity type
     /// </summary>
     internal Type? ReferenceType { get; private set; }
+    
+    /// <summary>
+    /// The reference key type
+    /// </summary>
+    internal Type? ReferenceKeyType { get; private set; }
 
     /// <summary>
     /// The endpoint name

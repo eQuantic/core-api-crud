@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Api.Crud.Handlers;
@@ -5,6 +6,7 @@ using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Application.Crud.Attributes;
 using eQuantic.Core.Application.Crud.Enums;
 using eQuantic.Core.Application.Entities.Results;
+using eQuantic.Core.Domain.Attributes;
 using Humanizer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -204,7 +206,13 @@ public static class WepApplicationExtensions
                 opt.WithVerbs(crudEndpoints.EndpointVerbs);
 
                 if (crudEndpoints.ReferenceType != null)
-                    opt.WithReference(crudEndpoints.ReferenceType);
+                {
+                    var referenceKeyType = crudEndpoints.ReferenceKeyType ?? crudEndpoints.ReferenceType
+                        .GetProperties()
+                        .FirstOrDefault(p => p.GetCustomAttribute<KeyAttribute>() != null)?
+                        .PropertyType;
+                    opt.WithReference(crudEndpoints.ReferenceType, referenceKeyType ?? typeof(int));
+                }
 
                 if (allCrudOptions.GetRequireAuth() == true)
                 {
@@ -228,12 +236,12 @@ public static class WepApplicationExtensions
         Type? referenceType = null)
     {
         var entityType = typeof(TEntity);
-        var entityName = entityType.Name;
+        var entityName = GetEntityName(entityType);
         var prefix = entityName.ChangeCase(format);
         var pattern = $"/{prefix}";
         if (referenceType != null)
         {
-            pattern = $"/{referenceType.Name.ChangeCase(format)}/{{referenceId}}{pattern}";
+            pattern = $"/{GetEntityName(referenceType).ChangeCase(format)}/{{referenceId}}{pattern}";
         }
 
         if (!withId)
@@ -246,6 +254,12 @@ public static class WepApplicationExtensions
         return pattern;
     }
 
+    private static string GetEntityName(MemberInfo entityType)
+    {
+        var entityAttr = entityType.GetCustomAttribute<EntityAttribute>();
+        return entityAttr != null ? entityAttr.Name : entityType.Name;
+    }
+    
     private static string ChangeCase(this string name, RouteFormat format)
     {
         var route = name.Pluralize();
@@ -278,7 +292,11 @@ public static class WepApplicationExtensions
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Get.ReferenceType);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
         Delegate handler = options.Get.ReferenceType != null
-            ? (IsPrimitiveKey<TKey>() ? handlers.GetReferencedById : handlers.GetReferencedByComplexId)
+            ? (
+                IsPrimitiveKey<TKey>() ? 
+                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedByIdDelegate)) :
+                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedByComplexIdDelegate))
+              )
             : (IsPrimitiveKey<TKey>() ? handlers.GetById : handlers.GetByComplexId);
 
         app
@@ -297,7 +315,7 @@ public static class WepApplicationExtensions
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.List.ReferenceType);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
         Delegate handler = options.List.ReferenceType != null
-            ? handlers.GetReferencedPagedList
+            ? handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedPagedListDelegate))
             : handlers.GetPagedList;
 
         app
@@ -314,8 +332,10 @@ public static class WepApplicationExtensions
     {
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.Create.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
+        
+        
         Delegate handler = options.Create.ReferenceType != null
-            ? handlers.ReferencedCreate
+            ? handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedCreateDelegate))
             : handlers.Create;
         app
             .MapPost(pattern, handler)
@@ -323,7 +343,7 @@ public static class WepApplicationExtensions
             .Produces<TKey>(StatusCodes.Status201Created);
         return app;
     }
-
+    
     private static IEndpointRouteBuilder MapUpdate<TEntity, TRequest, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
@@ -332,7 +352,11 @@ public static class WepApplicationExtensions
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Update.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Update.ReferenceType != null
-            ? (IsPrimitiveKey<TKey>() ? handlers.ReferencedUpdate : handlers.ReferencedUpdateByComplexId)
+            ? (
+                IsPrimitiveKey<TKey>() ? 
+                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedUpdateDelegate)) : 
+                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedUpdateByComplexIdDelegate))
+              )
             : (IsPrimitiveKey<TKey>() ? handlers.Update : handlers.UpdateByComplexId);
         app
             .MapPut(pattern, handler)
@@ -350,7 +374,11 @@ public static class WepApplicationExtensions
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Delete.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Delete.ReferenceType != null
-            ? (IsPrimitiveKey<TKey>() ? handlers.ReferencedDelete : handlers.ReferencedDeleteByComplexId)
+            ? (
+                IsPrimitiveKey<TKey>() ? 
+                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedDeleteDelegate)) : 
+                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedDeleteByComplexIdDelegate))
+               )
             : (IsPrimitiveKey<TKey>() ? handlers.Delete : handlers.DeleteByComplexId);
         app
             .MapDelete(pattern, handler)

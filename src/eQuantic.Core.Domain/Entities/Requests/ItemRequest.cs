@@ -9,7 +9,7 @@ public class ItemRequest : ItemRequest<int>
 /// <summary>
 /// The item request class
 /// </summary>
-public class ItemRequest<TKey>
+public class ItemRequest<TKey> : BasicRequest
 {
     /// <summary>
     /// Gets or sets the value of the id

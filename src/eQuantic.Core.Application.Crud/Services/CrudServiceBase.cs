@@ -1,3 +1,4 @@
+using System.Reflection;
 using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Core.Data.EntityFramework.Repository;
 using eQuantic.Core.Data.EntityFramework.Specifications;
@@ -51,12 +52,9 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             throw new InvalidEntityRequestException();
         }
 
-        await OnAfterCreateAsync(item, cancellationToken);
+        await OnAfterCreateAsync(request, item, cancellationToken);
         
-        if (request is IReferencedRequest<int> referencedRequest && item is IWithReferenceId<TDataEntity, int> referencedItem)
-        {
-            referencedItem.SetReferenceId(referencedRequest.ReferenceId);
-        }
+        SetReferenceKey(request, item);
         
         if (item is IEntityTimeMark itemWithTimeMark)
         {
@@ -161,7 +159,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         throw ex;
     }
 
-    protected virtual Task OnAfterCreateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    protected virtual Task OnAfterCreateAsync(CreateRequest<TRequest> request, TDataEntity? dataEntity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
@@ -204,18 +202,50 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return await Repository.GetFirstAsync(specification, opt => { }, cancellationToken);
     }
 
-    private static IFiltering<TDataEntity>? GetReferenceFiltering<TAnyRequest>(TAnyRequest request)
+    private IFiltering<TDataEntity>? GetReferenceFiltering(BasicRequest request)
     {
-        if (request is not IReferencedRequest<int> referencedRequest)
+        var referenceType = request.GetReferenceType();
+        if (referenceType == null)
+            return null;
+        
+        return (IFiltering<TDataEntity>?)typeof(CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey>)
+            .GetMethod(nameof(GetReferenceFiltering), BindingFlags.NonPublic | BindingFlags.Static)?
+            .MakeGenericMethod(referenceType)
+            .Invoke(null, [request]);
+    }
+
+    private static IFiltering<TDataEntity>? GetReferenceFiltering<TReferenceKey>(BasicRequest request)
+    {
+        if (request is not IReferencedRequest<TReferenceKey> referencedRequest)
             return null;
 
         var dataEntity = new TDataEntity();
-        if (dataEntity is not IWithReferenceId<TDataEntity, int> referencedDataEntity)
+        if (dataEntity is not IWithReferenceId<TDataEntity, TReferenceKey> referencedDataEntity)
             return null;
 
         referencedDataEntity.SetReferenceId(referencedRequest.ReferenceId);
         var filterByRef = referencedDataEntity.GetReferenceFiltering();
 
         return filterByRef;
+    }
+
+    private void SetReferenceKey(BasicRequest request, TDataEntity? dataEntity)
+    {
+        var referenceType = request.GetReferenceType();
+        if (referenceType == null)
+            return;
+        
+        typeof(CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey>)
+            .GetMethod(nameof(SetReferenceKey), BindingFlags.NonPublic | BindingFlags.Static)?
+            .MakeGenericMethod(referenceType)
+            .Invoke(null, [request, dataEntity]);
+    }
+    
+    private static void SetReferenceKey<TReferenceKey>(CreateRequest<TRequest> request, TDataEntity? dataEntity)
+    {
+        if (request is IReferencedRequest<TReferenceKey> referencedRequest && dataEntity is IWithReferenceId<TDataEntity, TReferenceKey> referencedItem)
+        {
+            referencedItem.SetReferenceId(referencedRequest.ReferenceId);
+        }
     }
 }

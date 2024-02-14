@@ -7,6 +7,7 @@ public class MapCrudEndpointsAttribute : Attribute
 {
     public CrudEndpointVerbs EndpointVerbs { get; }
     public Type? ReferenceType { get; set; }
+    public Type? ReferenceKeyType { get; set; }
     
     public MapCrudEndpointsAttribute(CrudEndpointVerbs endpointVerbs = CrudEndpointVerbs.All)
     {

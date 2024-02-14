@@ -1,3 +1,4 @@
+using System.Reflection;
 using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Core.Collections;
 using eQuantic.Core.Data.Repository;
@@ -61,13 +62,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
             throw ex;
         }
         
-        if (request is IReferencedRequest<int> referencedRequest && item is IWithReferenceId<TDataEntity, int> referencedItem)
-        {
-            if (referencedItem.GetReferenceId() != referencedRequest.ReferenceId)
-            {
-                throw new InvalidEntityReferenceException<int>(referencedRequest.ReferenceId);
-            }
-        }
+        ValidateReference(request, item);
         
         var result = OnMapEntity(item);
 
@@ -180,14 +175,37 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
     {
         return Task.CompletedTask;
     }
-    
-    private static IFiltering<TDataEntity>? GetReferenceFiltering<TAnyRequest>(TAnyRequest request)
+
+    private void ValidateReference(BasicRequest request, TDataEntity item)
     {
-        if (request is not IReferencedRequest<int> referencedRequest)
+        var referenceType = request.GetReferenceType();
+        if (referenceType == null)
+            return;
+        
+        typeof(ReaderServiceBase<TEntity, TDataEntity, TKey>)
+            .GetMethod(nameof(ValidateReference), BindingFlags.NonPublic | BindingFlags.Static)?
+            .MakeGenericMethod(referenceType)
+            .Invoke(null, [request, item]);
+    }
+    
+    private static void ValidateReference<TReferenceKey>(BasicRequest request, TDataEntity item)
+    {
+        if (request is IReferencedRequest<TReferenceKey> referencedRequest && item is IWithReferenceId<TDataEntity, TReferenceKey> referencedItem)
+        {
+            if (referencedItem.GetReferenceId()?.Equals(referencedRequest.ReferenceId) == false)
+            {
+                throw new InvalidEntityReferenceException<TReferenceKey>(referencedRequest.ReferenceId);
+            }
+        }
+    }
+    
+    private static IFiltering<TDataEntity>? GetReferenceFiltering<TReferenceKey>(BasicRequest request)
+    {
+        if (request is not IReferencedRequest<TReferenceKey> referencedRequest)
             return null;
 
         var dataEntity = new TDataEntity();
-        if (dataEntity is not IWithReferenceId<TDataEntity, int> referencedDataEntity)
+        if (dataEntity is not IWithReferenceId<TDataEntity, TReferenceKey> referencedDataEntity)
             return null;
 
         referencedDataEntity.SetReferenceId(referencedRequest.ReferenceId);
@@ -196,10 +214,21 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
         return filterByRef;
     }
 
-    private static void SetReferenceFiltering<TAnyRequest>(TAnyRequest request,
-        ICollection<IFiltering<TDataEntity>> filtering)
+    private void SetReferenceFiltering(BasicRequest request, ICollection<IFiltering<TDataEntity>> filtering)
     {
-        var filterByRef = GetReferenceFiltering(request);
+        var referenceType = request.GetReferenceType();
+        if (referenceType == null)
+            return;
+        
+        typeof(ReaderServiceBase<TEntity, TDataEntity, TKey>)
+            .GetMethod(nameof(SetReferenceFiltering), BindingFlags.NonPublic | BindingFlags.Static)?
+            .MakeGenericMethod(referenceType)
+            .Invoke(null, [request, filtering]);
+    }
+
+    private static void SetReferenceFiltering<TReferenceKey>(BasicRequest request, ICollection<IFiltering<TDataEntity>> filtering)
+    {
+        var filterByRef = GetReferenceFiltering<TReferenceKey>(request);
 
         if (filterByRef == null)
             return;

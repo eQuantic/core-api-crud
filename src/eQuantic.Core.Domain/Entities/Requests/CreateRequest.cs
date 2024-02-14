@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eQuantic.Core.Domain.Entities.Requests;
@@ -6,7 +7,7 @@ namespace eQuantic.Core.Domain.Entities.Requests;
 /// The update request class
 /// </summary>
 /// <seealso cref="CreateRequest{TBody}"/>
-public class CreateRequest<TBody>
+public class CreateRequest<TBody> : BasicRequest
 {
     /// <summary>
     /// Gets or sets the value of the body

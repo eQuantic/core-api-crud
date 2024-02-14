@@ -23,8 +23,10 @@ builder.Services.AddQueryableRepositories<ExampleUnitOfWork>(opt =>
 
 builder.Services
     .AddMappers(opt => opt.FromAssembly(assembly))
+    .AddHttpContextAccessor()
     .AddTransient<IApplicationContext<int>, ApplicationContext>()
     .AddTransient<IExampleService, ExampleService>()
+    .AddTransient<IChildExampleService, ChildExampleService>()
     .AddControllers()
     .AddJsonOptions(options =>
     {
