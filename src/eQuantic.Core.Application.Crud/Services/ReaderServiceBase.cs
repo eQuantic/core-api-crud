@@ -190,12 +190,13 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey> : IReaderSer
     
     private static void ValidateReference<TReferenceKey>(BasicRequest request, TDataEntity item)
     {
-        if (request is IReferencedRequest<TReferenceKey> referencedRequest && item is IWithReferenceId<TDataEntity, TReferenceKey> referencedItem)
+        if (request is not IReferencedRequest<TReferenceKey> referencedRequest ||
+            item is not IWithReferenceId<TDataEntity, TReferenceKey> referencedItem) 
+            return;
+        
+        if (referencedItem.GetReferenceId()?.Equals(referencedRequest.ReferenceId) == false)
         {
-            if (referencedItem.GetReferenceId()?.Equals(referencedRequest.ReferenceId) == false)
-            {
-                throw new InvalidEntityReferenceException<TReferenceKey>(referencedRequest.ReferenceId);
-            }
+            throw new InvalidEntityReferenceException<TReferenceKey>(referencedRequest.ReferenceId);
         }
     }
     

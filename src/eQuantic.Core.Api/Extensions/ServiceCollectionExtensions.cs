@@ -82,7 +82,8 @@ public static class ServiceCollectionExtensions
     /// <param name="services"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static IServiceCollection AddExceptionFilter(this IServiceCollection services, Action<ExceptionFilterOptions>? options = null)
+    public static IServiceCollection AddExceptionFilter(this IServiceCollection services,
+        Action<ExceptionFilterOptions>? options = null)
     {
         var filterOptions = new ExceptionFilterOptions();
         options?.Invoke(filterOptions);

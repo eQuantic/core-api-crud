@@ -56,9 +56,11 @@ public class ExceptionMiddleware : IMiddleware
                 if(!(exceptionType == type || type.IsSubclassOf(exceptionType)))
                     continue;
 
-                context.Response.StatusCode = opt.HttpStatusCode;
-                if (!string.IsNullOrEmpty(opt.Message))
-                    message = opt.Message;
+                opt.SetResult(exception);
+                var result = opt.GetResult();
+                context.Response.StatusCode = result.HttpStatusCode;
+                if (!string.IsNullOrEmpty(result.Message))
+                    message = result.Message;
             }
         }
 
