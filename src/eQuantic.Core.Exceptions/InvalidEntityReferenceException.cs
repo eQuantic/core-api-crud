@@ -1,3 +1,4 @@
+using System.Runtime.Serialization;
 using eQuantic.Core.Exceptions.Resources;
 
 namespace eQuantic.Core.Exceptions;
@@ -17,6 +18,12 @@ public class InvalidEntityReferenceException : Exception
     public InvalidEntityReferenceException(string message, Exception innerException) 
         : base(message, innerException)
     {
+    }
+    
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")]
+#endif
+    public InvalidEntityReferenceException(SerializationInfo info, StreamingContext context) : base(info, context) {
     }
 }
 
@@ -43,5 +50,11 @@ public class InvalidEntityReferenceException<TReferenceKey> : InvalidEntityRefer
         : base(message, innerException)
     {
         Id = id;
+    }
+    
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")]
+#endif
+    public InvalidEntityReferenceException(SerializationInfo info, StreamingContext context) : base(info, context) {
     }
 }

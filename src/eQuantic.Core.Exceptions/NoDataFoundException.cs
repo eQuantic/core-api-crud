@@ -1,3 +1,5 @@
+using System.Runtime.Serialization;
+
 namespace eQuantic.Core.Exceptions;
 
 [Serializable]
@@ -29,6 +31,12 @@ public class NoDataFoundException : Exception
     {
     }
 
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")]
+#endif
+    public NoDataFoundException(SerializationInfo info, StreamingContext context) : base(info, context) {
+    }
+    
     /// <summary>
     /// Entity Type
     /// </summary>

@@ -1,4 +1,5 @@
 using System.Reflection;
+using eQuantic.Core.Application.Crud.Options;
 using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Core.Data.EntityFramework.Repository;
 using eQuantic.Core.Data.EntityFramework.Specifications;
@@ -20,27 +21,24 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : C
         IApplicationContext<int> applicationContext,
         IQueryableUnitOfWork unitOfWork, 
         IMapperFactory mapperFactory, 
-        ILogger logger) 
-        : base(applicationContext, unitOfWork, mapperFactory, logger)
+        ILogger logger, Action<ReadOptions>? options = null) 
+        : base(applicationContext, unitOfWork, mapperFactory, logger, options)
     {
     }
 }
 public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey> 
-    : ReaderServiceBase<TEntity, TDataEntity, TKey>, ICrudService<TEntity, TRequest, TKey>
+    : ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey>, ICrudService<TEntity, TRequest, TKey>
     where TEntity : class, new()
     where TDataEntity : class, IEntity<TKey>, new()
     where TUserKey : struct
 {
-    public IApplicationContext<TUserKey> ApplicationContext { get; }
-
     protected CrudServiceBase(
         IApplicationContext<TUserKey> applicationContext,
         IQueryableUnitOfWork unitOfWork, 
         IMapperFactory mapperFactory, 
-        ILogger logger) 
-        : base(unitOfWork, mapperFactory, logger)
+        ILogger logger, Action<ReadOptions>? options = null) 
+        : base(applicationContext, unitOfWork, mapperFactory, logger, options)
     {
-        ApplicationContext = applicationContext;
     }
     
     public virtual async Task<TKey> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
@@ -84,6 +82,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             throw ex;
         }
 
+        await OnCheckPermissionsAsync(item, cancellationToken);
+
         await OnAfterUpdateAsync(item, cancellationToken);
         
         OnMapRequest(request.Body, item);
@@ -115,6 +115,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             Logger.LogError(ex, "{ServiceName} - Delete: Entity of {Name} not found", GetType().Name, typeof(TEntity).Name);
             throw ex;
         }
+        
+        await OnCheckPermissionsAsync(item, cancellationToken);
         
         await OnAfterDeleteAsync(item, cancellationToken);
 

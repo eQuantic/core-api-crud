@@ -1,5 +1,8 @@
+using System.Runtime.Serialization;
+
 namespace eQuantic.Core.Exceptions;
 
+[Serializable]
 public class DependencyNotFoundException: Exception
 {
     public Type? DependencyType { get; }
@@ -21,5 +24,11 @@ public class DependencyNotFoundException: Exception
     public DependencyNotFoundException(string message, Exception innerException) 
         : base(message, innerException)
     {
+    }
+    
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")]
+#endif
+    public DependencyNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) {
     }
 }
