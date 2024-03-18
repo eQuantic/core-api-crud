@@ -149,7 +149,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         if (userId == null)
             throw new ForbiddenAccessException();
             
-        return filtering.Append(new Filtering(nameof(IEntityOwned.CreatedById), userId.ToString()));
+        return filtering.Append(new Filtering(nameof(IEntityOwned.CreatedById), userId.ToString()!));
     }
 
     protected virtual Task<Specification<TDataEntity>> OnGetSpecificationAsync(PagedListRequest<TEntity> request)
