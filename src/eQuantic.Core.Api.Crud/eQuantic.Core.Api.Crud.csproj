@@ -6,9 +6,9 @@
         <Authors>eQuantic Systems</Authors>
         <RootNamespace>eQuantic.Core.Api.Crud</RootNamespace>
         <AssemblyTitle>eQuantic.Core.Api.Crud</AssemblyTitle>
-        <AssemblyVersion>1.6.11.0</AssemblyVersion>
-        <FileVersion>1.6.11.0</FileVersion>
-        <Version>1.6.11.0</Version>
+        <AssemblyVersion>1.6.12.0</AssemblyVersion>
+        <FileVersion>1.6.12.0</FileVersion>
+        <Version>1.6.12.0</Version>
         <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
         
         <PackageId>eQuantic.Core.Api.Crud</PackageId>
@@ -35,6 +35,10 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    </ItemGroup>
+    
     <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.14" />
     </ItemGroup>

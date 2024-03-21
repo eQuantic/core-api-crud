@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using eQuantic.Core.Api.Crud.Filters;
 using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Api.Extensions;
 using eQuantic.Core.Api.Crud.Handlers;
@@ -121,6 +122,7 @@ public static class WebApplicationExtensions
         Action<CrudOptions<TEntity>>? options = null)
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
+        where TRequest : class
     {
         var crudOptions = new CrudOptions<TEntity>();
         options?.Invoke(crudOptions);
@@ -224,6 +226,11 @@ public static class WebApplicationExtensions
                 if (routeFormat.HasValue)
                 {
                     opt.WithRouteFormat(routeFormat.Value);
+                }
+
+                if (allCrudOptions.GetValidation() == true)
+                {
+                    opt.WithValidation();
                 }
 
                 crudOptions?.Invoke(opt);
@@ -330,6 +337,7 @@ public static class WebApplicationExtensions
         CrudOptions<TEntity> options)
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
+        where TRequest : class
     {
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.Create.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
@@ -340,7 +348,7 @@ public static class WebApplicationExtensions
             : handlers.Create;
         app
             .MapPost(pattern, handler)
-            .SetOptions<TEntity>(options.Create)
+            .SetOptions<TEntity, TRequest>(options.Create)
             .Produces<TKey>(StatusCodes.Status201Created);
         return app;
     }
@@ -349,6 +357,7 @@ public static class WebApplicationExtensions
         CrudOptions<TEntity> options)
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
+        where TRequest : class
     {
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Update.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
@@ -361,7 +370,7 @@ public static class WebApplicationExtensions
             : (IsPrimitiveKey<TKey>() ? handlers.Update : handlers.UpdateByComplexId);
         app
             .MapPut(pattern, handler)
-            .SetOptions<TEntity>(options.Update)
+            .SetOptions<TEntity, TRequest>(options.Update)
             .Produces(StatusCodes.Status200OK);
 
         return app;
@@ -371,6 +380,7 @@ public static class WebApplicationExtensions
         CrudOptions<TEntity> options)
         where TEntity : class, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
+        where TRequest : class
     {
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Delete.ReferenceType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
@@ -383,7 +393,7 @@ public static class WebApplicationExtensions
             : (IsPrimitiveKey<TKey>() ? handlers.Delete : handlers.DeleteByComplexId);
         app
             .MapDelete(pattern, handler)
-            .SetOptions<TEntity>(options.Delete)
+            .SetOptions<TEntity, TRequest>(options.Delete)
             .Produces(StatusCodes.Status200OK);
         return app;
     }
@@ -429,6 +439,19 @@ public static class WebApplicationExtensions
         if (options.FilterType != null)
         {
             endpoint.AddEndpointFilter(options.FilterType);
+        }
+        
+        return endpoint;
+    }
+
+    private static RouteHandlerBuilder SetOptions<TEntity, TRequest>(this RouteHandlerBuilder endpoint,
+        EndpointOptions options) where TRequest : class
+    {
+        SetOptions<TEntity>(endpoint, options);
+        
+        if (options.HasValidation == true)
+        {
+            endpoint.AddEndpointFilter<ValidationFilter<TRequest>>();
         }
         
         return endpoint;

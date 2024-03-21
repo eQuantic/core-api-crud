@@ -7,6 +7,7 @@ public class AllCrudOptions
     private Assembly? _assembly = null;
     private readonly Dictionary<Type, Action<ICrudOptions>> _options = new();
     private bool? _requireAuth = null;
+    private bool? _withValidation = null;
     private RouteFormat? _routeFormat;
     
     public AllCrudOptions FromAssembly(Assembly assembly)
@@ -27,6 +28,12 @@ public class AllCrudOptions
         return this;
     }
     
+    public AllCrudOptions WithValidation(bool withValidation = true)
+    {
+        _withValidation = withValidation;
+        return this;
+    }
+    
     public EntityCrudOptions<TEntity> For<TEntity>()
     {
         return new EntityCrudOptions<TEntity>(this);
@@ -36,6 +43,7 @@ public class AllCrudOptions
     internal Dictionary<Type, Action<ICrudOptions>> GetOptions() => _options;
     internal bool? GetRequireAuth() => _requireAuth;
     internal RouteFormat? GetRouteFormat() => _routeFormat;
+    internal bool? GetValidation() => _withValidation;
     
     public class EntityCrudOptions<TEntity>
     {

@@ -23,6 +23,7 @@ public interface ICrudOptions
     ICrudOptions WithReference(Type referenceType, Type referenceKeyType);
     ICrudOptions WithReference<TReferenceEntity, TReferenceKey>();
     ICrudOptions WithFilter<TFilterType>();
+    ICrudOptions WithValidation(bool? withValidation = true);
 }
 /// <summary>
 /// CRUD options
@@ -101,8 +102,18 @@ public class CrudOptions<TEntity> : ICrudOptions
 
     public ICrudOptions WithFilter<TFilterType>()
     {
+        Get.WithFilter<TFilterType>();
+        List.WithFilter<TFilterType>();
         Create.WithFilter<TFilterType>();
         Update.WithFilter<TFilterType>();
+        Delete.WithFilter<TFilterType>();
+        return this;
+    }
+
+    public ICrudOptions WithValidation(bool? withValidation = true)
+    {
+        Create.WithValidation(withValidation);
+        Update.WithValidation(withValidation);
         return this;
     }
     
@@ -238,6 +249,12 @@ public class EndpointOptions
         FilterType = typeof(TFilterType);
         return this;
     }
+
+    public EndpointOptions WithValidation(bool? withValidation = true)
+    {
+        HasValidation = withValidation;
+        return this;
+    }
     
     /// <summary>
     /// The reference entity type
@@ -278,6 +295,9 @@ public class EndpointOptions
     /// The filter type
     /// </summary>
     internal Type? FilterType { get; private set; }
+    
+    
+    internal bool? HasValidation { get; private set; }
     
     internal List<OpenApiParameter> Parameters { get; private set; } = new();
 }
