@@ -16,7 +16,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : C
     protected CrudServiceBase(
         IApplicationContext<int> applicationContext,
         IQueryableUnitOfWork unitOfWork, 
-        IMapperFactory mapperFactory, 
+        IMapperFactory mapperFactory,
         ILogger logger, Action<ReadOptions>? options = null) 
         : base(applicationContext, unitOfWork, mapperFactory, logger, options)
     {
@@ -45,10 +45,9 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             Logger.LogError("{ServiceName} - Create: Bad request of {Name}", GetType().Name, typeof(TRequest).Name);
             throw new InvalidEntityRequestException();
         }
-
-        await OnAfterCreateAsync(request, item, cancellationToken);
         
         SetReferenceKey(request, item);
+        await OnAfterCreateAsync(request, item, cancellationToken);
         
         if (item is IEntityTimeMark itemWithTimeMark)
         {
@@ -60,7 +59,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             var userId = await ApplicationContext.GetCurrentUserIdAsync();
             itemWithOwner.CreatedById = userId;
         }
-
+        
         await Repository.AddAsync(item);
         await Repository.UnitOfWork.CommitAsync(cancellationToken);
         await OnBeforeCreateAsync(item, cancellationToken);

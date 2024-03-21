@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using eQuantic.Core.Application.Crud.Services;
+using eQuantic.Core.Api.Extensions;
 using eQuantic.Core.Api.Crud.Handlers;
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Application.Crud.Attributes;
@@ -17,7 +18,7 @@ namespace eQuantic.Core.Api.Crud.Extensions;
 /// <summary>
 /// The wep application extensions class
 /// </summary>
-public static class WepApplicationExtensions
+public static class WebApplicationExtensions
 {
     /// <summary>
     /// Map all CRUD endpoints
@@ -30,7 +31,7 @@ public static class WepApplicationExtensions
         var allCrudOptions = new AllCrudOptions();
         options?.Invoke(allCrudOptions);
 
-        var extensionType = typeof(WepApplicationExtensions);
+        var extensionType = typeof(WebApplicationExtensions);
 
         var assembly = allCrudOptions.GetAssembly() ?? Assembly.GetExecutingAssembly();
         var types = assembly.GetTypes()
@@ -425,6 +426,11 @@ public static class WepApplicationExtensions
             endpoint.RequireAuthorization();
         }
 
+        if (options.FilterType != null)
+        {
+            endpoint.AddEndpointFilter(options.FilterType);
+        }
+        
         return endpoint;
     }
 }

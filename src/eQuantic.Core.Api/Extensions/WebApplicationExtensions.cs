@@ -9,7 +9,7 @@ namespace eQuantic.Core.Api.Extensions;
 /// <summary>
 /// The wep application extensions class
 /// </summary>
-public static class WepApplicationExtensions
+public static class WebApplicationExtensions
 {
     /// <summary>
     /// Use the api documentation

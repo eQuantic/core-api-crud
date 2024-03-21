@@ -22,6 +22,7 @@ public interface ICrudOptions
     ICrudOptions WithVerbs(CrudEndpointVerbs verbs);
     ICrudOptions WithReference(Type referenceType, Type referenceKeyType);
     ICrudOptions WithReference<TReferenceEntity, TReferenceKey>();
+    ICrudOptions WithFilter<TFilterType>();
 }
 /// <summary>
 /// CRUD options
@@ -98,6 +99,13 @@ public class CrudOptions<TEntity> : ICrudOptions
         return this;
     }
 
+    public ICrudOptions WithFilter<TFilterType>()
+    {
+        Create.WithFilter<TFilterType>();
+        Update.WithFilter<TFilterType>();
+        return this;
+    }
+    
     public RouteFormat RouteFormat { get; private set; } = RouteFormat.CamelCase;
     public string? Prefix { get; private set; }
     public CrudEndpointVerbs Verbs { get; private set; } = CrudEndpointVerbs.All;
@@ -225,6 +233,12 @@ public class EndpointOptions
         return this;
     }
     
+    public EndpointOptions WithFilter<TFilterType>()
+    {
+        FilterType = typeof(TFilterType);
+        return this;
+    }
+    
     /// <summary>
     /// The reference entity type
     /// </summary>
@@ -259,6 +273,11 @@ public class EndpointOptions
     /// The endpoint authorization
     /// </summary>
     internal bool? RequireAuth { get; private set; }
+    
+    /// <summary>
+    /// The filter type
+    /// </summary>
+    internal Type? FilterType { get; private set; }
     
     internal List<OpenApiParameter> Parameters { get; private set; } = new();
 }
