@@ -79,7 +79,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
 
         var result = OnMapEntity(item);
 
-        await OnBeforeGetByIdAsync(item, result, cancellationToken);
+        await OnAfterGetByIdAsync(item, result, cancellationToken);
         return result;
     }
 
@@ -98,7 +98,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
 
         var specification = await OnGetSpecificationAsync(request);
 
-        await OnAfterGetPagedListAsync(request, specification, cancellationToken);
+        await OnBeforeGetPagedListAsync(request, specification, cancellationToken);
 
         var count = await Repository.CountAsync(specification, cancellationToken);
         var pagedList = (await Repository.GetPagedAsync(specification, request.PageIndex, request.PageSize,
@@ -115,7 +115,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
             .Where(item => item != null)
             .ToList();
 
-        await OnBeforeGetPagedListAsync(pagedList, list, cancellationToken);
+        await OnAfterGetPagedListAsync(pagedList, list, cancellationToken);
 
         return new PagedList<TEntity>(list, count) { PageIndex = request.PageIndex, PageSize = request.PageSize };
     }
@@ -182,7 +182,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         throw ex;
     }
 
-    protected virtual Task OnBeforeGetByIdAsync(
+    protected virtual Task OnAfterGetByIdAsync(
         TDataEntity? dataEntity,
         TEntity? entity,
         CancellationToken cancellationToken = default)
@@ -204,7 +204,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         }
     }
     
-    protected virtual Task OnBeforeGetPagedListAsync(
+    protected virtual Task OnAfterGetPagedListAsync(
         IEnumerable<TDataEntity> dataEntityList,
         IEnumerable<TEntity> entityList,
         CancellationToken cancellationToken = default)
@@ -212,7 +212,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         return Task.CompletedTask;
     }
 
-    protected virtual Task OnAfterGetPagedListAsync(
+    protected virtual Task OnBeforeGetPagedListAsync(
         PagedListRequest<TEntity> request,
         Specification<TDataEntity> specification,
         CancellationToken cancellationToken = default)

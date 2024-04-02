@@ -47,7 +47,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         }
         
         SetReferenceKey(request, item);
-        await OnAfterCreateAsync(request, item, cancellationToken);
+        await OnBeforeCreateAsync(request, item, cancellationToken);
         
         if (item is IEntityTimeMark itemWithTimeMark)
         {
@@ -62,7 +62,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         
         await Repository.AddAsync(item);
         await Repository.UnitOfWork.CommitAsync(cancellationToken);
-        await OnBeforeCreateAsync(item, cancellationToken);
+        await OnAfterCreateAsync(item, cancellationToken);
         
         return item.GetKey();
     }
@@ -79,7 +79,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
 
         await OnCheckPermissionsAsync(item, cancellationToken);
 
-        await OnAfterUpdateAsync(item, cancellationToken);
+        await OnBeforeUpdateAsync(item, cancellationToken);
         
         OnMapRequest(request.Body, item);
 
@@ -96,7 +96,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
 
         await Repository.ModifyAsync(item);
         await Repository.UnitOfWork.CommitAsync(cancellationToken);
-        await OnBeforeUpdateAsync(item, cancellationToken);
+        await OnAfterUpdateAsync(item, cancellationToken);
         
         return true;
     }
@@ -113,7 +113,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         
         await OnCheckPermissionsAsync(item, cancellationToken);
         
-        await OnAfterDeleteAsync(item, cancellationToken);
+        await OnBeforeDeleteAsync(item, cancellationToken);
 
         var softDelete = false;
         if (item is IEntityTimeEnded itemWithTimeEnded)
@@ -139,7 +139,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         }
 
         await Repository.UnitOfWork.CommitAsync(cancellationToken);
-        await OnBeforeDeleteAsync(item, cancellationToken);
+        await OnAfterDeleteAsync(item, cancellationToken);
         
         return true;
     }
@@ -156,17 +156,12 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         throw ex;
     }
 
-    protected virtual Task OnAfterCreateAsync(CreateRequest<TRequest> request, TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    protected virtual Task OnBeforeCreateAsync(CreateRequest<TRequest> request, TDataEntity? dataEntity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
     
-    protected virtual Task OnBeforeCreateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
-    {
-        return Task.CompletedTask;
-    }
-    
-    protected virtual Task OnAfterUpdateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    protected virtual Task OnAfterCreateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
@@ -176,12 +171,17 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return Task.CompletedTask;
     }
     
-    protected virtual Task OnAfterDeleteAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    protected virtual Task OnAfterUpdateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
     
     protected virtual Task OnBeforeDeleteAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+    
+    protected virtual Task OnAfterDeleteAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
