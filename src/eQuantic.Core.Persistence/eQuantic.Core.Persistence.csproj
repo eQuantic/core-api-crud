@@ -6,9 +6,9 @@
         <Authors>eQuantic Systems</Authors>
         <RootNamespace>eQuantic.Core.Persistence</RootNamespace>
         <AssemblyTitle>eQuantic.Core.Persistence</AssemblyTitle>
-        <AssemblyVersion>1.6.13.0</AssemblyVersion>
-        <FileVersion>1.6.13.0</FileVersion>
-        <Version>1.6.13.0</Version>
+        <AssemblyVersion>1.6.14.0</AssemblyVersion>
+        <FileVersion>1.6.14.0</FileVersion>
+        <Version>1.6.14.0</Version>
         <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
 
         <PackageId>eQuantic.Core.Persistence</PackageId>

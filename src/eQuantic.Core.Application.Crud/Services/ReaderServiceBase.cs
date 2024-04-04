@@ -1,8 +1,10 @@
 using System.Reflection;
+using eQuantic.Core.Application.Crud.Enums;
 using eQuantic.Core.Application.Crud.Options;
 using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Core.Collections;
 using eQuantic.Core.Data.Repository;
+using eQuantic.Core.Data.Repository.Config;
 using eQuantic.Core.Domain.Entities.Requests;
 using eQuantic.Core.Exceptions;
 using eQuantic.Linq.Casting;
@@ -62,7 +64,10 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
     public virtual async Task<TEntity?> GetByIdAsync(ItemRequest<TKey> request,
         CancellationToken cancellationToken = default)
     {
-        var item = await Repository.GetAsync(request.Id, opt => { opt.WithProperties(OnGetProperties()); },
+        var item = await Repository.GetAsync(request.Id, opt =>
+            {
+                OnSetQueryableConfiguration(CrudAction.Get, opt);
+            },
             cancellationToken);
 
         if (item == null)
@@ -73,7 +78,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
             throw ex;
         }
 
-        await OnCheckPermissionsAsync(item, cancellationToken);
+        await OnCheckPermissionsAsync(CrudAction.Get, item, cancellationToken);
 
         ValidateReference(request, item);
 
@@ -104,9 +109,8 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         var pagedList = (await Repository.GetPagedAsync(specification, request.PageIndex, request.PageSize,
                 config =>
                 {
-                    config
-                        .WithSorting(sorting)
-                        .WithProperties(OnGetProperties());
+                    config.WithSorting(sorting);
+                    OnSetQueryableConfiguration(CrudAction.GetPaged, config);
                 }, cancellationToken))
             .ToList();
 
@@ -120,9 +124,8 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         return new PagedList<TEntity>(list, count) { PageIndex = request.PageIndex, PageSize = request.PageSize };
     }
 
-    protected virtual string[] OnGetProperties()
+    protected virtual void OnSetQueryableConfiguration(CrudAction action, QueryableConfiguration<TDataEntity> config)
     {
-        return Array.Empty<string>();
     }
 
     protected virtual void OnCastEntity<TCastOptions>(TCastOptions options)
@@ -191,6 +194,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
     }
 
     protected virtual async Task OnCheckPermissionsAsync(
+        CrudAction action,
         TDataEntity? dataEntity,
         CancellationToken cancellationToken = default)
     {

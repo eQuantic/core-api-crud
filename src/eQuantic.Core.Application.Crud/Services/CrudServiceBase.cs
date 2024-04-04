@@ -1,4 +1,5 @@
 using System.Reflection;
+using eQuantic.Core.Application.Crud.Enums;
 using eQuantic.Core.Application.Crud.Options;
 using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Core.Data.Repository;
@@ -39,7 +40,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
     
     public virtual async Task<TKey> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
     {
-        var item = OnMapRequest(request.Body);
+        var item = OnMapRequest(CrudAction.Create, request.Body);
         if (item == null)
         {
             Logger.LogError("{ServiceName} - Create: Bad request of {Name}", GetType().Name, typeof(TRequest).Name);
@@ -77,11 +78,11 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             throw ex;
         }
 
-        await OnCheckPermissionsAsync(item, cancellationToken);
+        await OnCheckPermissionsAsync(CrudAction.Update, item, cancellationToken);
 
         await OnBeforeUpdateAsync(item, cancellationToken);
         
-        OnMapRequest(request.Body, item);
+        OnMapRequest(CrudAction.Update, request.Body, item);
 
         if (item is IEntityTimeTrack itemWithTimeTrack)
         {
@@ -111,7 +112,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             throw ex;
         }
         
-        await OnCheckPermissionsAsync(item, cancellationToken);
+        await OnCheckPermissionsAsync(CrudAction.Delete, item, cancellationToken);
         
         await OnBeforeDeleteAsync(item, cancellationToken);
 
@@ -144,7 +145,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return true;
     }
 
-    protected virtual TDataEntity? OnMapRequest(TRequest? request, TDataEntity? dataEntity = null)
+    protected virtual TDataEntity? OnMapRequest(CrudAction action, TRequest? request, TDataEntity? dataEntity = null)
     {
         var mapper = MapperFactory.GetMapper<TRequest, TDataEntity>();
 
