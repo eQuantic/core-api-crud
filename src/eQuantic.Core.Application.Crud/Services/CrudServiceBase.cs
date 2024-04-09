@@ -80,7 +80,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
 
         await OnCheckPermissionsAsync(CrudAction.Update, item, cancellationToken);
 
-        await OnBeforeUpdateAsync(item, cancellationToken);
+        await OnBeforeUpdateAsync(request, item, cancellationToken);
         
         OnMapRequest(CrudAction.Update, request.Body, item);
 
@@ -167,7 +167,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return Task.CompletedTask;
     }
     
-    protected virtual Task OnBeforeUpdateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    protected virtual Task OnBeforeUpdateAsync(UpdateRequest<TRequest, TKey> request, TDataEntity? dataEntity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
