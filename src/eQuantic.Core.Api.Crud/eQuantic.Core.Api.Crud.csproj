@@ -36,6 +36,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="eQuantic.Core.Api" Version="1.6.17" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     </ItemGroup>
     
@@ -62,7 +63,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\eQuantic.Core.Api\eQuantic.Core.Api.csproj" />
       <ProjectReference Include="..\eQuantic.Core.Application.Crud\eQuantic.Core.Application.Crud.csproj" />
     </ItemGroup>
 </Project>
