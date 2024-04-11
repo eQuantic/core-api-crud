@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace eQuantic.Core.Api.Extensions;
+namespace eQuantic.Core.Application.Extensions;
 
 public static class TypeExtensions
 {

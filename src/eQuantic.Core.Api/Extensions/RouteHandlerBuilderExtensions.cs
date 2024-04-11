@@ -1,3 +1,4 @@
+using eQuantic.Core.Application.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
