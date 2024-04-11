@@ -203,7 +203,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         typeof(CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey>)
             .GetMethod(nameof(ValidateReference), BindingFlags.NonPublic | BindingFlags.Static)?
             .MakeGenericMethod(referenceType)
-            .Invoke(null, [request, dataEntity]);
+            .Invoke(null, [request]);
     }
 
     private static void ValidateReference<TReferenceKey>(BasicRequest request)
