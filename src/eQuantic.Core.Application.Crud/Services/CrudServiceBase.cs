@@ -202,21 +202,19 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             return;
         
         typeof(CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey>)
-            .InvokePrivateStaticMethod(nameof(ValidateReference), referenceType, [request]);
+            .InvokePrivateStaticMethod(nameof(ValidateReference), referenceType, [request, dataEntity]);
     }
 
-    private static void ValidateReference<TReferenceKey>(BasicRequest request)
+    private static void ValidateReference<TReferenceKey>(BasicRequest request, TDataEntity item)
     {
-        if (request is not IReferencedRequest<TReferenceKey> referencedRequest)
+        if (request is not IReferencedRequest<TReferenceKey> referencedRequest ||
+            item is not IWithReferenceId<TDataEntity, TReferenceKey> referencedItem)
             return;
-
-        var dataEntity = new TDataEntity();
-        if (dataEntity is not IWithReferenceId<TDataEntity, TReferenceKey> referencedDataEntity)
-            return;
-
-        var result = referencedDataEntity.GetReferenceId()?.Equals(referencedRequest.ReferenceId);
-        if (result.HasValue && !result.Value)
+        
+        if (referencedItem.GetReferenceId()?.Equals(referencedRequest.ReferenceId) == false)
+        {
             throw new InvalidEntityReferenceException<TReferenceKey>(referencedRequest.ReferenceId!);
+        }
     }
 
     private void SetReferenceKey(BasicRequest request, TDataEntity? dataEntity)
