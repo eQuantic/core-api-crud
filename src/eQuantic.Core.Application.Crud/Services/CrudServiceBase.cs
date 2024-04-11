@@ -2,6 +2,7 @@ using System.Reflection;
 using eQuantic.Core.Application.Crud.Enums;
 using eQuantic.Core.Application.Crud.Options;
 using eQuantic.Core.Application.Entities.Data;
+using eQuantic.Core.Application.Extensions;
 using eQuantic.Core.Data.Repository;
 using eQuantic.Core.Domain.Entities.Requests;
 using eQuantic.Core.Exceptions;
@@ -201,9 +202,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             return;
         
         typeof(CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey>)
-            .GetMethod(nameof(ValidateReference), BindingFlags.NonPublic | BindingFlags.Static)?
-            .MakeGenericMethod(referenceType)
-            .Invoke(null, [request]);
+            .InvokePrivateStaticMethod(nameof(ValidateReference), referenceType, [request]);
     }
 
     private static void ValidateReference<TReferenceKey>(BasicRequest request)
