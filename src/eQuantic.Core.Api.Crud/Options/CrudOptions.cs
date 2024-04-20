@@ -15,13 +15,18 @@ public interface ICrudOptions
     EndpointOptions List { get; }
     EndpointOptions Delete { get; }
 
+    ICrudOptions RequireAuthorization(CrudEndpointVerbs verbs, bool required = true);
     ICrudOptions RequireAuthorization(bool required = true);
     ICrudOptions WithRouteFormat(RouteFormat format);
     ICrudOptions WithGroup(string prefix);
+    ICrudOptions WithParameter(CrudEndpointVerbs verbs, OpenApiParameter parameter);
     ICrudOptions WithParameter(OpenApiParameter parameter);
     ICrudOptions WithVerbs(CrudEndpointVerbs verbs);
+    ICrudOptions WithReference(CrudEndpointVerbs verbs, Type referenceType, Type referenceKeyType);
     ICrudOptions WithReference(Type referenceType, Type referenceKeyType);
+    ICrudOptions WithReference<TReferenceEntity, TReferenceKey>(CrudEndpointVerbs verbs);
     ICrudOptions WithReference<TReferenceEntity, TReferenceKey>();
+    ICrudOptions WithFilter<TFilterType>(CrudEndpointVerbs verbs);
     ICrudOptions WithFilter<TFilterType>();
     ICrudOptions WithValidation(bool? withValidation = true);
 }
@@ -42,14 +47,28 @@ public class CrudOptions<TEntity> : ICrudOptions
         return this;
     }
     
+    public ICrudOptions WithParameter(CrudEndpointVerbs verbs, OpenApiParameter parameter)
+    {
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetById))
+            Get.WithParameter(parameter);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetPaged))
+            List.WithParameter(parameter);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyCreate))
+            Create.WithParameter(parameter);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyUpdate))
+            Update.WithParameter(parameter);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyDelete))
+            Delete.WithParameter(parameter);
+        return this;
+    }
+    
     public ICrudOptions WithParameter(OpenApiParameter parameter)
     {
-        Get.WithParameter(parameter);
-        List.WithParameter(parameter);
-        Create.WithParameter(parameter);
-        Update.WithParameter(parameter);
-        Delete.WithParameter(parameter);
-        return this;
+        return WithParameter(CrudEndpointVerbs.All, parameter);
     }
 
     public ICrudOptions WithVerbs(CrudEndpointVerbs verbs)
@@ -58,13 +77,54 @@ public class CrudOptions<TEntity> : ICrudOptions
         return this;
     }
 
+    public ICrudOptions RequireAuthorization(CrudEndpointVerbs verbs, bool required = true)
+    {
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetById))
+            Get.RequireAuthorization(required);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetPaged))
+            List.RequireAuthorization(required);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyCreate))
+            Create.RequireAuthorization(required);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyUpdate))
+            Update.RequireAuthorization(required);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyDelete))
+            Delete.RequireAuthorization(required);
+        
+        return this;
+    }
+    
     public ICrudOptions RequireAuthorization(bool required = true)
     {
-        Get.RequireAuthorization(required);
-        List.RequireAuthorization(required);
-        Create.RequireAuthorization(required);
-        Update.RequireAuthorization(required);
-        Delete.RequireAuthorization(required);
+        return RequireAuthorization(CrudEndpointVerbs.All, required);
+    }
+
+    /// <summary>
+    /// Options with referenced entity
+    /// </summary>
+    /// <param name="verbs">CRUD endpoint verbs</param>
+    /// <param name="referenceType"></param>
+    /// <param name="referenceKeyType"></param>
+    /// <returns></returns>
+    public ICrudOptions WithReference(CrudEndpointVerbs verbs, Type referenceType, Type referenceKeyType)
+    {
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetById))
+            Get.WithReference(referenceType, referenceKeyType);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetPaged))
+            List.WithReference(referenceType, referenceKeyType);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyCreate))
+            Create.WithReference(referenceType, referenceKeyType);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyUpdate))
+            Update.WithReference(referenceType, referenceKeyType);
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyDelete))
+            Delete.WithReference(referenceType, referenceKeyType);
         return this;
     }
 
@@ -76,14 +136,36 @@ public class CrudOptions<TEntity> : ICrudOptions
     /// <returns></returns>
     public ICrudOptions WithReference(Type referenceType, Type referenceKeyType)
     {
-        Get.WithReference(referenceType, referenceKeyType);
-        List.WithReference(referenceType, referenceKeyType);
-        Create.WithReference(referenceType, referenceKeyType);
-        Update.WithReference(referenceType, referenceKeyType);
-        Delete.WithReference(referenceType, referenceKeyType);
-        return this;
+        return WithReference(CrudEndpointVerbs.All, referenceType, referenceKeyType);
     }
 
+    /// <summary>
+    /// Options with referenced entity
+    /// </summary>
+    /// <typeparam name="TReferenceEntity"></typeparam>
+    /// <typeparam name="TReferenceKey"></typeparam>
+    /// <param name="verbs"></param>
+    /// <returns></returns>
+    public ICrudOptions WithReference<TReferenceEntity, TReferenceKey>(CrudEndpointVerbs verbs)
+    {
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetById))
+            Get.WithReference<TReferenceEntity, TReferenceKey>();
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetPaged))
+            List.WithReference<TReferenceEntity, TReferenceKey>();
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyCreate))
+            Create.WithReference<TReferenceEntity, TReferenceKey>();
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyUpdate))
+            Update.WithReference<TReferenceEntity, TReferenceKey>();
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyDelete))
+            Delete.WithReference<TReferenceEntity, TReferenceKey>();
+        
+        return this;
+    }
+    
     /// <summary>
     /// Options with referenced entity
     /// </summary>
@@ -92,22 +174,42 @@ public class CrudOptions<TEntity> : ICrudOptions
     /// <returns></returns>
     public ICrudOptions WithReference<TReferenceEntity, TReferenceKey>()
     {
-        Get.WithReference<TReferenceEntity, TReferenceKey>();
-        List.WithReference<TReferenceEntity, TReferenceKey>();
-        Create.WithReference<TReferenceEntity, TReferenceKey>();
-        Update.WithReference<TReferenceEntity, TReferenceKey>();
-        Delete.WithReference<TReferenceEntity, TReferenceKey>();
+        return WithReference<TReferenceEntity, TReferenceKey>(CrudEndpointVerbs.All);
+    }
+    
+    /// <summary>
+    /// Options with filter
+    /// </summary>
+    /// <param name="verbs"></param>
+    /// <typeparam name="TFilterType"></typeparam>
+    /// <returns></returns>
+    public ICrudOptions WithFilter<TFilterType>(CrudEndpointVerbs verbs)
+    {
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetById))
+            Get.WithFilter<TFilterType>();
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetPaged))
+            List.WithFilter<TFilterType>();
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyCreate))
+            Create.WithFilter<TFilterType>();
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyUpdate))
+            Update.WithFilter<TFilterType>();
+        
+        if(verbs.HasFlag(CrudEndpointVerbs.OnlyDelete))
+            Delete.WithFilter<TFilterType>();
         return this;
     }
 
+    /// <summary>
+    /// Options with filter
+    /// </summary>
+    /// <typeparam name="TFilterType"></typeparam>
+    /// <returns></returns>
     public ICrudOptions WithFilter<TFilterType>()
     {
-        Get.WithFilter<TFilterType>();
-        List.WithFilter<TFilterType>();
-        Create.WithFilter<TFilterType>();
-        Update.WithFilter<TFilterType>();
-        Delete.WithFilter<TFilterType>();
-        return this;
+        return WithFilter<TFilterType>(CrudEndpointVerbs.All);
     }
 
     public ICrudOptions WithValidation(bool? withValidation = true)
