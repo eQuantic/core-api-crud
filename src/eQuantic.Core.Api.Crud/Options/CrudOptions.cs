@@ -15,7 +15,7 @@ public interface ICrudOptions
     EndpointOptions List { get; }
     EndpointOptions Delete { get; }
 
-    ICrudOptions RequireAuthorization();
+    ICrudOptions RequireAuthorization(bool required = true);
     ICrudOptions WithRouteFormat(RouteFormat format);
     ICrudOptions WithGroup(string prefix);
     ICrudOptions WithParameter(OpenApiParameter parameter);
@@ -58,13 +58,13 @@ public class CrudOptions<TEntity> : ICrudOptions
         return this;
     }
 
-    public ICrudOptions RequireAuthorization()
+    public ICrudOptions RequireAuthorization(bool required = true)
     {
-        Get.RequireAuthorization();
-        List.RequireAuthorization();
-        Create.RequireAuthorization();
-        Update.RequireAuthorization();
-        Delete.RequireAuthorization();
+        Get.RequireAuthorization(required);
+        List.RequireAuthorization(required);
+        Create.RequireAuthorization(required);
+        Update.RequireAuthorization(required);
+        Delete.RequireAuthorization(required);
         return this;
     }
 
@@ -238,9 +238,9 @@ public class EndpointOptions
         return this;
     }
 
-    public EndpointOptions RequireAuthorization()
+    public EndpointOptions RequireAuthorization(bool required = true)
     {
-        RequireAuth = true;
+        RequireAuth = required;
         return this;
     }
     

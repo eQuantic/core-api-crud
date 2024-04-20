@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using eQuantic.Core.Api.Crud.Extensions;
 using eQuantic.Core.Api.Extensions;
 using eQuantic.Core.Api.Sample;
+using eQuantic.Core.Api.Sample.Entities;
 using eQuantic.Core.Api.Sample.Services;
 using eQuantic.Core.Application;
 using eQuantic.Core.Data.EntityFramework.Repository.Extensions;
@@ -27,6 +28,7 @@ builder.Services
     .AddTransient<IApplicationContext<int>, ApplicationContext>()
     .AddTransient<IExampleService, ExampleService>()
     .AddTransient<IChildExampleService, ChildExampleService>()
+    .AddTransient<IExampleWithComplexKeyService, ExampleWithComplexKeyService>()
     .AddControllers()
     .AddJsonOptions(options =>
     {
@@ -49,6 +51,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 app.MapControllers();
-app.MapAllCrud(opt => opt.FromAssembly(assembly));
+app.MapAllCrud(opt => opt
+    .FromAssembly(assembly)
+    .AllRequireAuthorization()
+    .For<ExampleWithComplexKey>().UseOptions(o => o.List.RequireAuthorization(false)));
 
 app.Run();
