@@ -11,6 +11,7 @@ using eQuantic.Linq.Casting;
 using eQuantic.Linq.Filter;
 using eQuantic.Linq.Filter.Casting;
 using eQuantic.Linq.Filter.Extensions;
+using eQuantic.Linq.Sorter;
 using eQuantic.Linq.Sorter.Casting;
 using eQuantic.Linq.Sorter.Extensions;
 using eQuantic.Linq.Specification;
@@ -99,17 +100,18 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
             {
                 OnCastEntity(opt);
                 OnCastSorting(opt);
-            });
+            })
+            .ToList();
 
         var specification = await OnGetSpecificationAsync(request);
 
-        await OnBeforeGetPagedListAsync(request, specification, cancellationToken);
+        await OnBeforeGetPagedListAsync(request, specification, sorting, cancellationToken);
 
         var count = await Repository.CountAsync(specification, cancellationToken);
         var pagedList = (await Repository.GetPagedAsync(specification, request.PageIndex, request.PageSize,
                 config =>
                 {
-                    config.WithSorting(sorting);
+                    config.WithSorting(sorting.ToArray());
                     OnSetQueryableConfiguration(CrudAction.GetPaged, config);
                 }, cancellationToken))
             .ToList();
@@ -219,6 +221,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
     protected virtual Task OnBeforeGetPagedListAsync(
         PagedListRequest<TEntity> request,
         Specification<TDataEntity> specification,
+        List<Sorting<TDataEntity>> sorting,
         CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
