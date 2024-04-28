@@ -83,7 +83,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
 
         ValidateReference(request, item);
 
-        var result = OnMapEntity(item);
+        var result = await OnMapEntityAsync(item);
 
         await OnAfterGetByIdAsync(item, result, cancellationToken);
         return result;
@@ -116,11 +116,14 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
                 }, cancellationToken))
             .ToList();
 
-        var list = pagedList
-            .Select(dataEntity => OnMapEntity(dataEntity)!)
-            .Where(item => item != null)
-            .ToList();
-
+        var list = new List<TEntity>();
+        foreach (var dataEntity in pagedList)
+        {
+            var item = await OnMapEntityAsync(dataEntity);
+            if(item != null)
+                list.Add(item);
+        }
+        
         await OnAfterGetPagedListAsync(pagedList, list, cancellationToken);
 
         return new PagedList<TEntity>(list, count) { PageIndex = request.PageIndex, PageSize = request.PageSize };
@@ -175,11 +178,11 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         return Task.FromResult( specification );
     }
 
-    protected virtual TEntity? OnMapEntity(TDataEntity dataEntity)
+    protected virtual Task<TEntity?> OnMapEntityAsync(TDataEntity dataEntity)
     {
         var mapper = MapperFactory.GetMapper<TDataEntity, TEntity>();
         if (mapper != null)
-            return mapper.Map(dataEntity);
+            return Task.FromResult( mapper.Map(dataEntity));
 
         var mapperType = typeof(IMapper<TDataEntity, TEntity>);
         var ex = new DependencyNotFoundException(mapperType);
