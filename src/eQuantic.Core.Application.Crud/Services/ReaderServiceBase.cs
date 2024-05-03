@@ -83,7 +83,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
 
         ValidateReference(request, item);
 
-        var result = await OnMapEntityAsync(item);
+        var result = await OnMapEntityAsync(item, cancellationToken);
 
         await OnAfterGetByIdAsync(item, result, cancellationToken);
         return result;
@@ -119,7 +119,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         var list = new List<TEntity>();
         foreach (var dataEntity in pagedList)
         {
-            var item = await OnMapEntityAsync(dataEntity);
+            var item = await OnMapEntityAsync(dataEntity, cancellationToken);
             if(item != null)
                 list.Add(item);
         }
@@ -178,7 +178,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         return Task.FromResult( specification );
     }
 
-    protected virtual Task<TEntity?> OnMapEntityAsync(TDataEntity dataEntity)
+    protected virtual Task<TEntity?> OnMapEntityAsync(TDataEntity dataEntity, CancellationToken cancellationToken)
     {
         var mapper = MapperFactory.GetMapper<TDataEntity, TEntity>();
         if (mapper != null)
