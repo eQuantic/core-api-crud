@@ -178,12 +178,16 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         return Task.FromResult( specification );
     }
 
-    protected virtual Task<TEntity?> OnMapEntityAsync(TDataEntity dataEntity, CancellationToken cancellationToken)
+    protected virtual async Task<TEntity?> OnMapEntityAsync(TDataEntity dataEntity, CancellationToken cancellationToken = default)
     {
         var mapper = MapperFactory.GetMapper<TDataEntity, TEntity>();
         if (mapper != null)
-            return Task.FromResult( mapper.Map(dataEntity));
+            return mapper.Map(dataEntity);
 
+        var asyncMapper = MapperFactory.GetAsyncMapper<TDataEntity, TEntity>();
+        if (asyncMapper != null)
+            return await asyncMapper.MapAsync(dataEntity);
+        
         var mapperType = typeof(IMapper<TDataEntity, TEntity>);
         var ex = new DependencyNotFoundException(mapperType);
         Logger.LogError(ex, "{ServiceName}: Mapper of {MapperName} not found", GetType().Name, mapperType.Name);
