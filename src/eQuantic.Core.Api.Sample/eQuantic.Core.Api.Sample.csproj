@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\eQuantic.Core.Api.Crud\eQuantic.Core.Api.Crud.csproj" />
-      <ProjectReference Include="..\eQuantic.Core.Application.Crud\eQuantic.Core.Application.Crud.csproj" />
+      <ProjectReference Include="..\Api.Crud\Api.Crud.csproj" />
+      <ProjectReference Include="..\Application.Crud\Application.Crud.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -20,18 +20,15 @@ using Microsoft.Extensions.Logging;
 
 namespace eQuantic.Core.Application.Crud.Services;
 
-public abstract class ReaderServiceBase<TEntity, TDataEntity> : ReaderServiceBase<TEntity, TDataEntity, int, int>
+public abstract class ReaderServiceBase<TEntity, TDataEntity>(
+    IApplicationContext<int> applicationContext,
+    IQueryableUnitOfWork unitOfWork,
+    IMapperFactory mapperFactory,
+    ILogger logger,
+    Action<ReadOptions>? options = null)
+    : ReaderServiceBase<TEntity, TDataEntity, int, int>(applicationContext, unitOfWork, mapperFactory, logger, options)
     where TEntity : class, new()
-    where TDataEntity : class, IEntity<int>, new()
-{
-    protected ReaderServiceBase(
-        IApplicationContext<int> applicationContext,
-        IQueryableUnitOfWork unitOfWork,
-        IMapperFactory mapperFactory,
-        ILogger logger, Action<ReadOptions>? options = null) : base(applicationContext, unitOfWork, mapperFactory, logger, options)
-    {
-    }
-}
+    where TDataEntity : class, IEntity<int>, new();
 
 public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : IReaderService<TEntity, TKey>
     where TEntity : class, new()

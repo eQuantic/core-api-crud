@@ -11,37 +11,32 @@ using Microsoft.Extensions.Logging;
 
 namespace eQuantic.Core.Application.Crud.Services;
 
-public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, int, int>
+public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser>(
+    IApplicationContext<int> applicationContext,
+    IQueryableUnitOfWork unitOfWork,
+    IMapperFactory mapperFactory,
+    ILogger logger,
+    Action<ReadOptions>? options = null)
+    : CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, int, int>(applicationContext, unitOfWork, mapperFactory,
+        logger, options)
     where TEntity : class, new()
-    where TDataEntity : class, IEntity<int>, new()
-{
-    protected CrudServiceBase(
-        IApplicationContext<int> applicationContext,
-        IQueryableUnitOfWork unitOfWork, 
-        IMapperFactory mapperFactory,
-        ILogger logger, Action<ReadOptions>? options = null) 
-        : base(applicationContext, unitOfWork, mapperFactory, logger, options)
-    {
-    }
-}
-public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey> 
-    : ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey>, ICrudService<TEntity, TRequest, TKey>
+    where TDataEntity : class, IEntity<int>, new();
+
+public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey>(
+    IApplicationContext<TUserKey> applicationContext,
+    IQueryableUnitOfWork unitOfWork,
+    IMapperFactory mapperFactory,
+    ILogger logger,
+    Action<ReadOptions>? options = null)
+    : ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey>(applicationContext, unitOfWork, mapperFactory, logger,
+        options), ICrudService<TEntity, TRequest, TKey>
     where TEntity : class, new()
     where TDataEntity : class, IEntity<TKey>, new()
     where TUserKey : struct
 {
-    protected CrudServiceBase(
-        IApplicationContext<TUserKey> applicationContext,
-        IQueryableUnitOfWork unitOfWork, 
-        IMapperFactory mapperFactory, 
-        ILogger logger, Action<ReadOptions>? options = null) 
-        : base(applicationContext, unitOfWork, mapperFactory, logger, options)
-    {
-    }
-    
     public virtual async Task<TKey> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
     {
-        var item = OnMapRequest(CrudAction.Create, request.Body);
+        var item = await OnMapRequestAsync(CrudAction.Create, request.Body);
         if (item == null)
         {
             Logger.LogError("{ServiceName} - Create: Bad request of {Name}", GetType().Name, typeof(TRequest).Name);
@@ -83,7 +78,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
 
         await OnBeforeUpdateAsync(request, item, cancellationToken);
         
-        OnMapRequest(CrudAction.Update, request.Body, item);
+        await OnMapRequestAsync(CrudAction.Update, request.Body, item);
 
         if (item is IEntityTimeTrack itemWithTimeTrack)
         {
@@ -146,12 +141,16 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return true;
     }
 
-    protected virtual TDataEntity? OnMapRequest(CrudAction action, TRequest? request, TDataEntity? dataEntity = null)
+    protected virtual async Task<TDataEntity?> OnMapRequestAsync(CrudAction action, TRequest? request, TDataEntity? dataEntity = null)
     {
         var mapper = MapperFactory.GetMapper<TRequest, TDataEntity>();
 
         if (mapper != null) 
             return mapper.Map(request, dataEntity);
+        
+        var asyncMapper = MapperFactory.GetAsyncMapper<TRequest, TDataEntity>();
+        if (asyncMapper != null)
+            return await asyncMapper.MapAsync(request, dataEntity);
         
         var ex = new DependencyNotFoundException(typeof(IMapper<TRequest, TDataEntity>));
         Logger.LogError(ex, "{ServiceName} - OnMapRequest: Mapper not found", GetType().Name);
