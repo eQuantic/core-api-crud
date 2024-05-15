@@ -141,22 +141,16 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return true;
     }
 
-    protected virtual async Task<TDataEntity?> OnMapRequestAsync(CrudAction action, TRequest? request, TDataEntity? dataEntity = null)
+    protected virtual Task<TDataEntity?> OnMapRequestAsync(
+        CrudAction action, 
+        TRequest? request, 
+        TDataEntity? dataEntity = null,
+        MappingPriority mappingPriority = MappingPriority.SyncOrAsync,
+        CancellationToken cancellationToken = default)
     {
-        var mapper = MapperFactory.GetMapper<TRequest, TDataEntity>();
-
-        if (mapper != null) 
-            return mapper.Map(request, dataEntity);
-        
-        var asyncMapper = MapperFactory.GetAsyncMapper<TRequest, TDataEntity>();
-        if (asyncMapper != null)
-            return await asyncMapper.MapAsync(request, dataEntity);
-        
-        var ex = new DependencyNotFoundException(typeof(IMapper<TRequest, TDataEntity>));
-        Logger.LogError(ex, "{ServiceName} - OnMapRequest: Mapper not found", GetType().Name);
-        throw ex;
+        return Map(request, dataEntity, mappingPriority, cancellationToken);
     }
-
+    
     protected virtual Task OnBeforeCreateAsync(CreateRequest<TRequest> request, TDataEntity? dataEntity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
