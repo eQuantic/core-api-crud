@@ -36,7 +36,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
 {
     public virtual async Task<TKey> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
     {
-        var item = await OnMapRequestAsync(CrudAction.Create, request.Body);
+        var item = await OnMapRequestAsync(CrudAction.Create, request.Body, cancellationToken: cancellationToken);
         if (item == null)
         {
             Logger.LogError("{ServiceName} - Create: Bad request of {Name}", GetType().Name, typeof(TRequest).Name);
@@ -78,7 +78,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
 
         await OnBeforeUpdateAsync(request, item, cancellationToken);
         
-        await OnMapRequestAsync(CrudAction.Update, request.Body, item);
+        await OnMapRequestAsync(CrudAction.Update, request.Body, item, cancellationToken: cancellationToken);
 
         if (item is IEntityTimeTrack itemWithTimeTrack)
         {
@@ -151,6 +151,13 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return Map(request, dataEntity, mappingPriority, cancellationToken);
     }
     
+    /// <summary>
+    /// This method is invoked after the request entity has been mapped
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="dataEntity"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     protected virtual Task OnBeforeCreateAsync(CreateRequest<TRequest> request, TDataEntity? dataEntity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;

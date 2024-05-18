@@ -7,9 +7,9 @@
         <RootNamespace>eQuantic.Core.Application.Crud</RootNamespace>
         <AssemblyName>eQuantic.Core.Application.Crud</AssemblyName>
         <AssemblyTitle>eQuantic.Core.Application.Crud</AssemblyTitle>
-        <AssemblyVersion>1.6.25.0</AssemblyVersion>
-        <FileVersion>1.6.25.0</FileVersion>
-        <Version>1.6.25.0</Version>
+        <AssemblyVersion>1.6.26.0</AssemblyVersion>
+        <FileVersion>1.6.26.0</FileVersion>
+        <Version>1.6.26.0</Version>
         <TargetFrameworks>netstandard2.1;net7.0;net8.0</TargetFrameworks>
         
         <PackageId>eQuantic.Core.Application.Crud</PackageId>
@@ -37,9 +37,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="eQuantic.Core.Application" Version="1.6.18" />
-        <PackageReference Include="eQuantic.Core.Domain" Version="1.6.18" />
-        <PackageReference Include="eQuantic.Core.Exceptions" Version="1.6.18" />
+        <PackageReference Include="eQuantic.Core.Application" Version="1.6.19" />
+        <PackageReference Include="eQuantic.Core.Domain" Version="1.6.19" />
+        <PackageReference Include="eQuantic.Core.Exceptions" Version="1.6.19" />
         <PackageReference Include="eQuantic.Mapper" Version="1.2.4" />
         <PackageReference Include="Humanizer" Version="2.14.1" />
     </ItemGroup>
