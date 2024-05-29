@@ -1,3 +1,4 @@
+using eQuantic.Core.Api.Crud.Extensions;
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Domain.Entities.Requests;
@@ -21,7 +22,7 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
     private readonly CrudOptions<TEntity> _options;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CrudEndpointHandlers{TEntity, TRequest, TService}"/> class
+    /// Initializes a new instance of the <see cref="CrudEndpointHandlers{TEntity, TRequest, TService, TKey}"/> class
     /// </summary>
     /// <param name="options"></param>
     public CrudEndpointHandlers(CrudOptions<TEntity> options)
@@ -46,15 +47,16 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
     /// <summary>
     /// Create a referenced entity
     /// </summary>
-    /// <param name="referenceId"></param>
+    /// <param name="context"></param>
     /// <param name="request"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<CreatedAtRoute<TKey>> ReferencedCreate<TReferenceKey>(
-        [FromRoute] TReferenceKey referenceId, 
+        HttpContext context,
         [FromBody] TRequest request, 
         [FromServices]TService service)
     {
+        var referenceId = context.GetReference<TReferenceKey>(_options.Create);
         var createRequest = new CreateRequest<TRequest, TReferenceKey>(referenceId, request);
         return await Create(createRequest, service, referenceId);
     }
@@ -99,17 +101,18 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
     /// <summary>
     /// Update a referenced entity
     /// </summary>
-    /// <param name="referenceId"></param>
+    /// <param name="context"></param>
     /// <param name="id"></param>
     /// <param name="request"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<Results<Ok, BadRequest>> ReferencedUpdate<TReferenceKey>(
-        [FromRoute] TReferenceKey referenceId, 
+        HttpContext context,
         [FromRoute] TKey id, 
         [FromBody] TRequest request,
         [FromServices] TService service)
     {
+        var referenceId = context.GetReference<TReferenceKey>(_options.Update);
         var updateRequest = new UpdateRequest<TRequest, TKey, TReferenceKey>(referenceId, id, request);
         return await Update(updateRequest, service);
     }
@@ -122,18 +125,18 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
     /// <summary>
     /// Update a referenced entity by complex identifier
     /// </summary>
-    /// <param name="referenceId"></param>
+    /// <param name="context"></param>
     /// <param name="id"></param>
     /// <param name="request"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public Task<Results<Ok, BadRequest>> ReferencedUpdateByComplexId<TReferenceKey>(
-        [FromRoute] TReferenceKey referenceId, 
+        HttpContext context,
         [AsParameters] TKey id, 
         [FromBody] TRequest request,
         [FromServices] TService service)
     {
-        return ReferencedUpdate(referenceId, id, request, service);
+        return ReferencedUpdate<TReferenceKey>(context, id, request, service);
     }
     
     public Delegate GetReferencedUpdateByComplexIdDelegate<TReferenceKey>()
@@ -172,15 +175,16 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
     /// <summary>
     /// Delete a referenced entity
     /// </summary>
-    /// <param name="referenceId"></param>
+    /// <param name="context"></param>
     /// <param name="id"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<Results<Ok, BadRequest>> ReferencedDelete<TReferenceKey>(
-        [FromRoute] TReferenceKey referenceId, 
+        HttpContext context,
         [FromRoute] TKey id, 
         [FromServices] TService service)
     {
+        var referenceId = context.GetReference<TReferenceKey>(_options.Delete);
         var request = new ItemRequest<TKey, TReferenceKey>(referenceId, id);
         return await Delete(request, service);
     }
@@ -193,16 +197,16 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
     /// <summary>
     /// Delete a referenced entity by complex identifier
     /// </summary>
-    /// <param name="referenceId"></param>
+    /// <param name="context"></param>
     /// <param name="id"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public Task<Results<Ok, BadRequest>> ReferencedDeleteByComplexId<TReferenceKey>(
-        [FromRoute] TReferenceKey referenceId, 
+        HttpContext context,
         [AsParameters] TKey id, 
         [FromServices] TService service)
     {
-        return ReferencedDelete(referenceId, id, service);
+        return ReferencedDelete<TReferenceKey>(context, id, service);
     }
     
     public Delegate GetReferencedDeleteByComplexIdDelegate<TReferenceKey>()

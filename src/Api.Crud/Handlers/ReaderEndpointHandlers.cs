@@ -1,4 +1,5 @@
 using System.Reflection;
+using eQuantic.Core.Api.Crud.Extensions;
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Application.Entities.Results;
@@ -29,15 +30,16 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     /// <summary>
     /// Get referenced entity by identifier
     /// </summary>
-    /// <param name="referenceId"></param>
+    /// <param name="context"></param>
     /// <param name="id"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<Results<Ok<TEntity>, NotFound>> GetReferencedById<TReferenceKey>(
-        [FromRoute] TReferenceKey referenceId, 
+        HttpContext context,
         [FromRoute] TKey id, 
         [FromServices]TService service)
     {
+        var referenceId = context.GetReference<TReferenceKey>(_options.Get);
         var request = new ItemRequest<TKey, TReferenceKey>(referenceId, id);
         return await GetById(request, service);
     }
@@ -50,16 +52,16 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     /// <summary>
     /// Get referenced entity by complex identifier
     /// </summary>
-    /// <param name="referenceId"></param>
+    /// <param name="context"></param>
     /// <param name="id"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public Task<Results<Ok<TEntity>, NotFound>> GetReferencedByComplexId<TReferenceKey>(
-        [FromRoute] TReferenceKey referenceId, 
+        HttpContext context,
         [AsParameters] TKey id, 
         [FromServices]TService service)
     {
-        return GetReferencedById(referenceId, id, service);
+        return GetReferencedById<TReferenceKey>(context, id, service);
     }
     
     public Delegate GetReferencedByComplexIdDelegate<TReferenceKey>()
@@ -97,7 +99,7 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     /// <summary>
     /// Get paged list of referenced entity by criteria
     /// </summary>
-    /// <param name="referenceId"></param>
+    /// <param name="context"></param>
     /// <param name="pageIndex"></param>
     /// <param name="pageSize"></param>
     /// <param name="filterBy"></param>
@@ -105,13 +107,14 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<Ok<PagedListResult<TEntity>>> GetReferencedPagedList<TReferenceKey>(
-        [FromRoute] TReferenceKey referenceId, 
+        HttpContext context,
         [FromQuery] int? pageIndex, 
         [FromQuery] int? pageSize, 
         [FromQuery] IFiltering[]? filterBy, 
         [FromQuery] ISorting[]? orderBy, 
         [FromServices]TService service)
     {
+        var referenceId = context.GetReference<TReferenceKey>(_options.List);
         var request = new PagedListRequest<TEntity,TReferenceKey>(referenceId, pageIndex, pageSize, filterBy, orderBy);
         return await GetPagedList(request, service);
     }

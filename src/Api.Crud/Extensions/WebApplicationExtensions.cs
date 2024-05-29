@@ -5,10 +5,10 @@ using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Api.Extensions;
 using eQuantic.Core.Api.Crud.Handlers;
 using eQuantic.Core.Api.Crud.Options;
+using eQuantic.Core.Api.Error.Results;
 using eQuantic.Core.Application.Crud.Attributes;
 using eQuantic.Core.Application.Crud.Enums;
 using eQuantic.Core.Application.Entities.Results;
-using eQuantic.Core.Domain.Attributes;
 using Humanizer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -244,12 +244,12 @@ public static class WebApplicationExtensions
         Type? referenceType = null)
     {
         var entityType = typeof(TEntity);
-        var entityName = GetEntityName(entityType);
+        var entityName = entityType.GetEntityName();
         var prefix = entityName.ChangeCase(format);
         var pattern = $"/{prefix}";
         if (referenceType != null)
         {
-            pattern = $"/{GetEntityName(referenceType).ChangeCase(format)}/{{referenceId}}{pattern}";
+            pattern = $"/{referenceType.GetEntityName().ChangeCase(format)}/{{{referenceType.GetReferenceName()}}}{pattern}";
         }
 
         if (!withId)
@@ -260,12 +260,6 @@ public static class WebApplicationExtensions
             : $"{pattern}/{{{string.Join("}/{", GetRoutesFromComplexKey<TKey>())}}}";
 
         return pattern;
-    }
-
-    private static string GetEntityName(MemberInfo entityType)
-    {
-        var entityAttr = entityType.GetCustomAttribute<EntityAttribute>();
-        return entityAttr != null ? entityAttr.Name : entityType.Name;
     }
     
     private static string ChangeCase(this string name, RouteFormat format)
@@ -307,11 +301,15 @@ public static class WebApplicationExtensions
               )
             : (IsPrimitiveKey<TKey>() ? handlers.GetById : handlers.GetByComplexId);
 
-        app
+        var endpoint = app
             .MapGet(pattern, handler)
             .SetOptions<TEntity>(options.Get)
             .Produces<TEntity?>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
+        if (options.Get.ReferenceType != null)
+        {
+            endpoint.WithReferenceId(options.Get);
+        }
         return app;
     }
 
@@ -326,10 +324,15 @@ public static class WebApplicationExtensions
             ? handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedPagedListDelegate))
             : handlers.GetPagedList;
 
-        app
+        var endpoint = app
             .MapGet(pattern, handler)
             .SetOptions<TEntity>(options.List)
             .Produces<PagedListResult<TEntity>>(StatusCodes.Status200OK);
+        
+        if (options.List.ReferenceType != null)
+        {
+            endpoint.WithReferenceId(options.List);
+        }
         return app;
     }
 
@@ -346,10 +349,16 @@ public static class WebApplicationExtensions
         Delegate handler = options.Create.ReferenceType != null
             ? handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedCreateDelegate))
             : handlers.Create;
-        app
+        var endpoint = app
             .MapPost(pattern, handler)
             .SetOptions<TEntity, TRequest>(options.Create)
-            .Produces<TKey>(StatusCodes.Status201Created);
+            .Produces<TKey>(StatusCodes.Status201Created)
+            .Produces<ErrorResult>(StatusCodes.Status400BadRequest);
+        
+        if (options.Create.ReferenceType != null)
+        {
+            endpoint.WithReferenceId(options.Create);
+        }
         return app;
     }
     
@@ -368,14 +377,19 @@ public static class WebApplicationExtensions
                     handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedUpdateByComplexIdDelegate))
               )
             : (IsPrimitiveKey<TKey>() ? handlers.Update : handlers.UpdateByComplexId);
-        app
+        var endpoint = app
             .MapPut(pattern, handler)
             .SetOptions<TEntity, TRequest>(options.Update)
-            .Produces(StatusCodes.Status200OK);
+            .Produces(StatusCodes.Status200OK)
+            .Produces<ErrorResult>(StatusCodes.Status400BadRequest);
 
+        if (options.Update.ReferenceType != null)
+        {
+            endpoint.WithReferenceId(options.Update);
+        }
         return app;
     }
-
+    
     private static IEndpointRouteBuilder MapDelete<TEntity, TRequest, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
         where TEntity : class, new()
@@ -391,10 +405,16 @@ public static class WebApplicationExtensions
                     handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedDeleteByComplexIdDelegate))
                )
             : (IsPrimitiveKey<TKey>() ? handlers.Delete : handlers.DeleteByComplexId);
-        app
+        var endpoint = app
             .MapDelete(pattern, handler)
             .SetOptions<TEntity, TRequest>(options.Delete)
             .Produces(StatusCodes.Status200OK);
+        
+        if (options.Delete.ReferenceType != null)
+        {
+            endpoint.WithReferenceId(options.Delete);
+        }
+        
         return app;
     }
 
