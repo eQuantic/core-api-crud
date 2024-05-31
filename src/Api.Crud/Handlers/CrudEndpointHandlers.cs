@@ -2,6 +2,7 @@ using eQuantic.Core.Api.Crud.Extensions;
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Domain.Entities.Requests;
+using eQuantic.Core.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -57,6 +58,8 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
         [FromServices]TService service)
     {
         var referenceId = context.GetReference<TReferenceKey>(_options.Create);
+        if (referenceId == null)
+            throw new InvalidEntityReferenceException<TReferenceKey>();
         var createRequest = new CreateRequest<TRequest, TReferenceKey>(referenceId, request);
         return await Create(createRequest, service, referenceId);
     }
@@ -113,6 +116,8 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
         [FromServices] TService service)
     {
         var referenceId = context.GetReference<TReferenceKey>(_options.Update);
+        if (referenceId == null)
+            throw new InvalidEntityReferenceException<TReferenceKey>();
         var updateRequest = new UpdateRequest<TRequest, TKey, TReferenceKey>(referenceId, id, request);
         return await Update(updateRequest, service);
     }
@@ -185,6 +190,8 @@ internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
         [FromServices] TService service)
     {
         var referenceId = context.GetReference<TReferenceKey>(_options.Delete);
+        if (referenceId == null)
+            throw new InvalidEntityReferenceException<TReferenceKey>();
         var request = new ItemRequest<TKey, TReferenceKey>(referenceId, id);
         return await Delete(request, service);
     }
