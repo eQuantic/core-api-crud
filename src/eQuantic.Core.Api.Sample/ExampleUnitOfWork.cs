@@ -1,4 +1,4 @@
-using eQuantic.Core.Data.EntityFramework.Repository;
+using eQuantic.Core.Data.EntityFramework.SqlServer.Repository;
 
 namespace eQuantic.Core.Api.Sample;
 

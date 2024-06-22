@@ -37,7 +37,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="eQuantic.Core.Api" Version="1.6.19" />
+        <PackageReference Include="eQuantic.Core.Api" Version="1.6.20" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     </ItemGroup>
     
