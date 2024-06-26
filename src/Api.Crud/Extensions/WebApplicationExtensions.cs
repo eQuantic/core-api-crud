@@ -214,7 +214,7 @@ public static class WebApplicationExtensions
                         .GetProperties()
                         .FirstOrDefault(p => p.GetCustomAttribute<KeyAttribute>() != null)?
                         .PropertyType;
-                    opt.WithReference(crudEndpoints.ReferenceType, referenceKeyType ?? typeof(int));
+                    opt.WithReference(crudEndpoints.ReferenceType, referenceKeyType ?? typeof(int), crudEndpoints.ReferenceName);
                 }
 
                 if (allCrudOptions.GetRequireAuth() == true)
@@ -291,13 +291,13 @@ public static class WebApplicationExtensions
         where TEntity : class, new()
         where TService : IReaderService<TEntity, TKey>
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Get.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Get.Reference?.EntityType);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
-        Delegate handler = options.Get.ReferenceType != null
+        Delegate handler = options.Get.Reference != null
             ? (
                 IsPrimitiveKey<TKey>() ? 
-                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedByIdDelegate)) :
-                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedByComplexIdDelegate))
+                    handlers.GetReferencedHandler(options.Get.Reference.KeyType, nameof(handlers.GetReferencedByIdDelegate)) :
+                    handlers.GetReferencedHandler(options.Get.Reference.KeyType, nameof(handlers.GetReferencedByComplexIdDelegate))
               )
             : (IsPrimitiveKey<TKey>() ? handlers.GetById : handlers.GetByComplexId);
 
@@ -306,9 +306,9 @@ public static class WebApplicationExtensions
             .SetOptions<TEntity>(options.Get)
             .Produces<TEntity?>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
-        if (options.Get.ReferenceType != null)
+        if (options.Get.Reference != null)
         {
-            endpoint.WithReferenceId(options.Get);
+            endpoint.WithReferenceId(options.Get.Reference);
         }
         return app;
     }
@@ -318,10 +318,10 @@ public static class WebApplicationExtensions
         where TEntity : class, new()
         where TService : IReaderService<TEntity, TKey>
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.List.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.List.Reference?.EntityType);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
-        Delegate handler = options.List.ReferenceType != null
-            ? handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedPagedListDelegate))
+        Delegate handler = options.List.Reference != null
+            ? handlers.GetReferencedHandler(options.List.Reference.KeyType, nameof(handlers.GetReferencedPagedListDelegate))
             : handlers.GetPagedList;
 
         var endpoint = app
@@ -329,9 +329,9 @@ public static class WebApplicationExtensions
             .SetOptions<TEntity>(options.List)
             .Produces<PagedListResult<TEntity>>(StatusCodes.Status200OK);
         
-        if (options.List.ReferenceType != null)
+        if (options.List.Reference != null)
         {
-            endpoint.WithReferenceId(options.List);
+            endpoint.WithReferenceId(options.List.Reference);
         }
         return app;
     }
@@ -342,12 +342,12 @@ public static class WebApplicationExtensions
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.Create.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.Create.Reference?.EntityType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         
         
-        Delegate handler = options.Create.ReferenceType != null
-            ? handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedCreateDelegate))
+        Delegate handler = options.Create.Reference != null
+            ? handlers.GetReferencedHandler(options.Create.Reference.KeyType, nameof(handlers.GetReferencedCreateDelegate))
             : handlers.Create;
         var endpoint = app
             .MapPost(pattern, handler)
@@ -355,9 +355,9 @@ public static class WebApplicationExtensions
             .Produces<TKey>(StatusCodes.Status201Created)
             .Produces<ErrorResult>(StatusCodes.Status400BadRequest);
         
-        if (options.Create.ReferenceType != null)
+        if (options.Create.Reference != null)
         {
-            endpoint.WithReferenceId(options.Create);
+            endpoint.WithReferenceId(options.Create.Reference);
         }
         return app;
     }
@@ -368,13 +368,13 @@ public static class WebApplicationExtensions
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Update.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Update.Reference?.EntityType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
-        Delegate handler = options.Update.ReferenceType != null
+        Delegate handler = options.Update.Reference != null
             ? (
                 IsPrimitiveKey<TKey>() ? 
-                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedUpdateDelegate)) : 
-                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedUpdateByComplexIdDelegate))
+                    handlers.GetReferencedHandler(options.Update.Reference.KeyType, nameof(handlers.GetReferencedUpdateDelegate)) : 
+                    handlers.GetReferencedHandler(options.Update.Reference.KeyType, nameof(handlers.GetReferencedUpdateByComplexIdDelegate))
               )
             : (IsPrimitiveKey<TKey>() ? handlers.Update : handlers.UpdateByComplexId);
         var endpoint = app
@@ -383,9 +383,9 @@ public static class WebApplicationExtensions
             .Produces(StatusCodes.Status200OK)
             .Produces<ErrorResult>(StatusCodes.Status400BadRequest);
 
-        if (options.Update.ReferenceType != null)
+        if (options.Update.Reference != null)
         {
-            endpoint.WithReferenceId(options.Update);
+            endpoint.WithReferenceId(options.Update.Reference);
         }
         return app;
     }
@@ -396,13 +396,13 @@ public static class WebApplicationExtensions
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Delete.ReferenceType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Delete.Reference?.EntityType);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
-        Delegate handler = options.Delete.ReferenceType != null
+        Delegate handler = options.Delete.Reference != null
             ? (
                 IsPrimitiveKey<TKey>() ? 
-                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedDeleteDelegate)) : 
-                    handlers.GetReferencedHandler(options.Get.ReferenceKeyType!, nameof(handlers.GetReferencedDeleteByComplexIdDelegate))
+                    handlers.GetReferencedHandler(options.Delete.Reference.KeyType, nameof(handlers.GetReferencedDeleteDelegate)) : 
+                    handlers.GetReferencedHandler(options.Delete.Reference.KeyType, nameof(handlers.GetReferencedDeleteByComplexIdDelegate))
                )
             : (IsPrimitiveKey<TKey>() ? handlers.Delete : handlers.DeleteByComplexId);
         var endpoint = app
@@ -410,9 +410,9 @@ public static class WebApplicationExtensions
             .SetOptions<TEntity, TRequest>(options.Delete)
             .Produces(StatusCodes.Status200OK);
         
-        if (options.Delete.ReferenceType != null)
+        if (options.Delete.Reference != null)
         {
-            endpoint.WithReferenceId(options.Delete);
+            endpoint.WithReferenceId(options.Delete.Reference);
         }
         
         return app;

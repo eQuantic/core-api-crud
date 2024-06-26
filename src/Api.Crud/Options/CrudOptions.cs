@@ -1,3 +1,4 @@
+using eQuantic.Core.Api.Crud.Extensions;
 using eQuantic.Core.Application.Crud.Enums;
 using Humanizer;
 using Microsoft.OpenApi.Models;
@@ -22,10 +23,10 @@ public interface ICrudOptions
     ICrudOptions WithParameter(CrudEndpointVerbs verbs, OpenApiParameter parameter);
     ICrudOptions WithParameter(OpenApiParameter parameter);
     ICrudOptions WithVerbs(CrudEndpointVerbs verbs);
-    ICrudOptions WithReference(CrudEndpointVerbs verbs, Type referenceType, Type referenceKeyType);
-    ICrudOptions WithReference(Type referenceType, Type referenceKeyType);
-    ICrudOptions WithReference<TReferenceEntity, TReferenceKey>(CrudEndpointVerbs verbs);
-    ICrudOptions WithReference<TReferenceEntity, TReferenceKey>();
+    ICrudOptions WithReference(CrudEndpointVerbs verbs, Type referenceType, Type referenceKeyType, string? referenceName = null);
+    ICrudOptions WithReference(Type referenceType, Type referenceKeyType, string? referenceName = null);
+    ICrudOptions WithReference<TReferenceEntity, TReferenceKey>(CrudEndpointVerbs verbs, string? referenceName = null);
+    ICrudOptions WithReference<TReferenceEntity, TReferenceKey>(string? referenceName = null);
     ICrudOptions WithFilter<TFilterType>(CrudEndpointVerbs verbs);
     ICrudOptions WithFilter<TFilterType>();
     ICrudOptions WithValidation(bool? withValidation = true);
@@ -108,23 +109,24 @@ public class CrudOptions<TEntity> : ICrudOptions
     /// <param name="verbs">CRUD endpoint verbs</param>
     /// <param name="referenceType"></param>
     /// <param name="referenceKeyType"></param>
+    /// <param name="referenceName"></param>
     /// <returns></returns>
-    public ICrudOptions WithReference(CrudEndpointVerbs verbs, Type referenceType, Type referenceKeyType)
+    public ICrudOptions WithReference(CrudEndpointVerbs verbs, Type referenceType, Type referenceKeyType, string? referenceName = null)
     {
         if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetById))
-            Get.WithReference(referenceType, referenceKeyType);
+            Get.WithReference(referenceType, referenceKeyType, referenceName);
         
         if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetPaged))
-            List.WithReference(referenceType, referenceKeyType);
+            List.WithReference(referenceType, referenceKeyType, referenceName);
         
         if(verbs.HasFlag(CrudEndpointVerbs.OnlyCreate))
-            Create.WithReference(referenceType, referenceKeyType);
+            Create.WithReference(referenceType, referenceKeyType, referenceName);
         
         if(verbs.HasFlag(CrudEndpointVerbs.OnlyUpdate))
-            Update.WithReference(referenceType, referenceKeyType);
+            Update.WithReference(referenceType, referenceKeyType, referenceName);
         
         if(verbs.HasFlag(CrudEndpointVerbs.OnlyDelete))
-            Delete.WithReference(referenceType, referenceKeyType);
+            Delete.WithReference(referenceType, referenceKeyType, referenceName);
         return this;
     }
 
@@ -133,10 +135,11 @@ public class CrudOptions<TEntity> : ICrudOptions
     /// </summary>
     /// <param name="referenceType"></param>
     /// <param name="referenceKeyType"></param>
+    /// <param name="referenceName"></param>
     /// <returns></returns>
-    public ICrudOptions WithReference(Type referenceType, Type referenceKeyType)
+    public ICrudOptions WithReference(Type referenceType, Type referenceKeyType, string? referenceName = null)
     {
-        return WithReference(CrudEndpointVerbs.All, referenceType, referenceKeyType);
+        return WithReference(CrudEndpointVerbs.All, referenceType, referenceKeyType, referenceName);
     }
 
     /// <summary>
@@ -145,23 +148,24 @@ public class CrudOptions<TEntity> : ICrudOptions
     /// <typeparam name="TReferenceEntity"></typeparam>
     /// <typeparam name="TReferenceKey"></typeparam>
     /// <param name="verbs"></param>
+    /// <param name="referenceName"></param>
     /// <returns></returns>
-    public ICrudOptions WithReference<TReferenceEntity, TReferenceKey>(CrudEndpointVerbs verbs)
+    public ICrudOptions WithReference<TReferenceEntity, TReferenceKey>(CrudEndpointVerbs verbs, string? referenceName = null)
     {
         if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetById))
-            Get.WithReference<TReferenceEntity, TReferenceKey>();
+            Get.WithReference<TReferenceEntity, TReferenceKey>(referenceName);
         
         if(verbs.HasFlag(CrudEndpointVerbs.OnlyGetPaged))
-            List.WithReference<TReferenceEntity, TReferenceKey>();
+            List.WithReference<TReferenceEntity, TReferenceKey>(referenceName);
         
         if(verbs.HasFlag(CrudEndpointVerbs.OnlyCreate))
-            Create.WithReference<TReferenceEntity, TReferenceKey>();
+            Create.WithReference<TReferenceEntity, TReferenceKey>(referenceName);
         
         if(verbs.HasFlag(CrudEndpointVerbs.OnlyUpdate))
-            Update.WithReference<TReferenceEntity, TReferenceKey>();
+            Update.WithReference<TReferenceEntity, TReferenceKey>(referenceName);
         
         if(verbs.HasFlag(CrudEndpointVerbs.OnlyDelete))
-            Delete.WithReference<TReferenceEntity, TReferenceKey>();
+            Delete.WithReference<TReferenceEntity, TReferenceKey>(referenceName);
         
         return this;
     }
@@ -171,10 +175,11 @@ public class CrudOptions<TEntity> : ICrudOptions
     /// </summary>
     /// <typeparam name="TReferenceEntity"></typeparam>
     /// <typeparam name="TReferenceKey"></typeparam>
+    /// <param name="referenceName"></param>
     /// <returns></returns>
-    public ICrudOptions WithReference<TReferenceEntity, TReferenceKey>()
+    public ICrudOptions WithReference<TReferenceEntity, TReferenceKey>(string? referenceName = null)
     {
-        return WithReference<TReferenceEntity, TReferenceKey>(CrudEndpointVerbs.All);
+        return WithReference<TReferenceEntity, TReferenceKey>(CrudEndpointVerbs.All, referenceName);
     }
     
     /// <summary>
@@ -269,11 +274,11 @@ public class EndpointOptions
     /// </summary>
     /// <param name="referenceType"></param>
     /// <param name="referenceKeyType"></param>
+    /// <param name="referenceName"></param>
     /// <returns></returns>
-    public EndpointOptions WithReference(Type referenceType, Type referenceKeyType)
+    public EndpointOptions WithReference(Type referenceType, Type referenceKeyType, string? referenceName = null)
     {
-        ReferenceType = referenceType;
-        ReferenceKeyType = referenceKeyType;
+        Reference = new EndpointReferenceOptions(referenceType, referenceKeyType, referenceName ?? referenceType.GetReferenceName());
         return this;
     }
 
@@ -283,10 +288,11 @@ public class EndpointOptions
     /// <typeparam name="TReferenceEntity"></typeparam>
     /// <typeparam name="TReferenceKey"></typeparam>
     /// <returns></returns>
-    public EndpointOptions WithReference<TReferenceEntity, TReferenceKey>()
+    public EndpointOptions WithReference<TReferenceEntity, TReferenceKey>(string? referenceName = null)
     {
-        ReferenceType = typeof(TReferenceEntity);
-        ReferenceKeyType = typeof(TReferenceKey);
+        var referenceType = typeof(TReferenceEntity);
+        var referenceKeyType = typeof(TReferenceKey);
+        Reference = new EndpointReferenceOptions(referenceType, referenceKeyType, referenceName ?? referenceType.GetReferenceName());
         return this;
     }
     
@@ -359,14 +365,9 @@ public class EndpointOptions
     }
     
     /// <summary>
-    /// The reference entity type
+    /// The reference options
     /// </summary>
-    internal Type? ReferenceType { get; private set; }
-    
-    /// <summary>
-    /// The reference key type
-    /// </summary>
-    internal Type? ReferenceKeyType { get; private set; }
+    internal EndpointReferenceOptions? Reference { get; private set; }
 
     /// <summary>
     /// The endpoint name
@@ -386,7 +387,7 @@ public class EndpointOptions
     /// <summary>
     /// The endpoint tags
     /// </summary>
-    internal string[] Tags { get; private set; } = Array.Empty<string>();
+    internal string[] Tags { get; private set; } = [];
     
     /// <summary>
     /// The endpoint authorization
@@ -403,3 +404,5 @@ public class EndpointOptions
     
     internal List<OpenApiParameter> Parameters { get; private set; } = new();
 }
+
+public record EndpointReferenceOptions(Type EntityType, Type KeyType, string? Name);

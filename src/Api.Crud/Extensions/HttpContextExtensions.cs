@@ -7,7 +7,7 @@ internal static class HttpContextExtensions
 {
     public static TReferenceKey? GetReference<TReferenceKey>(this HttpContext context, EndpointOptions options)
     {
-        var referenceName = options.ReferenceType?.GetReferenceName() ?? "referenceId";
+        var referenceName = options.Reference?.Name ?? "referenceId";
         var type = typeof(TReferenceKey);
         if (!context.Request.RouteValues.TryGetValue(referenceName, out var value))
             return default;

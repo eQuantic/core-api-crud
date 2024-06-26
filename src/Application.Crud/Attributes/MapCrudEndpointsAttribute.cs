@@ -3,14 +3,10 @@ using eQuantic.Core.Application.Crud.Enums;
 namespace eQuantic.Core.Application.Crud.Attributes;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class MapCrudEndpointsAttribute : Attribute
+public class MapCrudEndpointsAttribute(CrudEndpointVerbs endpointVerbs = CrudEndpointVerbs.All) : Attribute
 {
-    public CrudEndpointVerbs EndpointVerbs { get; }
+    public CrudEndpointVerbs EndpointVerbs { get; } = endpointVerbs;
     public Type? ReferenceType { get; set; }
     public Type? ReferenceKeyType { get; set; }
-    
-    public MapCrudEndpointsAttribute(CrudEndpointVerbs endpointVerbs = CrudEndpointVerbs.All)
-    {
-        EndpointVerbs = endpointVerbs;
-    }
+    public string? ReferenceName { get; set; }
 }

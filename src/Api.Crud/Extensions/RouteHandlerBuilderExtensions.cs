@@ -6,7 +6,7 @@ namespace eQuantic.Core.Api.Crud.Extensions;
 
 public static class RouteHandlerBuilderExtensions
 {
-    public static RouteHandlerBuilder WithReferenceId(this RouteHandlerBuilder endpoint, EndpointOptions options)
+    public static RouteHandlerBuilder WithReferenceId(this RouteHandlerBuilder endpoint, EndpointReferenceOptions options)
     {
         return endpoint.WithOpenApi(op =>
         {
@@ -15,14 +15,14 @@ public static class RouteHandlerBuilderExtensions
         });
     }
     
-    private static OpenApiParameter GetReferenceParameter(EndpointOptions options)
+    private static OpenApiParameter GetReferenceParameter(EndpointReferenceOptions options)
     {
         return new OpenApiParameter
         {
             Required = true,
-            Name = options.ReferenceType?.GetReferenceName() ?? "referenceId",
+            Name = options.Name,
             In = ParameterLocation.Path,
-            Schema = options.ReferenceKeyType?.ToSchema()
+            Schema = options.KeyType.ToSchema()
         };
     }
 }
