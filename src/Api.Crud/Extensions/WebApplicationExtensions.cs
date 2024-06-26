@@ -241,15 +241,15 @@ public static class WebApplicationExtensions
     private static string GetPattern<TEntity, TKey>(
         RouteFormat format,
         bool withId = false, 
-        Type? referenceType = null)
+        EndpointReferenceOptions? reference = null)
     {
         var entityType = typeof(TEntity);
         var entityName = entityType.GetEntityName();
         var prefix = entityName.ChangeCase(format);
         var pattern = $"/{prefix}";
-        if (referenceType != null)
+        if (reference != null)
         {
-            pattern = $"/{referenceType.GetEntityName().ChangeCase(format)}/{{{referenceType.GetReferenceName()}}}{pattern}";
+            pattern = $"/{reference.EntityType.GetEntityName().ChangeCase(format)}/{{{reference.Name}}}{pattern}";
         }
 
         if (!withId)
@@ -291,7 +291,7 @@ public static class WebApplicationExtensions
         where TEntity : class, new()
         where TService : IReaderService<TEntity, TKey>
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Get.Reference?.EntityType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Get.Reference);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
         Delegate handler = options.Get.Reference != null
             ? (
@@ -318,7 +318,7 @@ public static class WebApplicationExtensions
         where TEntity : class, new()
         where TService : IReaderService<TEntity, TKey>
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.List.Reference?.EntityType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.List.Reference);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
         Delegate handler = options.List.Reference != null
             ? handlers.GetReferencedHandler(options.List.Reference.KeyType, nameof(handlers.GetReferencedPagedListDelegate))
@@ -342,7 +342,7 @@ public static class WebApplicationExtensions
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.Create.Reference?.EntityType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.Create.Reference);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         
         
@@ -368,7 +368,7 @@ public static class WebApplicationExtensions
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Update.Reference?.EntityType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Update.Reference);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Update.Reference != null
             ? (
@@ -396,7 +396,7 @@ public static class WebApplicationExtensions
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Delete.Reference?.EntityType);
+        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Delete.Reference);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Delete.Reference != null
             ? (
