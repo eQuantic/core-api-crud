@@ -1,4 +1,5 @@
 using System.Reflection;
+using eQuantic.Core.Api.Crud.Binders;
 using eQuantic.Core.Api.Crud.Extensions;
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Application.Crud.Services;
@@ -142,11 +143,11 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     public async Task<Ok<PagedListResult<TEntity>>> GetPagedList(
         [FromQuery] int? pageIndex, 
         [FromQuery] int? pageSize, 
-        [FromQuery] IFiltering[]? filterBy, 
+        [FromQuery] FilteringCollection? filterBy, 
         [FromQuery] ISorting[]? orderBy, 
         [FromServices]TService service)
     {
-        var request = new PagedListRequest<TEntity>(pageIndex, pageSize, filterBy, orderBy);
+        var request = new PagedListRequest<TEntity>(pageIndex, pageSize, filterBy?.ToArray(), orderBy);
         return await GetPagedList(request, service);
     }
     

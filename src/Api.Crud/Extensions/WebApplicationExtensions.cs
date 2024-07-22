@@ -6,6 +6,7 @@ using eQuantic.Core.Api.Extensions;
 using eQuantic.Core.Api.Crud.Handlers;
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Api.Error.Results;
+using eQuantic.Core.Api.Options;
 using eQuantic.Core.Application.Crud.Attributes;
 using eQuantic.Core.Application.Crud.Enums;
 using eQuantic.Core.Application.Entities.Results;
@@ -21,6 +22,17 @@ namespace eQuantic.Core.Api.Crud.Extensions;
 /// </summary>
 public static class WebApplicationExtensions
 {
+    /// <summary>
+    /// Use the api documentation
+    /// </summary>
+    /// <param name="app">The app</param>
+    /// <param name="options">The documentation options</param>
+    /// <returns>The app</returns>
+    public static WebApplication UseApiDocumentation(this WebApplication app, Action<DocumentationOptions>? options = null)
+    {
+        return eQuantic.Core.Api.Extensions.WebApplicationExtensions.UseApiDocumentation(app, options);
+    }
+    
     /// <summary>
     /// Map all CRUD endpoints
     /// </summary>

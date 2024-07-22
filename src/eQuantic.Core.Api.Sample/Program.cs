@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using eQuantic.Core.Api.Crud.Extensions;
-using eQuantic.Core.Api.Extensions;
 using eQuantic.Core.Api.Sample;
 using eQuantic.Core.Api.Sample.Entities;
 using eQuantic.Core.Api.Sample.Services;

@@ -1,7 +1,11 @@
+using eQuantic.Core.Api.Crud.Binders;
 using eQuantic.Core.Api.Crud.Options;
+using eQuantic.Core.Api.Extensions;
+using eQuantic.Core.Api.Options;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace eQuantic.Core.Api.Crud.Extensions;
 
@@ -17,5 +21,17 @@ public static class ServiceCollectionExtensions
             fv.DisableDataAnnotationsValidation = true;
         });
         return services;
+    }
+
+    public static IServiceCollection AddApiDocumentation(
+        this IServiceCollection services,
+        Action<DocumentationOptions>? options = null,
+        Action<SwaggerGenOptions>? swaggerGenOptions = null)
+    {
+        return eQuantic.Core.Api.Extensions.ServiceCollectionExtensions.AddApiDocumentation(services, options, opt =>
+        {
+            opt.AddFilteringOperationFilter<FilteringCollection>();
+            swaggerGenOptions?.Invoke(opt);
+        });
     }
 }
