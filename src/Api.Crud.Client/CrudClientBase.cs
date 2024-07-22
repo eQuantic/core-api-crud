@@ -9,17 +9,38 @@ using eQuantic.Linq.Sorter;
 
 namespace eQuantic.Core.Api.Crud.Client;
 
+/// <summary>
+/// CRUD Client Base
+/// </summary>
+/// <typeparam name="TEntity"></typeparam>
+/// <typeparam name="TRequest"></typeparam>
+/// <typeparam name="TKey"></typeparam>
 public abstract class CrudClientBase<TEntity, TRequest, TKey> : ICrudClient<TEntity, TRequest, TKey>
 {
     private readonly string _route;
+    
+    /// <summary>
+    /// HTTP Client
+    /// </summary>
     protected HttpClient HttpClient { get; }
 
+    /// <summary>
+    /// CRUD Client constructor
+    /// </summary>
+    /// <param name="route">The route</param>
+    /// <param name="httpClient">The HTTP Client</param>
     protected CrudClientBase(string route, HttpClient httpClient)
     {
         _route = route;
         HttpClient = httpClient;
     }
 
+    /// <summary>
+    /// Get entity by identifier
+    /// </summary>
+    /// <param name="id">The entity identifier</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns></returns>
     public async Task<TEntity?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default)
     {
         var response = await HttpClient.GetAsync($"{_route}/{id}", cancellationToken);
@@ -28,6 +49,15 @@ public abstract class CrudClientBase<TEntity, TRequest, TKey> : ICrudClient<TEnt
         return item;
     }
 
+    /// <summary>
+    /// Get paged entity by criteria
+    /// </summary>
+    /// <param name="filtering">The filter</param>
+    /// <param name="sorting">The sorter</param>
+    /// <param name="pageIndex">The page index</param>
+    /// <param name="pageSize">The page size</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns></returns>
     public async Task<IPagedEnumerable<TEntity>> GetPagedListAsync(
         IFiltering<TEntity>[] filtering,
         ISorting<TEntity>[] sorting,
@@ -61,6 +91,12 @@ public abstract class CrudClientBase<TEntity, TRequest, TKey> : ICrudClient<TEnt
         };
     }
 
+    /// <summary>
+    /// Create an entity
+    /// </summary>
+    /// <param name="request">The request</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns></returns>
     public async Task<TKey?> CreateAsync(TRequest request, CancellationToken cancellationToken = default)
     {
         var response = await HttpClient.PostAsync(_route, JsonContent.Create(request), cancellationToken);
@@ -71,6 +107,13 @@ public abstract class CrudClientBase<TEntity, TRequest, TKey> : ICrudClient<TEnt
         return id;
     }
 
+    /// <summary>
+    /// Update an entity by identifier
+    /// </summary>
+    /// <param name="id">The entity identifier</param>
+    /// <param name="request">The request</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns></returns>
     public async Task<bool> UpdateAsync(TKey id, TRequest request, CancellationToken cancellationToken = default)
     {
         var response = await HttpClient.PutAsync($"{_route}/{id}", JsonContent.Create(request), cancellationToken);
@@ -78,6 +121,12 @@ public abstract class CrudClientBase<TEntity, TRequest, TKey> : ICrudClient<TEnt
         return true;
     }
 
+    /// <summary>
+    /// Delete an entity by identifier
+    /// </summary>
+    /// <param name="id">The entity identifier</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns></returns>
     public async Task<bool> DeleteAsync(TKey id, CancellationToken cancellationToken = default)
     {
         var response = await HttpClient.DeleteAsync($"{_route}/{id}", cancellationToken);
