@@ -14,7 +14,12 @@ public class ApplicationContext : IApplicationContext<int>
         LastUpdate = GetLastUpdate();
         Version = GetVersion();
     }
-    
+
+    public Task<bool> CurrentUserIsInRoleAsync(string role)
+    {
+        return Task.FromResult(_httpContextAccessor.HttpContext?.User.IsInRole(role) == true);
+    }
+
     /// <summary>
     /// Gets the last update.
     /// </summary>
@@ -22,7 +27,7 @@ public class ApplicationContext : IApplicationContext<int>
     /// The last update.
     /// </value>
     public DateTime LastUpdate { get; }
-    
+
     /// <summary>
     /// Gets the version.
     /// </summary>
@@ -38,7 +43,7 @@ public class ApplicationContext : IApplicationContext<int>
     /// The local path.
     /// </value>
     public string? LocalPath => Path.GetDirectoryName(typeof(ApplicationContext).Assembly.Location);
-    
+
     /// <summary>
     /// Gets the last update
     /// </summary>
@@ -48,7 +53,7 @@ public class ApplicationContext : IApplicationContext<int>
         var assembly = typeof(Program).Assembly;
         return System.IO.File.GetLastWriteTime(assembly.Location);
     }
-        
+
     /// <summary>
     /// Gets the version
     /// </summary>
@@ -58,6 +63,7 @@ public class ApplicationContext : IApplicationContext<int>
         var assembly = typeof(Program).Assembly;
         return assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
     }
+
     public Task<int> GetCurrentUserIdAsync()
     {
         var userIdStr = _httpContextAccessor.HttpContext?.User
@@ -66,6 +72,13 @@ public class ApplicationContext : IApplicationContext<int>
         {
             return Task.FromResult<int>(default);
         }
+
         return Task.FromResult(userId);
+    }
+
+    public Task<string[]> GetCurrentUserRolesAsync()
+    {
+        var roles = _httpContextAccessor.HttpContext?.User.FindAll(ClaimTypes.Role) ?? [];
+        return Task.FromResult(roles.Select(o => o.Value).ToArray());
     }
 }

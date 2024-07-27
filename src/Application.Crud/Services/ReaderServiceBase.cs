@@ -144,13 +144,25 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
     {
         filtering ??= [];
 
-        if (!ReadOptions.OnlyOwner || !IsOwned())
+        if (!IsOwned())
             return filtering;
 
+        var isInRole = await CheckIsInRolesAsync();
+        if (!ReadOptions.OnlyOwner)
+        {
+            if(isInRole == false)
+                throw new ForbiddenAccessException();
+            
+            return filtering;
+        }
+        
         var userId = await ApplicationContext.GetCurrentUserIdAsync();
         if (userId == null)
             throw new ForbiddenAccessException();
 
+        if(isInRole == true)
+            return filtering;
+        
         return filtering.Append(new Filtering(nameof(IEntityOwned.CreatedById), userId.ToString()!));
     }
 
@@ -188,33 +200,38 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         return mappingPriority switch
         {
             MappingPriority.SyncOnly => MapSync(source, destination, true),
-            MappingPriority.SyncOrAsync => MapSync(source, destination) ?? await MapAsync(source, destination, true, cancellationToken),
-            MappingPriority.SyncAndAsync => await MapAsync(source, MapSync(source, destination), true, cancellationToken),
+            MappingPriority.SyncOrAsync => MapSync(source, destination) ??
+                                           await MapAsync(source, destination, true, cancellationToken),
+            MappingPriority.SyncAndAsync => await MapAsync(source, MapSync(source, destination), true,
+                cancellationToken),
             MappingPriority.AsyncOnly => await MapAsync(source, destination, true, cancellationToken),
-            MappingPriority.AsyncOrSync => await MapAsync(source, destination, cancellationToken: cancellationToken) ?? MapSync(source, destination, true),
-            MappingPriority.AsyncAndSync => MapSync(source, await MapAsync(source, destination, cancellationToken: cancellationToken), true),
+            MappingPriority.AsyncOrSync => await MapAsync(source, destination, cancellationToken: cancellationToken) ??
+                                           MapSync(source, destination, true),
+            MappingPriority.AsyncAndSync => MapSync(source,
+                await MapAsync(source, destination, cancellationToken: cancellationToken), true),
             _ => throw new ArgumentOutOfRangeException(nameof(mappingPriority), mappingPriority, null)
         };
     }
+
     private TDestination? MapSync<TSource, TDestination>(
-        TSource? source, 
-        TDestination? destination = default, 
+        TSource? source,
+        TDestination? destination = default,
         bool throwIfNotExists = false)
     {
         var mapper = MapperFactory.GetMapper<TSource, TDestination>();
-        if(mapper != null)
+        if (mapper != null)
             return mapper.Map(source, destination);
-        
+
         if (!throwIfNotExists)
             return default;
-        
+
         ThrowMapperException<IMapper<TSource, TDestination>>();
         return default;
     }
 
     private async Task<TDestination?> MapAsync<TSource, TDestination>(
-        TSource? source, 
-        TDestination? destination = default, 
+        TSource? source,
+        TDestination? destination = default,
         bool throwIfNotExists = false,
         CancellationToken cancellationToken = default)
     {
@@ -250,14 +267,34 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         TDataEntity? dataEntity,
         CancellationToken cancellationToken = default)
     {
-        if (ReadOptions.OnlyOwner && dataEntity is IEntityOwned<TUserKey> ownedEntity)
+        if (dataEntity is not IEntityOwned<TUserKey> ownedEntity)
+            return;
+        
+        var isOwner = await CheckOwnerAsync(ownedEntity);
+        var isInRole = await CheckIsInRolesAsync();
+        if (!isOwner)
         {
-            var userId = await ApplicationContext.GetCurrentUserIdAsync();
-            if (userId == null || !userId.Equals(ownedEntity.CreatedById))
-            {
+            if (isInRole == false)
                 throw new ForbiddenAccessException();
-            }
         }
+    }
+
+    private async Task<bool?> CheckIsInRolesAsync()
+    {
+        if (!ReadOptions.Roles.Any())
+            return null;
+        
+        var roles = await ApplicationContext.GetCurrentUserRolesAsync();
+        return roles.Length != 0 && roles.Any(o => ReadOptions.Roles.Contains(o));
+    }
+    
+    private async Task<bool> CheckOwnerAsync(IEntityOwned<TUserKey> ownedEntity)
+    {
+        if (!ReadOptions.OnlyOwner) 
+            return true;
+        
+        var userId = await ApplicationContext.GetCurrentUserIdAsync();
+        return userId != null && userId.Equals(ownedEntity.CreatedById);
     }
 
     protected virtual Task OnAfterGetPagedListAsync(
