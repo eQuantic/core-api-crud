@@ -1,7 +1,7 @@
-using eQuantic.Core.Api.Crud.Binders;
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Api.Extensions;
 using eQuantic.Core.Api.Options;
+using eQuantic.Core.Domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;

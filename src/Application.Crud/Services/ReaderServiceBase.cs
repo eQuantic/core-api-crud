@@ -5,6 +5,7 @@ using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Core.Collections;
 using eQuantic.Core.Data.Repository;
 using eQuantic.Core.Data.Repository.Config;
+using eQuantic.Core.Domain.Entities;
 using eQuantic.Core.Domain.Entities.Requests;
 using eQuantic.Core.Exceptions;
 using eQuantic.Linq.Casting;
@@ -86,23 +87,25 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
     public virtual async Task<IPagedEnumerable<TEntity>?> GetPagedListAsync(PagedListRequest<TEntity> request,
         CancellationToken cancellationToken = default)
     {
-        var requestFiltering = await OnFilterByPermissionsAsync(request.Filtering);
-        request.Filtering = requestFiltering.ToArray();
+        var requestFiltering = await OnFilterByPermissionsAsync(request.FilterBy);
+        request.FilterBy = new FilteringCollection(requestFiltering);
 
-        var sorting = request.Sorting
+        var sorting = request.OrderBy?
             .Cast<TDataEntity>(opt =>
             {
                 OnCastEntity(opt);
                 OnCastSorting(opt);
             })
-            .ToList();
+            .ToList() ?? [];
 
         var specification = await OnGetSpecificationAsync(request);
 
         await OnBeforeGetPagedListAsync(request, specification, sorting, cancellationToken);
 
         var count = await Repository.CountAsync(specification, cancellationToken);
-        var pagedList = (await Repository.GetPagedAsync(specification, request.PageIndex, request.PageSize,
+        var pageIndex = request.PageIndex ?? 1;
+        var pageSize = request.PageSize ?? 10;
+        var pagedList = (await Repository.GetPagedAsync(specification, pageIndex, pageSize,
                 config =>
                 {
                     config.WithSorting(sorting.ToArray());
@@ -120,7 +123,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
 
         await OnAfterGetPagedListAsync(pagedList, list, cancellationToken);
 
-        return new PagedList<TEntity>(list, count) { PageIndex = request.PageIndex, PageSize = request.PageSize };
+        return new PagedList<TEntity>(list, count) { PageIndex = pageIndex, PageSize = pageSize };
     }
 
     protected virtual void OnSetQueryableConfiguration(CrudAction action, QueryableConfiguration<TDataEntity> config)
@@ -168,12 +171,12 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
 
     protected virtual Task<Specification<TDataEntity>> OnGetSpecificationAsync(PagedListRequest<TEntity> request)
     {
-        var filtering = request.Filtering
+        var filtering = request.FilterBy?.ToArray()
             .Cast<TDataEntity>(opt =>
             {
                 OnCastEntity(opt);
                 OnCastFiltering(opt);
-            }).ToList();
+            }).ToList() ?? [];
 
         SetReferenceFiltering(request, filtering);
 
@@ -332,9 +335,9 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
             item is not IWithReferenceId<TDataEntity, TReferenceKey> referencedItem)
             return;
 
-        if (referencedItem.GetReferenceId()?.Equals(referencedRequest.ReferenceId) == false)
+        if (referencedItem.GetReferenceId()?.Equals(referencedRequest.GetReferenceId()) == false)
         {
-            throw new InvalidEntityReferenceException<TReferenceKey>(referencedRequest.ReferenceId!);
+            throw new InvalidEntityReferenceException<TReferenceKey>(referencedRequest.GetReferenceId()!);
         }
     }
 
@@ -347,7 +350,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         if (dataEntity is not IWithReferenceId<TDataEntity, TReferenceKey> referencedDataEntity)
             return null;
 
-        referencedDataEntity.SetReferenceId(referencedRequest.ReferenceId!);
+        referencedDataEntity.SetReferenceId(referencedRequest.GetReferenceId()!);
         var filterByRef = referencedDataEntity.GetReferenceFiltering();
 
         return filterByRef;

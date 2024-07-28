@@ -211,9 +211,9 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             item is not IWithReferenceId<TDataEntity, TReferenceKey> referencedItem)
             return;
         
-        if (referencedItem.GetReferenceId()?.Equals(referencedRequest.ReferenceId) == false)
+        if (referencedItem.GetReferenceId()?.Equals(referencedRequest.GetReferenceId()) == false)
         {
-            throw new InvalidEntityReferenceException<TReferenceKey>(referencedRequest.ReferenceId!);
+            throw new InvalidEntityReferenceException<TReferenceKey>(referencedRequest.GetReferenceId()!);
         }
     }
 
@@ -234,7 +234,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         if (request is not IReferencedRequest<TReferenceKey> referencedRequest ||
             dataEntity is not IWithReferenceId<TDataEntity, TReferenceKey> referencedItem)
             return;
-        if(referencedRequest.ReferenceId != null)
-            referencedItem.SetReferenceId(referencedRequest.ReferenceId);
+        
+        if(referencedRequest.GetReferenceId() != null)
+            referencedItem.SetReferenceId(referencedRequest.GetReferenceId()!);
     }
 }

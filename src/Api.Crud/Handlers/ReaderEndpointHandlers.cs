@@ -4,9 +4,9 @@ using eQuantic.Core.Api.Crud.Extensions;
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Application.Crud.Services;
 using eQuantic.Core.Application.Entities.Results;
+using eQuantic.Core.Domain.Entities;
 using eQuantic.Core.Domain.Entities.Requests;
 using eQuantic.Core.Exceptions;
-using eQuantic.Linq.Filter;
 using eQuantic.Linq.Sorter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -115,14 +115,14 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
         HttpContext context,
         [FromQuery] int? pageIndex, 
         [FromQuery] int? pageSize, 
-        [FromQuery] IFiltering[]? filterBy, 
-        [FromQuery] ISorting[]? orderBy, 
+        [FromQuery] FilteringCollection? filterBy, 
+        [FromQuery] ISorting[]? orderBy,
         [FromServices]TService service)
     {
         var referenceId = context.GetReference<TReferenceKey>(_options.List);
         if (referenceId == null)
             throw new InvalidEntityReferenceException<TReferenceKey>();
-        var request = new PagedListRequest<TEntity,TReferenceKey>(referenceId, pageIndex, pageSize, filterBy, orderBy);
+        var request = new PagedListRequest<TEntity,TReferenceKey>(referenceId, pageIndex, pageSize, filterBy?.ToArray(), orderBy);
         return await GetPagedList(request, service);
     }
     
