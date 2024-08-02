@@ -51,7 +51,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             itemWithTimeMark.CreatedAt = DateTime.UtcNow;
         }
 
-        if (item is IEntityOwned<TUser, TUserKey> itemWithOwner)
+        if (item is IEntityOwned<TUserKey> itemWithOwner)
         {
             var userId = await ApplicationContext.GetCurrentUserIdAsync();
             itemWithOwner.CreatedById = userId;
@@ -85,7 +85,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             itemWithTimeTrack.UpdatedAt = DateTime.UtcNow;
         }
         
-        if (item is IEntityTrack<TUser, TUserKey> itemWithTrack)
+        if (item is IEntityTrack<TUserKey> itemWithTrack)
         {
             var userId = await ApplicationContext.GetCurrentUserIdAsync();
             itemWithTrack.UpdatedById = userId;
@@ -119,7 +119,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             itemWithTimeEnded.DeletedAt = DateTime.UtcNow;
         }
         
-        if (item is IEntityHistory<TUser, TUserKey> itemWithHistory)
+        if (item is IEntityHistory<TUserKey> itemWithHistory)
         {
             softDelete = true;
             var userId = await ApplicationContext.GetCurrentUserIdAsync();
