@@ -59,7 +59,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         
         await Repository.AddAsync(item);
         await Repository.UnitOfWork.CommitAsync(cancellationToken);
-        await OnAfterCreateAsync(item, cancellationToken);
+        await OnAfterCreateAsync(request, item, cancellationToken);
         
         return item.GetKey();
     }
@@ -93,7 +93,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
 
         await Repository.ModifyAsync(item);
         await Repository.UnitOfWork.CommitAsync(cancellationToken);
-        await OnAfterUpdateAsync(item, cancellationToken);
+        await OnAfterUpdateAsync(request, item, cancellationToken);
         
         return true;
     }
@@ -163,7 +163,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return Task.CompletedTask;
     }
     
-    protected virtual Task OnAfterCreateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    protected virtual Task OnAfterCreateAsync(CreateRequest<TRequest> request, TDataEntity? dataEntity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
@@ -173,7 +173,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return Task.CompletedTask;
     }
     
-    protected virtual Task OnAfterUpdateAsync(TDataEntity? dataEntity, CancellationToken cancellationToken = default)
+    protected virtual Task OnAfterUpdateAsync(UpdateRequest<TRequest, TKey> request, TDataEntity? dataEntity, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
