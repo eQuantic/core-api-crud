@@ -1,9 +1,8 @@
 using System.Reflection;
-using eQuantic.Core.Api.Crud.Binders;
 using eQuantic.Core.Api.Crud.Extensions;
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Application.Crud.Services;
-using eQuantic.Core.Application.Entities.Results;
+using eQuantic.Core.Domain.Entities.Results;
 using eQuantic.Core.Domain.Entities;
 using eQuantic.Core.Domain.Entities.Requests;
 using eQuantic.Core.Exceptions;

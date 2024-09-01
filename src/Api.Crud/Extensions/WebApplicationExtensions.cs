@@ -9,7 +9,7 @@ using eQuantic.Core.Api.Error.Results;
 using eQuantic.Core.Api.Options;
 using eQuantic.Core.Application.Crud.Attributes;
 using eQuantic.Core.Application.Crud.Enums;
-using eQuantic.Core.Application.Entities.Results;
+using eQuantic.Core.Domain.Entities.Results;
 using Humanizer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
