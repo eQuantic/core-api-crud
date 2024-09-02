@@ -56,9 +56,18 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             var userId = await ApplicationContext.GetCurrentUserIdAsync();
             itemWithOwner.CreatedById = userId;
         }
-        
-        await Repository.AddAsync(item);
-        await Repository.UnitOfWork.CommitAsync(cancellationToken);
+
+        try
+        {
+            await Repository.AddAsync(item);
+            await Repository.UnitOfWork.CommitAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "One error was occurred when creating '{EntityName}'", typeof(TEntity).Name);
+            throw;
+        }
+
         await OnAfterCreateAsync(request, item, cancellationToken);
         
         return item.GetKey();
@@ -91,8 +100,17 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             itemWithTrack.UpdatedById = userId;
         }
 
-        await Repository.ModifyAsync(item);
-        await Repository.UnitOfWork.CommitAsync(cancellationToken);
+        try
+        {
+            await Repository.ModifyAsync(item);
+            await Repository.UnitOfWork.CommitAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "One error was occurred when updating '{EntityName}'", typeof(TEntity).Name);
+            throw;
+        }
+
         await OnAfterUpdateAsync(request, item, cancellationToken);
         
         return true;
@@ -126,16 +144,25 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
             itemWithHistory.DeletedById = userId;
         }
 
-        if (softDelete)
+        try
         {
-            await Repository.ModifyAsync(item);
+            if (softDelete)
+            {
+                await Repository.ModifyAsync(item);
+            }
+            else
+            {
+                await Repository.RemoveAsync(item);
+            }
+
+            await Repository.UnitOfWork.CommitAsync(cancellationToken);
         }
-        else
+        catch (Exception ex)
         {
-            await Repository.RemoveAsync(item);
+            Logger.LogError(ex, "One error was occurred when deleting '{EntityName}'", typeof(TEntity).Name);
+            throw;
         }
 
-        await Repository.UnitOfWork.CommitAsync(cancellationToken);
         await OnAfterDeleteAsync(item, cancellationToken);
         
         return true;
