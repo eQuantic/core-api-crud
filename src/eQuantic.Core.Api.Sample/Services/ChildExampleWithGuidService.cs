@@ -4,6 +4,7 @@ using eQuantic.Core.Api.Sample.Entities.Requests;
 using eQuantic.Core.Application;
 using eQuantic.Core.Application.Crud.Attributes;
 using eQuantic.Core.Application.Crud.Services;
+using eQuantic.Core.Application.Services;
 using eQuantic.Core.Data.Repository;
 using eQuantic.Mapper;
 
@@ -17,9 +18,10 @@ public class ChildExampleWithGuidService : CrudServiceBase<ChildExampleWithGuid,
     public ChildExampleWithGuidService(
         IApplicationContext<int> applicationContext,
         IQueryableUnitOfWork unitOfWork, 
+        IDateTimeProviderService dateTimeProviderService,
         IMapperFactory mapperFactory, 
         ILogger<ChildExampleWithGuidService> logger) 
-        : base(applicationContext, unitOfWork, mapperFactory, logger)
+        : base(applicationContext, unitOfWork, dateTimeProviderService, mapperFactory, logger)
     {
     }
 }

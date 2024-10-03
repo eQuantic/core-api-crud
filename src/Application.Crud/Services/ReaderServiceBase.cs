@@ -78,7 +78,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
 
         ValidateReference(request, item);
 
-        var result = await OnMapEntityAsync(item, MappingPriority.SyncOrAsync, cancellationToken);
+        var result = await OnMapEntityAsync(item, cancellationToken);
 
         await OnAfterGetByIdAsync(item, result, cancellationToken);
         return result;
@@ -116,7 +116,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         var list = new List<TEntity>();
         foreach (var dataEntity in pagedList)
         {
-            var item = await OnMapEntityAsync(dataEntity, MappingPriority.SyncOrAsync, cancellationToken);
+            var item = await OnMapEntityAsync(dataEntity, cancellationToken);
             if (item != null)
                 list.Add(item);
         }
@@ -186,75 +186,14 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
 
         return Task.FromResult(specification);
     }
-
-    protected virtual Task<TEntity?> OnMapEntityAsync(
-        TDataEntity dataEntity,
-        MappingPriority mappingPriority = MappingPriority.SyncOrAsync,
-        CancellationToken cancellationToken = default)
+    
+    protected virtual async Task<TEntity?> OnMapEntityAsync(TDataEntity dataEntity, CancellationToken cancellationToken = default)
     {
-        return Map<TDataEntity, TEntity>(dataEntity, null, mappingPriority, cancellationToken);
-    }
+        var mapper = MapperFactory.GetAnyMapper<TDataEntity, TEntity>();
+        if(mapper != null)
+            return await mapper.MapAsync(dataEntity);
 
-    internal async Task<TDestination?> Map<TSource, TDestination>(
-        TSource? source, TDestination? destination = default,
-        MappingPriority mappingPriority = MappingPriority.SyncOrAsync,
-        CancellationToken cancellationToken = default)
-    {
-        return mappingPriority switch
-        {
-            MappingPriority.SyncOnly => MapSync(source, destination, true),
-            MappingPriority.SyncOrAsync => MapSync(source, destination) ??
-                                           await MapAsync(source, destination, true, cancellationToken),
-            MappingPriority.SyncAndAsync => await MapAsync(source, MapSync(source, destination), true,
-                cancellationToken),
-            MappingPriority.AsyncOnly => await MapAsync(source, destination, true, cancellationToken),
-            MappingPriority.AsyncOrSync => await MapAsync(source, destination, cancellationToken: cancellationToken) ??
-                                           MapSync(source, destination, true),
-            MappingPriority.AsyncAndSync => MapSync(source,
-                await MapAsync(source, destination, cancellationToken: cancellationToken), true),
-            _ => throw new ArgumentOutOfRangeException(nameof(mappingPriority), mappingPriority, null)
-        };
-    }
-
-    private TDestination? MapSync<TSource, TDestination>(
-        TSource? source,
-        TDestination? destination = default,
-        bool throwIfNotExists = false)
-    {
-        var mapper = MapperFactory.GetMapper<TSource, TDestination>();
-        if (mapper != null)
-            return mapper.Map(source, destination);
-
-        if (!throwIfNotExists)
-            return default;
-
-        ThrowMapperException<IMapper<TSource, TDestination>>();
-        return default;
-    }
-
-    private async Task<TDestination?> MapAsync<TSource, TDestination>(
-        TSource? source,
-        TDestination? destination = default,
-        bool throwIfNotExists = false,
-        CancellationToken cancellationToken = default)
-    {
-        var asyncMapper = MapperFactory.GetAsyncMapper<TSource, TDestination>();
-        if (asyncMapper != null)
-            return await asyncMapper.MapAsync(source, destination);
-
-        if (!throwIfNotExists)
-            return default;
-
-        ThrowMapperException<IAsyncMapper<TSource, TDestination>>();
-        return default;
-    }
-
-    private void ThrowMapperException<TMapper>() where TMapper : IMapper
-    {
-        var mapperType = typeof(TMapper);
-        var ex = new DependencyNotFoundException(mapperType);
-        Logger.LogError(ex, "{ServiceName}: Mapper of {MapperName} not found", GetType().Name, mapperType.Name);
-        throw ex;
+        return null;
     }
 
     protected virtual Task OnAfterGetByIdAsync(

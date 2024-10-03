@@ -3,6 +3,7 @@ using eQuantic.Core.Application.Crud.Enums;
 using eQuantic.Core.Application.Crud.Options;
 using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Core.Application.Extensions;
+using eQuantic.Core.Application.Services;
 using eQuantic.Core.Data.Repository;
 using eQuantic.Core.Domain.Entities.Requests;
 using eQuantic.Core.Exceptions;
@@ -14,10 +15,15 @@ namespace eQuantic.Core.Application.Crud.Services;
 public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser>(
     IApplicationContext<int> applicationContext,
     IQueryableUnitOfWork unitOfWork,
+    IDateTimeProviderService dateTimeProviderService,
     IMapperFactory mapperFactory,
     ILogger logger,
     Action<ReadOptions>? options = null)
-    : CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, int, int>(applicationContext, unitOfWork, mapperFactory,
+    : CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, int, int>(
+        applicationContext, 
+        unitOfWork, 
+        dateTimeProviderService, 
+        mapperFactory,
         logger, options)
     where TEntity : class, new()
     where TDataEntity : class, IEntity<int>, new();
@@ -25,6 +31,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser>(
 public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey>(
     IApplicationContext<TUserKey> applicationContext,
     IQueryableUnitOfWork unitOfWork,
+    IDateTimeProviderService dateTimeProviderService,
     IMapperFactory mapperFactory,
     ILogger logger,
     Action<ReadOptions>? options = null)
@@ -48,7 +55,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         
         if (item is IEntityTimeMark itemWithTimeMark)
         {
-            itemWithTimeMark.CreatedAt = DateTime.UtcNow;
+            itemWithTimeMark.CreatedAt = dateTimeProviderService.GetUtcNow().DateTime;
         }
 
         if (item is IEntityOwned<TUserKey> itemWithOwner)
@@ -91,7 +98,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
 
         if (item is IEntityTimeTrack itemWithTimeTrack)
         {
-            itemWithTimeTrack.UpdatedAt = DateTime.UtcNow;
+            itemWithTimeTrack.UpdatedAt = dateTimeProviderService.GetUtcNow().DateTime;
         }
         
         if (item is IEntityTrack<TUserKey> itemWithTrack)
@@ -134,7 +141,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         if (item is IEntityTimeEnded itemWithTimeEnded)
         {
             softDelete = true;
-            itemWithTimeEnded.DeletedAt = DateTime.UtcNow;
+            itemWithTimeEnded.DeletedAt = dateTimeProviderService.GetUtcNow().DateTime;
         }
         
         if (item is IEntityHistory<TUserKey> itemWithHistory)
@@ -168,14 +175,17 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         return true;
     }
 
-    protected virtual Task<TDataEntity?> OnMapRequestAsync(
+    protected virtual async Task<TDataEntity?> OnMapRequestAsync(
         CrudAction action, 
         TRequest? request, 
         TDataEntity? dataEntity = null,
-        MappingPriority mappingPriority = MappingPriority.SyncOrAsync,
         CancellationToken cancellationToken = default)
     {
-        return Map(request, dataEntity, mappingPriority, cancellationToken);
+        var mapper = MapperFactory.GetAnyMapper<TRequest, TDataEntity>();
+        if(mapper != null)
+            return await mapper.MapAsync(request, dataEntity);
+
+        return null;
     }
     
     /// <summary>
