@@ -41,6 +41,8 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
     where TDataEntity : class, IEntity<TKey>, new()
     where TUserKey : struct
 {
+    protected IDateTimeProviderService DateTimeProviderService { get; } = dateTimeProviderService;
+    
     public virtual async Task<TKey> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
     {
         var item = await OnMapRequestAsync(CrudAction.Create, request.Body, cancellationToken: cancellationToken);
@@ -55,7 +57,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         
         if (item is IEntityTimeMark itemWithTimeMark)
         {
-            itemWithTimeMark.CreatedAt = dateTimeProviderService.GetUtcNow().DateTime;
+            itemWithTimeMark.CreatedAt = DateTimeProviderService.GetUtcNow().DateTime;
         }
 
         if (item is IEntityOwned<TUserKey> itemWithOwner)
@@ -98,7 +100,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
 
         if (item is IEntityTimeTrack itemWithTimeTrack)
         {
-            itemWithTimeTrack.UpdatedAt = dateTimeProviderService.GetUtcNow().DateTime;
+            itemWithTimeTrack.UpdatedAt = DateTimeProviderService.GetUtcNow().DateTime;
         }
         
         if (item is IEntityTrack<TUserKey> itemWithTrack)
@@ -141,7 +143,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         if (item is IEntityTimeEnded itemWithTimeEnded)
         {
             softDelete = true;
-            itemWithTimeEnded.DeletedAt = dateTimeProviderService.GetUtcNow().DateTime;
+            itemWithTimeEnded.DeletedAt = DateTimeProviderService.GetUtcNow().DateTime;
         }
         
         if (item is IEntityHistory<TUserKey> itemWithHistory)
