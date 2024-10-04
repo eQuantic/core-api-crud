@@ -20,7 +20,10 @@ public class ValidationFilter<T>(IValidator<T> validator) : IEndpointFilter
 
         if (!validationResult.IsValid)
         {
-            return Results.BadRequest(new ErrorResult($"Invalid request of {typeof(T).Name}", validationResult.ToDictionary()));
+            return Results.BadRequest(new ErrorResult(
+                nameof(ValidationException),
+                $"Invalid request of {typeof(T).Name}", 
+                validationResult.ToDictionary()));
         }
 
         return await next(context);
