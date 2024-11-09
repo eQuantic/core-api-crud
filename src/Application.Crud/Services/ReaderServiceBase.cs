@@ -21,15 +21,26 @@ using Microsoft.Extensions.Logging;
 
 namespace eQuantic.Core.Application.Crud.Services;
 
-public abstract class ReaderServiceBase<TEntity, TDataEntity>(
-    IApplicationContext<int> applicationContext,
-    IQueryableUnitOfWork unitOfWork,
-    IMapperFactory mapperFactory,
-    ILogger logger,
-    Action<ReadOptions>? options = null)
-    : ReaderServiceBase<TEntity, TDataEntity, int, int>(applicationContext, unitOfWork, mapperFactory, logger, options)
+public abstract class ReaderServiceBase<TEntity, TDataEntity> : ReaderServiceBase<TEntity, TDataEntity, int, int>
     where TEntity : class, new()
-    where TDataEntity : class, IEntity<int>, new();
+    where TDataEntity : class, IEntity<int>, new()
+{
+    protected ReaderServiceBase(IApplicationContext<int> applicationContext,
+        IQueryableUnitOfWork unitOfWork,
+        IMapperFactory mapperFactory,
+        ILogger logger,
+        Action<ReadOptions>? options = null) : base(applicationContext, unitOfWork, mapperFactory, logger, options)
+    {
+    }
+    
+    protected ReaderServiceBase(IApplicationContext<int> applicationContext,
+        IAsyncQueryableRepository<IQueryableUnitOfWork, TDataEntity, int> repository,
+        IMapperFactory mapperFactory,
+        ILogger logger,
+        Action<ReadOptions>? options = null) : base(applicationContext, repository, mapperFactory, logger, options)
+    {
+    }
+}
 
 public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : IReaderService<TEntity, TKey>
     where TEntity : class, new()
@@ -37,7 +48,6 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
 {
     protected readonly ILogger Logger;
     protected IApplicationContext<TUserKey> ApplicationContext { get; }
-    protected IQueryableUnitOfWork UnitOfWork { get; }
     protected IMapperFactory MapperFactory { get; }
     protected IAsyncQueryableRepository<IQueryableUnitOfWork, TDataEntity, TKey> Repository { get; }
     protected ReadOptions ReadOptions { get; }
@@ -50,9 +60,25 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
     {
         Logger = logger;
         ApplicationContext = applicationContext;
-        UnitOfWork = unitOfWork;
         MapperFactory = mapperFactory;
         Repository = unitOfWork.GetAsyncQueryableRepository<IQueryableUnitOfWork, TDataEntity, TKey>();
+
+        var readOptions = new ReadOptions();
+        options?.Invoke(readOptions);
+
+        ReadOptions = readOptions;
+    }
+    
+    protected ReaderServiceBase(
+        IApplicationContext<TUserKey> applicationContext,
+        IAsyncQueryableRepository<IQueryableUnitOfWork, TDataEntity, TKey> repository,
+        IMapperFactory mapperFactory,
+        ILogger logger, Action<ReadOptions>? options = null)
+    {
+        Logger = logger;
+        ApplicationContext = applicationContext;
+        MapperFactory = mapperFactory;
+        Repository = repository;
 
         var readOptions = new ReadOptions();
         options?.Invoke(readOptions);

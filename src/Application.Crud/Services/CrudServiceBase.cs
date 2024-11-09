@@ -12,36 +12,65 @@ using Microsoft.Extensions.Logging;
 
 namespace eQuantic.Core.Application.Crud.Services;
 
-public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser>(
-    IApplicationContext<int> applicationContext,
-    IQueryableUnitOfWork unitOfWork,
-    IDateTimeProviderService dateTimeProviderService,
-    IMapperFactory mapperFactory,
-    ILogger logger,
-    Action<ReadOptions>? options = null)
-    : CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, int, int>(
-        applicationContext, 
+public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, int, int>
+    where TEntity : class, new()
+    where TDataEntity : class, IEntity<int>, new()
+{
+    protected CrudServiceBase(IApplicationContext<int> applicationContext,
+        IQueryableUnitOfWork unitOfWork,
+        IDateTimeProviderService dateTimeProviderService,
+        IMapperFactory mapperFactory,
+        ILogger logger,
+        Action<ReadOptions>? options = null) : base(applicationContext, 
         unitOfWork, 
         dateTimeProviderService, 
         mapperFactory,
         logger, options)
-    where TEntity : class, new()
-    where TDataEntity : class, IEntity<int>, new();
+    {
+    }
+    
+    protected CrudServiceBase(IApplicationContext<int> applicationContext,
+        IAsyncQueryableRepository<IQueryableUnitOfWork, TDataEntity, int> repository,
+        IDateTimeProviderService dateTimeProviderService,
+        IMapperFactory mapperFactory,
+        ILogger logger,
+        Action<ReadOptions>? options = null) : base(applicationContext, 
+        repository, 
+        dateTimeProviderService, 
+        mapperFactory,
+        logger, options)
+    {
+    }
+}
 
-public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey>(
-    IApplicationContext<TUserKey> applicationContext,
-    IQueryableUnitOfWork unitOfWork,
-    IDateTimeProviderService dateTimeProviderService,
-    IMapperFactory mapperFactory,
-    ILogger logger,
-    Action<ReadOptions>? options = null)
-    : ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey>(applicationContext, unitOfWork, mapperFactory, logger,
-        options), ICrudService<TEntity, TRequest, TKey>
+public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey> : ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey>, ICrudService<TEntity, TRequest, TKey>
     where TEntity : class, new()
     where TDataEntity : class, IEntity<TKey>, new()
     where TUserKey : struct
 {
-    protected IDateTimeProviderService DateTimeProviderService { get; } = dateTimeProviderService;
+    protected IDateTimeProviderService DateTimeProviderService { get; }
+    
+    protected CrudServiceBase(IApplicationContext<TUserKey> applicationContext,
+        IQueryableUnitOfWork unitOfWork,
+        IDateTimeProviderService dateTimeProviderService,
+        IMapperFactory mapperFactory,
+        ILogger logger,
+        Action<ReadOptions>? options = null) : base(applicationContext, unitOfWork, mapperFactory, logger,
+        options)
+    {
+        DateTimeProviderService = dateTimeProviderService;
+    }
+    
+    protected CrudServiceBase(IApplicationContext<TUserKey> applicationContext,
+        IAsyncQueryableRepository<IQueryableUnitOfWork, TDataEntity, TKey> repository,
+        IDateTimeProviderService dateTimeProviderService,
+        IMapperFactory mapperFactory,
+        ILogger logger,
+        Action<ReadOptions>? options = null) : base(applicationContext, repository, mapperFactory, logger,
+        options)
+    {
+        DateTimeProviderService = dateTimeProviderService;
+    }
     
     public virtual async Task<TKey> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
     {
