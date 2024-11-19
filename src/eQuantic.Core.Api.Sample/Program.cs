@@ -5,12 +5,15 @@ using eQuantic.Core.Api.Sample;
 using eQuantic.Core.Api.Sample.Entities;
 using eQuantic.Core.Api.Sample.Services;
 using eQuantic.Core.Application;
+using eQuantic.Core.Application.Extensions;
 using eQuantic.Core.Data.EntityFramework.Repository.Extensions;
 using eQuantic.Core.Mvc.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var assembly = typeof(Program).Assembly;
+
+builder.Services.AddDateTimeProviderService();
 
 builder.Services.AddDbContext<ExampleDbContext>(opt =>
     opt.UseInMemoryDatabase("ExampleDb"));

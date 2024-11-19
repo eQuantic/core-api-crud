@@ -99,7 +99,7 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     {
         return GetById(id, service);
     }
-    
+
     /// <summary>
     /// Get paged list of referenced entity by criteria
     /// </summary>
@@ -108,6 +108,7 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     /// <param name="pageSize"></param>
     /// <param name="filterBy"></param>
     /// <param name="orderBy"></param>
+    /// <param name="includeFields"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<Ok<PagedListResult<TEntity>>> GetReferencedPagedList<TReferenceKey>(
@@ -116,12 +117,13 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
         [FromQuery] int? pageSize, 
         [FromQuery] FilteringCollection? filterBy, 
         [FromQuery] ISorting[]? orderBy,
+        [FromQuery] string[]? includeFields,
         [FromServices]TService service)
     {
         var referenceId = context.GetReference<TReferenceKey>(_options.List);
         if (referenceId == null)
             throw new InvalidEntityReferenceException<TReferenceKey>();
-        var request = new PagedListRequest<TEntity,TReferenceKey>(referenceId, pageIndex, pageSize, filterBy?.ToArray(), orderBy);
+        var request = new PagedListRequest<TEntity,TReferenceKey>(referenceId, pageIndex, pageSize, filterBy?.ToArray(), orderBy, includeFields);
         return await GetPagedList(request, service);
     }
     
@@ -129,24 +131,26 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     {
         return GetReferencedPagedList<TReferenceKey>;
     }
-    
+
     /// <summary>
     /// Get paged list of entity by criteria
     /// </summary>
-    /// <param name="pageIndex"></param>
-    /// <param name="pageSize"></param>
-    /// <param name="filterBy"></param>
-    /// <param name="orderBy"></param>
-    /// <param name="service"></param>
+    /// <param name="pageIndex">The page index</param>
+    /// <param name="pageSize">The page size</param>
+    /// <param name="filterBy">Filter by</param>
+    /// <param name="orderBy">Order by</param>
+    /// <param name="includeFields">The include fields</param>
+    /// <param name="service">The application service</param>
     /// <returns></returns>
     public async Task<Ok<PagedListResult<TEntity>>> GetPagedList(
         [FromQuery] int? pageIndex, 
         [FromQuery] int? pageSize, 
         [FromQuery] FilteringCollection? filterBy, 
-        [FromQuery] ISorting[]? orderBy, 
+        [FromQuery] ISorting[]? orderBy,
+        [FromQuery] string[]? includeFields,
         [FromServices]TService service)
     {
-        var request = new PagedListRequest<TEntity>(pageIndex, pageSize, filterBy?.ToArray(), orderBy);
+        var request = new PagedListRequest<TEntity>(pageIndex, pageSize, filterBy?.ToArray(), orderBy, includeFields);
         return await GetPagedList(request, service);
     }
     
