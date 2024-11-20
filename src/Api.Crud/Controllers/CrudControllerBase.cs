@@ -45,7 +45,7 @@ public abstract class CrudControllerBase<TEntity, TRequest, TKey> : ControllerBa
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{id:int}")]
-    public virtual async Task<IActionResult> GetById([FromRoute] ItemRequest<TKey> request, CancellationToken cancellationToken = default)
+    public virtual async Task<IActionResult> GetById([FromRoute] GetRequest<TKey> request, CancellationToken cancellationToken = default)
     {
         var item = await _service.GetByIdAsync(request, cancellationToken);
         return Ok(item);

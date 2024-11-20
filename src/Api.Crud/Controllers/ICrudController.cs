@@ -17,7 +17,7 @@ public interface ICrudController<TEntity, TRequest, TKey> where TEntity : class,
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<IActionResult> GetById(ItemRequest<TKey> request, CancellationToken cancellationToken = default);
+    Task<IActionResult> GetById(GetRequest<TKey> request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get paged list of entity

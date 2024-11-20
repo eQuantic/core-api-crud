@@ -27,24 +27,26 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     {
         _options = options;
     }
-    
+
     /// <summary>
     /// Get referenced entity by identifier
     /// </summary>
     /// <param name="context"></param>
     /// <param name="id"></param>
+    /// <param name="includeFields"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<Results<Ok<TEntity>, NotFound>> GetReferencedById<TReferenceKey>(
         HttpContext context,
         [FromRoute] TKey id, 
+        [FromQuery] string[]? includeFields,
         [FromServices]TService service)
     {
         var referenceId = context.GetReference<TReferenceKey>(_options.Get);
         if (referenceId == null)
             throw new InvalidEntityReferenceException<TReferenceKey>();
         
-        var request = new ItemRequest<TKey, TReferenceKey>(referenceId, id);
+        var request = new GetRequest<TKey, TReferenceKey>(referenceId, id, includeFields);
         return await GetById(request, service);
     }
     
@@ -52,38 +54,42 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     {
         return GetReferencedById<TReferenceKey>;
     }
-    
+
     /// <summary>
     /// Get referenced entity by complex identifier
     /// </summary>
     /// <param name="context"></param>
     /// <param name="id"></param>
+    /// <param name="includeFields"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public Task<Results<Ok<TEntity>, NotFound>> GetReferencedByComplexId<TReferenceKey>(
         HttpContext context,
         [AsParameters] TKey id, 
+        [FromQuery] string[]? includeFields,
         [FromServices]TService service)
     {
-        return GetReferencedById<TReferenceKey>(context, id, service);
+        return GetReferencedById<TReferenceKey>(context, id, includeFields, service);
     }
     
     public Delegate GetReferencedByComplexIdDelegate<TReferenceKey>()
     {
         return GetReferencedByComplexId<TReferenceKey>;
     }
-    
+
     /// <summary>
     /// Get entity by identifier
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includeFields"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public async Task<Results<Ok<TEntity>, NotFound>> GetById(
-        [FromRoute] TKey id, 
+        [FromRoute] TKey id,
+        [FromQuery] string[]? includeFields,
         [FromServices]TService service)
     {
-        var request = new ItemRequest<TKey>(id);
+        var request = new GetRequest<TKey>(id, includeFields);
         return await GetById(request, service);
     }
 
@@ -91,13 +97,15 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     /// Get entity by complex identifier
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includeFields"></param>
     /// <param name="service"></param>
     /// <returns></returns>
     public Task<Results<Ok<TEntity>, NotFound>> GetByComplexId(
         [AsParameters] TKey id, 
+        [FromQuery] string[]? includeFields,
         [FromServices]TService service)
     {
-        return GetById(id, service);
+        return GetById(id, includeFields, service);
     }
 
     /// <summary>
@@ -154,7 +162,7 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
         return await GetPagedList(request, service);
     }
     
-    private static async Task<Results<Ok<TEntity>, NotFound>> GetById(ItemRequest<TKey> request, TService service)
+    private static async Task<Results<Ok<TEntity>, NotFound>> GetById(GetRequest<TKey> request, TService service)
     {
         var result = await service.GetByIdAsync(request);
         if (result != null)

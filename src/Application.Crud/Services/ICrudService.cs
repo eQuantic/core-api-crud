@@ -18,7 +18,7 @@ public interface IReaderService<TEntity> : IReaderService<TEntity, int>
 public interface IReaderService<TEntity, TKey> : IReaderService
     where TEntity : class, new()
 {
-    Task<TEntity?> GetByIdAsync(ItemRequest<TKey> request, CancellationToken cancellationToken = default);
+    Task<TEntity?> GetByIdAsync(GetRequest<TKey> request, CancellationToken cancellationToken = default);
     Task<IPagedEnumerable<TEntity>?> GetPagedListAsync(PagedListRequest<TEntity> request, CancellationToken cancellationToken = default);
 }
 

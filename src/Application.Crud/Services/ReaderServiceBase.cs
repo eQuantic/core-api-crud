@@ -86,7 +86,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         ReadOptions = readOptions;
     }
 
-    public virtual async Task<TEntity?> GetByIdAsync(ItemRequest<TKey> request,
+    public virtual async Task<TEntity?> GetByIdAsync(GetRequest<TKey> request,
         CancellationToken cancellationToken = default)
     {
         var item = await Repository.GetAsync(request.Id, opt => { OnSetQueryableConfiguration(CrudAction.Get, opt); },
@@ -104,7 +104,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
 
         ValidateReference(request, item);
 
-        var result = await OnMapEntityAsync(item, cancellationToken);
+        var result = await OnMapEntityAsync(request, item, cancellationToken);
 
         await OnAfterGetByIdAsync(item, result, cancellationToken);
         return result;
@@ -142,7 +142,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         var list = new List<TEntity>();
         foreach (var dataEntity in pagedList)
         {
-            var item = await OnMapEntityAsync(dataEntity, cancellationToken);
+            var item = await OnMapEntityAsync(request, dataEntity, cancellationToken);
             if (item != null)
                 list.Add(item);
         }
@@ -213,7 +213,10 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         return Task.FromResult(specification);
     }
     
-    protected virtual async Task<TEntity?> OnMapEntityAsync(TDataEntity dataEntity, CancellationToken cancellationToken = default)
+    protected virtual async Task<TEntity?> OnMapEntityAsync(
+        IGetRequest getRequest,
+        TDataEntity dataEntity, 
+        CancellationToken cancellationToken = default)
     {
         var mapper = MapperFactory.GetAnyMapper<TDataEntity, TEntity>();
         if(mapper != null)
