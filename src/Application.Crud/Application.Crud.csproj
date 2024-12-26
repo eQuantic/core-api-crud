@@ -7,9 +7,9 @@
         <RootNamespace>eQuantic.Core.Application.Crud</RootNamespace>
         <AssemblyName>eQuantic.Core.Application.Crud</AssemblyName>
         <AssemblyTitle>eQuantic.Core.Application.Crud</AssemblyTitle>
-        <AssemblyVersion>1.7.21.0</AssemblyVersion>
-        <FileVersion>1.7.21.0</FileVersion>
-        <Version>1.7.21.0</Version>
+        <AssemblyVersion>1.7.22.0</AssemblyVersion>
+        <FileVersion>1.7.22.0</FileVersion>
+        <Version>1.7.22.0</Version>
         <TargetFrameworks>netstandard2.1;net6.0;net8.0</TargetFrameworks>
         
         <PackageId>eQuantic.Core.Application.Crud</PackageId>

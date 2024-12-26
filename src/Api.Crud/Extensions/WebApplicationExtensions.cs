@@ -268,10 +268,23 @@ public static class WebApplicationExtensions
             return pattern;
 
         pattern = IsPrimitiveKey<TKey>()
-            ? $"{pattern}/{{id}}"
+            ? $"{pattern}/{{id{GetRouteConstraint<TKey>()}}}"
             : $"{pattern}/{{{string.Join("}/{", GetRoutesFromComplexKey<TKey>())}}}";
 
         return pattern;
+    }
+
+    private static string GetRouteConstraint<TKey>()
+    {
+        var typeDict = new Dictionary<Type, string>
+        {
+            {typeof(int), ":int"},
+            {typeof(Guid), ":guid"},
+        };
+        
+        return typeDict.TryGetValue(typeof(TKey), out var routeConstraint) ? 
+            routeConstraint : 
+            string.Empty;
     }
     
     private static string ChangeCase(this string name, RouteFormat format)
