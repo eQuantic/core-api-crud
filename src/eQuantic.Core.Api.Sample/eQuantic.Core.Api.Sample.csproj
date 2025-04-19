@@ -12,14 +12,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="eQuantic.Core.Data.EntityFramework.SqlServer" Version="8.0.7" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.13" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.13">
+        <PackageReference Include="eQuantic.Core.Data.EntityFramework.SqlServer" Version="8.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.15" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.15">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.13" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.3.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.15" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="8.1.1" />
     </ItemGroup>
 </Project>
