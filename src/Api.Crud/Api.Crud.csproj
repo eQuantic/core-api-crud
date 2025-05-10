@@ -7,9 +7,9 @@
         <AssemblyName>eQuantic.Core.Api.Crud</AssemblyName>
         <RootNamespace>eQuantic.Core.Api.Crud</RootNamespace>
         <AssemblyTitle>eQuantic.Core.Api.Crud</AssemblyTitle>
-        <AssemblyVersion>1.7.32.0</AssemblyVersion>
-        <FileVersion>1.7.32.0</FileVersion>
-        <Version>1.7.32.0</Version>
+        <AssemblyVersion>1.7.33.0</AssemblyVersion>
+        <FileVersion>1.7.33.0</FileVersion>
+        <Version>1.7.33.0</Version>
         <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
         
         <PackageId>eQuantic.Core.Api.Crud</PackageId>
@@ -37,7 +37,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="eQuantic.Core.Api" Version="1.7.22" />
+        <PackageReference Include="eQuantic.Core.Api" Version="1.7.23" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     </ItemGroup>
     

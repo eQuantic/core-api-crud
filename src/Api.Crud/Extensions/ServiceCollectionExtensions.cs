@@ -23,12 +23,12 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddApiDocumentation(
+    public static IServiceCollection AddApiCrudDocumentation(
         this IServiceCollection services,
         Action<DocumentationOptions>? options = null,
         Action<SwaggerGenOptions>? swaggerGenOptions = null)
     {
-        return eQuantic.Core.Api.Extensions.ServiceCollectionExtensions.AddApiDocumentation(services, options, opt =>
+        return services.AddApiDocumentation(options, opt =>
         {
             opt.AddFilteringOperationFilter<FilteringCollection>();
             swaggerGenOptions?.Invoke(opt);

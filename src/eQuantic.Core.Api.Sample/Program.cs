@@ -42,7 +42,7 @@ builder.Services
 
 builder.Services
     .AddEndpointsApiExplorer()
-    .AddApiDocumentation(opt => opt.WithTitle("Example API"));
+    .AddApiCrudDocumentation(opt => opt.WithTitle("Example API"));
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
