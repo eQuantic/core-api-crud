@@ -47,7 +47,7 @@ builder.Services
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
-    app.UseApiDocumentation();
+    app.UseApiCrudDocumentation();
 }
 
 app.UseHttpsRedirection();

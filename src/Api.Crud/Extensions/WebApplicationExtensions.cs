@@ -28,9 +28,9 @@ public static class WebApplicationExtensions
     /// <param name="app">The app</param>
     /// <param name="options">The documentation options</param>
     /// <returns>The app</returns>
-    public static WebApplication UseApiDocumentation(this WebApplication app, Action<DocumentationOptions>? options = null)
+    public static WebApplication UseApiCrudDocumentation(this WebApplication app, Action<DocumentationOptions>? options = null)
     {
-        return eQuantic.Core.Api.Extensions.WebApplicationExtensions.UseApiDocumentation(app, options);
+        return app.UseApiDocumentation(options);
     }
     
     /// <summary>
