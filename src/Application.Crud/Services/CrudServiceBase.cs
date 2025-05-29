@@ -213,10 +213,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         CancellationToken cancellationToken = default)
     {
         var mapper = MapperFactory.GetAnyMapper<TRequest, TDataEntity>();
-        if(mapper != null)
-            return await mapper.MapAsync(request, dataEntity);
-
-        return null;
+        return await mapper.MapAsync(request, dataEntity, cancellationToken);
     }
     
     /// <summary>

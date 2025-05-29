@@ -219,10 +219,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : 
         CancellationToken cancellationToken = default)
     {
         var mapper = MapperFactory.GetAnyMapper<TDataEntity, TEntity>();
-        if(mapper != null)
-            return await mapper.MapAsync(dataEntity);
-
-        return null;
+        return await mapper.MapAsync(dataEntity, cancellationToken);
     }
 
     protected virtual Task OnAfterGetByIdAsync(

@@ -7,9 +7,9 @@
         <RootNamespace>eQuantic.Core.Api.Crud.Client</RootNamespace>
         <AssemblyName>eQuantic.Core.Api.Crud.Client</AssemblyName>
         <AssemblyTitle>eQuantic.Core.Api.Crud.Client</AssemblyTitle>
-        <AssemblyVersion>1.7.34.0</AssemblyVersion>
-        <FileVersion>1.7.34.0</FileVersion>
-        <Version>1.7.34.0</Version>
+        <AssemblyVersion>1.7.35.0</AssemblyVersion>
+        <FileVersion>1.7.35.0</FileVersion>
+        <Version>1.7.35.0</Version>
         <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 
         <PackageId>eQuantic.Core.Api.Crud.Client</PackageId>
