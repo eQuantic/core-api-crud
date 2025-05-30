@@ -1,6 +1,7 @@
 using eQuantic.Core.Api.Crud.Extensions;
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Application.Crud.Services;
+using eQuantic.Core.Domain.Entities;
 using eQuantic.Core.Domain.Entities.Requests;
 using eQuantic.Core.Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +18,7 @@ namespace eQuantic.Core.Api.Crud.Handlers;
 /// <typeparam name="TService"></typeparam>
 /// <typeparam name="TKey"></typeparam>
 internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
-    where TEntity : class, new()
+    where TEntity : class, IDomainEntity, new()
     where TService : ICrudService<TEntity, TRequest, TKey>
 {
     private readonly CrudOptions<TEntity> _options;

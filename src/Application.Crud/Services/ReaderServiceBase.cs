@@ -1,10 +1,10 @@
 using System.Reflection;
 using eQuantic.Core.Application.Crud.Enums;
 using eQuantic.Core.Application.Crud.Options;
-using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Core.Collections;
 using eQuantic.Core.Data.Repository;
 using eQuantic.Core.Data.Repository.Config;
+using eQuantic.Core.DataModel;
 using eQuantic.Core.Domain.Entities;
 using eQuantic.Core.Domain.Entities.Requests;
 using eQuantic.Core.Exceptions;
@@ -22,7 +22,7 @@ using Microsoft.Extensions.Logging;
 namespace eQuantic.Core.Application.Crud.Services;
 
 public abstract class ReaderServiceBase<TEntity, TDataEntity> : ReaderServiceBase<TEntity, TDataEntity, int, int>
-    where TEntity : class, new()
+    where TEntity : class, IDomainEntity, new()
     where TDataEntity : class, IEntity<int>, new()
 {
     protected ReaderServiceBase(IApplicationContext<int> applicationContext,
@@ -43,7 +43,7 @@ public abstract class ReaderServiceBase<TEntity, TDataEntity> : ReaderServiceBas
 }
 
 public abstract class ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey> : IReaderService<TEntity, TKey>
-    where TEntity : class, new()
+    where TEntity : class, IDomainEntity, new()
     where TDataEntity : class, IEntity<TKey>, new()
 {
     protected readonly ILogger Logger;

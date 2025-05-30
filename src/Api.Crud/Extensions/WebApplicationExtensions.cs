@@ -9,6 +9,7 @@ using eQuantic.Core.Api.Error.Results;
 using eQuantic.Core.Api.Options;
 using eQuantic.Core.Application.Crud.Attributes;
 using eQuantic.Core.Application.Crud.Enums;
+using eQuantic.Core.Domain.Entities;
 using eQuantic.Core.Domain.Entities.Results;
 using Humanizer;
 using Microsoft.AspNetCore.Builder;
@@ -97,7 +98,7 @@ public static class WebApplicationExtensions
     /// <returns></returns>
     public static IEndpointRouteBuilder MapReaders<TEntity, TService, TKey>(this WebApplication app,
         Action<CrudOptions<TEntity>>? options = null)
-        where TEntity : class, new()
+        where TEntity : class, IDomainEntity, new()
         where TService : IReaderService<TEntity, TKey>
     {
         var crudOptions = new CrudOptions<TEntity>();
@@ -132,7 +133,7 @@ public static class WebApplicationExtensions
     /// <returns></returns>
     public static IEndpointRouteBuilder MapCrud<TEntity, TRequest, TService, TKey>(this WebApplication app,
         Action<CrudOptions<TEntity>>? options = null)
-        where TEntity : class, new()
+        where TEntity : class, IDomainEntity, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
     {
@@ -313,7 +314,7 @@ public static class WebApplicationExtensions
 
     private static IEndpointRouteBuilder MapGetById<TEntity, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
-        where TEntity : class, new()
+        where TEntity : class, IDomainEntity, new()
         where TService : IReaderService<TEntity, TKey>
     {
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Get.Reference);
@@ -340,7 +341,7 @@ public static class WebApplicationExtensions
 
     private static IEndpointRouteBuilder MapGetPagedList<TEntity, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
-        where TEntity : class, new()
+        where TEntity : class, IDomainEntity, new()
         where TService : IReaderService<TEntity, TKey>
     {
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.List.Reference);
@@ -363,7 +364,7 @@ public static class WebApplicationExtensions
 
     private static IEndpointRouteBuilder MapCreate<TEntity, TRequest, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
-        where TEntity : class, new()
+        where TEntity : class, IDomainEntity, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
     {
@@ -389,7 +390,7 @@ public static class WebApplicationExtensions
     
     private static IEndpointRouteBuilder MapUpdate<TEntity, TRequest, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
-        where TEntity : class, new()
+        where TEntity : class, IDomainEntity, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
     {
@@ -417,7 +418,7 @@ public static class WebApplicationExtensions
     
     private static IEndpointRouteBuilder MapDelete<TEntity, TRequest, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
-        where TEntity : class, new()
+        where TEntity : class, IDomainEntity, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
     {

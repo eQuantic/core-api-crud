@@ -1,3 +1,4 @@
+using eQuantic.Core.Domain.Entities;
 using eQuantic.Core.Domain.Entities.Requests;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +10,7 @@ namespace eQuantic.Core.Api.Crud.Controllers;
 /// <typeparam name="TEntity"></typeparam>
 /// <typeparam name="TRequest"></typeparam>
 /// <typeparam name="TKey"></typeparam>
-public interface ICrudController<TEntity, TRequest, TKey> where TEntity : class, new()
+public interface ICrudController<TEntity, TRequest, TKey> where TEntity : class, IDomainEntity, new()
 {
     /// <summary>
     /// Get entity by identifier

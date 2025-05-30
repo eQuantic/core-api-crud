@@ -1,10 +1,11 @@
 using System.Reflection;
 using eQuantic.Core.Application.Crud.Enums;
 using eQuantic.Core.Application.Crud.Options;
-using eQuantic.Core.Application.Entities.Data;
 using eQuantic.Core.Application.Extensions;
 using eQuantic.Core.Application.Services;
 using eQuantic.Core.Data.Repository;
+using eQuantic.Core.DataModel;
+using eQuantic.Core.Domain.Entities;
 using eQuantic.Core.Domain.Entities.Requests;
 using eQuantic.Core.Exceptions;
 using eQuantic.Mapper;
@@ -13,7 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace eQuantic.Core.Application.Crud.Services;
 
 public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, int, int>
-    where TEntity : class, new()
+    where TEntity : class, IDomainEntity, new()
     where TDataEntity : class, IEntity<int>, new()
 {
     protected CrudServiceBase(IApplicationContext<int> applicationContext,
@@ -44,7 +45,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : C
 }
 
 public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey> : ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey>, ICrudService<TEntity, TRequest, TKey>
-    where TEntity : class, new()
+    where TEntity : class, IDomainEntity, new()
     where TDataEntity : class, IEntity<TKey>, new()
     where TUserKey : struct
 {

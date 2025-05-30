@@ -1,5 +1,6 @@
 using System.Reflection;
 using eQuantic.Core.Application.Crud.Services;
+using eQuantic.Core.Domain.Entities;
 using eQuantic.Core.Domain.Entities.Results;
 using eQuantic.Core.Domain.Entities.Requests;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ namespace eQuantic.Core.Api.Crud.Controllers;
 /// <typeparam name="TEntity"></typeparam>
 /// <typeparam name="TRequest"></typeparam>
 /// <typeparam name="TKey"></typeparam>
-public abstract class CrudControllerBase<TEntity, TRequest, TKey> : ControllerBase, ICrudController<TEntity, TRequest, TKey> where TEntity : class, new()
+public abstract class CrudControllerBase<TEntity, TRequest, TKey> : ControllerBase, ICrudController<TEntity, TRequest, TKey> where TEntity : class, IDomainEntity, new()
 {
     private readonly ICrudService<TEntity, TRequest, TKey> _service;
 

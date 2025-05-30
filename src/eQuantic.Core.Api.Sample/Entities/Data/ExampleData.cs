@@ -1,4 +1,4 @@
-using eQuantic.Core.Application.Entities.Data;
+using eQuantic.Core.DataModel;
 
 namespace eQuantic.Core.Api.Sample.Entities.Data;
 
