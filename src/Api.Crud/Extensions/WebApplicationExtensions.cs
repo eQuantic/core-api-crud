@@ -100,6 +100,8 @@ public static class WebApplicationExtensions
         Action<CrudOptions<TEntity>>? options = null)
         where TEntity : class, IDomainEntity, new()
         where TService : IReaderService<TEntity, TKey>
+        where TKey : notnull
+    
     {
         var crudOptions = new CrudOptions<TEntity>();
         options?.Invoke(crudOptions);
@@ -136,6 +138,7 @@ public static class WebApplicationExtensions
         where TEntity : class, IDomainEntity, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
+        where TKey : notnull
     {
         var crudOptions = new CrudOptions<TEntity>();
         options?.Invoke(crudOptions);
@@ -255,6 +258,7 @@ public static class WebApplicationExtensions
         RouteFormat format,
         bool withId = false, 
         EndpointReferenceOptions? reference = null)
+        where TKey : notnull
     {
         var entityType = typeof(TEntity);
         var entityName = entityType.GetEntityName();
@@ -275,7 +279,7 @@ public static class WebApplicationExtensions
         return pattern;
     }
 
-    private static string GetRouteConstraint<TKey>()
+    private static string GetRouteConstraint<TKey>() where TKey : notnull
     {
         var typeDict = new Dictionary<Type, string>
         {
@@ -300,13 +304,13 @@ public static class WebApplicationExtensions
         };
     }
 
-    private static bool IsPrimitiveKey<TKey>()
+    private static bool IsPrimitiveKey<TKey>() where TKey : notnull
     {
         var keyType = typeof(TKey);
         return keyType == typeof(string) || keyType == typeof(Guid) || keyType.IsPrimitive;
     }
 
-    private static string[] GetRoutesFromComplexKey<TKey>()
+    private static string[] GetRoutesFromComplexKey<TKey>() where TKey : notnull
     {
         var keyType = typeof(TKey);
         return keyType.GetProperties().Select(o => o.Name.Camelize()!).ToArray();
@@ -316,6 +320,7 @@ public static class WebApplicationExtensions
         CrudOptions<TEntity> options)
         where TEntity : class, IDomainEntity, new()
         where TService : IReaderService<TEntity, TKey>
+        where TKey : notnull
     {
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Get.Reference);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
@@ -343,6 +348,7 @@ public static class WebApplicationExtensions
         CrudOptions<TEntity> options)
         where TEntity : class, IDomainEntity, new()
         where TService : IReaderService<TEntity, TKey>
+        where TKey : notnull
     {
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.List.Reference);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
@@ -367,6 +373,7 @@ public static class WebApplicationExtensions
         where TEntity : class, IDomainEntity, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
+        where TKey : notnull
     {
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.Create.Reference);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
@@ -393,6 +400,7 @@ public static class WebApplicationExtensions
         where TEntity : class, IDomainEntity, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
+        where TKey : notnull
     {
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Update.Reference);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
@@ -421,6 +429,7 @@ public static class WebApplicationExtensions
         where TEntity : class, IDomainEntity, new()
         where TService : ICrudService<TEntity, TRequest, TKey>
         where TRequest : class
+        where TKey : notnull
     {
         var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Delete.Reference);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
