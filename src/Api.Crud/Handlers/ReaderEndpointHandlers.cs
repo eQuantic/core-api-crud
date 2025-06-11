@@ -16,6 +16,7 @@ namespace eQuantic.Core.Api.Crud.Handlers;
 internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     where TEntity : class, IDomainEntity, new()
     where TService : IReaderService<TEntity, TKey>
+    where TKey : notnull
 {
     private readonly CrudOptions<TEntity> _options;
 

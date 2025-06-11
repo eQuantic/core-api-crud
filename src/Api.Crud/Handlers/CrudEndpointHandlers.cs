@@ -20,6 +20,7 @@ namespace eQuantic.Core.Api.Crud.Handlers;
 internal sealed class CrudEndpointHandlers<TEntity, TRequest, TService, TKey>
     where TEntity : class, IDomainEntity, new()
     where TService : ICrudService<TEntity, TRequest, TKey>
+    where TKey : notnull
 {
     private readonly CrudOptions<TEntity> _options;
 
