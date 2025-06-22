@@ -11,9 +11,10 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 8.0.x
-          dotnet-quality: 'preview'
+          dotnet-version: 9.0.x
       - name: Build eQuantic.Core.Api.Crud Library
         run: dotnet build --configuration Release
       - name: Push package into Nuget.org
         run: dotnet nuget push **/*.nupkg --skip-duplicate -k ${{secrets.nuget_key}} -s https://api.nuget.org/v3/index.json
+      - name: Push symbols into Nuget.org
+        run: dotnet nuget push **/*.snupkg --skip-duplicate -k ${{secrets.nuget_key}} -s https://api.nuget.org/v3/index.json
