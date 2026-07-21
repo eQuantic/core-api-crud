@@ -6,7 +6,6 @@ using eQuantic.Core.Domain.Entities.Results;
 using eQuantic.Core.Domain.Entities;
 using eQuantic.Core.Domain.Entities.Requests;
 using eQuantic.Core.Exceptions;
-using eQuantic.Linq.Sorter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -124,15 +123,15 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
         HttpContext context,
         [FromQuery] int? pageIndex, 
         [FromQuery] int? pageSize, 
-        [FromQuery] FilteringCollection? filterBy, 
-        [FromQuery] ISorting[]? orderBy,
+        [FromQuery] FilteringCollection<TEntity>? filterBy, 
+        [FromQuery] SortingCollection<TEntity>? orderBy,
         [FromQuery] string[]? includeFields,
         [FromServices]TService service)
     {
         var referenceId = context.GetReference<TReferenceKey>(_options.List);
         if (referenceId == null)
             throw new InvalidEntityReferenceException<TReferenceKey>();
-        var request = new PagedListRequest<TEntity,TReferenceKey>(referenceId, pageIndex, pageSize, filterBy?.ToArray(), orderBy, includeFields);
+        var request = new PagedListRequest<TEntity,TReferenceKey>(referenceId, pageIndex, pageSize, filterBy, orderBy, includeFields);
         return await GetPagedList(request, service);
     }
     
@@ -154,12 +153,12 @@ internal class ReaderEndpointHandlers<TEntity, TService, TKey>
     public async Task<Ok<PagedListResult<TEntity>>> GetPagedList(
         [FromQuery] int? pageIndex, 
         [FromQuery] int? pageSize, 
-        [FromQuery] FilteringCollection? filterBy, 
-        [FromQuery] ISorting[]? orderBy,
+        [FromQuery] FilteringCollection<TEntity>? filterBy, 
+        [FromQuery] SortingCollection<TEntity>? orderBy,
         [FromQuery] string[]? includeFields,
         [FromServices]TService service)
     {
-        var request = new PagedListRequest<TEntity>(pageIndex, pageSize, filterBy?.ToArray(), orderBy, includeFields);
+        var request = new PagedListRequest<TEntity>(pageIndex, pageSize, filterBy, orderBy, includeFields);
         return await GetPagedList(request, service);
     }
     

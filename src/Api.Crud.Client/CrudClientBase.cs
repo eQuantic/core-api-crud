@@ -4,8 +4,7 @@ using System.Text.Json;
 using System.Web;
 using eQuantic.Core.Api.Client.Results;
 using eQuantic.Core.Collections;
-using eQuantic.Linq.Filter;
-using eQuantic.Linq.Sorter;
+using eQuantic.Linq.Web;
 
 namespace eQuantic.Core.Api.Crud.Client;
 
@@ -59,21 +58,25 @@ public abstract class CrudClientBase<TEntity, TRequest, TKey> : ICrudClient<TEnt
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns></returns>
     public async Task<IPagedEnumerable<TEntity>> GetPagedListAsync(
-        IFiltering<TEntity>[] filtering,
-        ISorting<TEntity>[] sorting,
+        QueryFilterBuilder<TEntity>? filtering = null,
+        QuerySortBuilder<TEntity>? sorting = null,
         int pageIndex = 1,
         int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
         var httpValueCollection = HttpUtility.ParseQueryString(string.Empty);
-        foreach (var filter in filtering)
+        var filterBy = filtering?.ToString();
+        if (!string.IsNullOrEmpty(filterBy))
         {
-            httpValueCollection.Add("filterBy", filter.ToString());
+            httpValueCollection.Add("filterBy", filterBy);
         }
-        foreach (var sorter in sorting)
+
+        var orderBy = sorting?.ToString();
+        if (!string.IsNullOrEmpty(orderBy))
         {
-            httpValueCollection.Add("orderBy", sorter.ToString());
+            httpValueCollection.Add("orderBy", orderBy);
         }
+
         httpValueCollection.Add(nameof(pageIndex), pageIndex.ToString());
         httpValueCollection.Add(nameof(pageSize), pageSize.ToString());
         

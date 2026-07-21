@@ -7,7 +7,6 @@ using eQuantic.Core.Api.Sample.Services;
 using eQuantic.Core.Application;
 using eQuantic.Core.Application.Extensions;
 using eQuantic.Core.Data.EntityFramework.Repository.Extensions;
-using eQuantic.Core.Mvc.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,8 +36,12 @@ builder.Services
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     })
-    .AddFilterModelBinder()
-    .AddSortModelBinder();
+    // FilteringCollection/SortingCollection bind natively in v3 (TryParse) — no custom model binder needed.
+    // Auto-register the "traditional" controllers, mirroring MapAllCrud, under the "mvc" group
+    // so they coexist with the Minimal API endpoints mapped at the root.
+    .AddCrudControllers(opt => opt
+        .FromAssembly(assembly)
+        .WithGroup("mvc"));
 
 builder.Services
     .AddEndpointsApiExplorer()
@@ -59,3 +62,6 @@ app.MapAllCrud(opt => opt
     .For<ExampleWithComplexKey>().UseOptions(o => o.List.RequireAuthorization(false)));
 
 app.Run();
+
+// Exposed so the integration test project can bootstrap the app via WebApplicationFactory<Program>.
+public partial class Program;

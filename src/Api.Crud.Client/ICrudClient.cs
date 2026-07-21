@@ -1,6 +1,5 @@
 using eQuantic.Core.Collections;
-using eQuantic.Linq.Filter;
-using eQuantic.Linq.Sorter;
+using eQuantic.Linq.Web;
 
 namespace eQuantic.Core.Api.Crud.Client;
 
@@ -8,8 +7,8 @@ public interface ICrudClient<TEntity, in TRequest, TKey>
 {
     Task<TEntity?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default);
     Task<IPagedEnumerable<TEntity>> GetPagedListAsync(
-        IFiltering<TEntity>[] filtering,
-        ISorting<TEntity>[] sorting,
+        QueryFilterBuilder<TEntity>? filtering = null,
+        QuerySortBuilder<TEntity>? sorting = null,
         int pageIndex = 1,
         int pageSize = 10,
         CancellationToken cancellationToken = default);

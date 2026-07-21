@@ -1,5 +1,5 @@
+using System.Linq.Expressions;
 using eQuantic.Core.DataModel;
-using eQuantic.Linq.Filter;
 
 namespace eQuantic.Core.Api.Sample.Entities.Data;
 
@@ -20,8 +20,9 @@ public class ChildExampleData : EntityDataBase, IWithReferenceId<ChildExampleDat
         ExampleId = referenceId;
     }
 
-    public IFiltering<ChildExampleData> GetReferenceFiltering()
+    public Expression<Func<ChildExampleData, bool>> GetReferenceFilter()
     {
-        return new Filtering<ChildExampleData>(o => o.ExampleId, ExampleId.ToString());
+        var exampleId = ExampleId;
+        return o => o.ExampleId == exampleId;
     }
 }

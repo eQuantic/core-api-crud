@@ -29,19 +29,6 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser> : C
         logger, options)
     {
     }
-    
-    protected CrudServiceBase(IApplicationContext<int> applicationContext,
-        IAsyncQueryableRepository<IQueryableUnitOfWork, TDataEntity, int> repository,
-        IDateTimeProviderService dateTimeProviderService,
-        IMapperFactory mapperFactory,
-        ILogger logger,
-        Action<ReadOptions>? options = null) : base(applicationContext, 
-        repository, 
-        dateTimeProviderService, 
-        mapperFactory,
-        logger, options)
-    {
-    }
 }
 
 public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKey, TUserKey> : ReaderServiceBase<TEntity, TDataEntity, TKey, TUserKey>, ICrudService<TEntity, TRequest, TKey>
@@ -61,18 +48,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
     {
         DateTimeProviderService = dateTimeProviderService;
     }
-    
-    protected CrudServiceBase(IApplicationContext<TUserKey> applicationContext,
-        IAsyncQueryableRepository<IQueryableUnitOfWork, TDataEntity, TKey> repository,
-        IDateTimeProviderService dateTimeProviderService,
-        IMapperFactory mapperFactory,
-        ILogger logger,
-        Action<ReadOptions>? options = null) : base(applicationContext, repository, mapperFactory, logger,
-        options)
-    {
-        DateTimeProviderService = dateTimeProviderService;
-    }
-    
+
     public virtual async Task<TKey> CreateAsync(CreateRequest<TRequest> request, CancellationToken cancellationToken = default)
     {
         var item = await OnMapRequestAsync(CrudAction.Create, request.Body, cancellationToken: cancellationToken);
@@ -99,7 +75,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         try
         {
             await Repository.AddAsync(item);
-            await Repository.UnitOfWork.CommitAsync(cancellationToken);
+            await UnitOfWork.CommitAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -142,7 +118,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
         try
         {
             await Repository.ModifyAsync(item);
-            await Repository.UnitOfWork.CommitAsync(cancellationToken);
+            await UnitOfWork.CommitAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -194,7 +170,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
                 await Repository.RemoveAsync(item);
             }
 
-            await Repository.UnitOfWork.CommitAsync(cancellationToken);
+            await UnitOfWork.CommitAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -256,7 +232,7 @@ public abstract class CrudServiceBase<TEntity, TRequest, TDataEntity, TUser, TKe
 
     private async Task<TDataEntity?> GetItem(ItemRequest<TKey> request, CancellationToken cancellationToken = default)
     {
-        var item = await Repository.GetAsync(request.Id, cancellationToken);
+        var item = await Repository.GetAsync(request.Id, cancellationToken: cancellationToken);
         ValidateReference(request, item);
         return item;
     }
