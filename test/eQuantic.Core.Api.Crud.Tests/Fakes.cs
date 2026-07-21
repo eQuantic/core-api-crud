@@ -17,6 +17,9 @@ public sealed class FakeExampleService : IExampleService
     private readonly Dictionary<int, Example> _store = new();
     private int _next;
 
+    /// <summary>The last paged-list request received — lets a test assert how the query string bound.</summary>
+    public PagedListRequest<Example>? LastPagedRequest { get; private set; }
+
     public Example Seed(string name)
     {
         var id = ++_next;
@@ -48,6 +51,7 @@ public sealed class FakeExampleService : IExampleService
 
     public Task<IPagedEnumerable<Example>?> GetPagedListAsync(PagedListRequest<Example> request, CancellationToken cancellationToken = default)
     {
+        LastPagedRequest = request;
         var items = _store.Values.ToList();
         return Task.FromResult<IPagedEnumerable<Example>?>(new PagedList<Example>(items, items.Count));
     }

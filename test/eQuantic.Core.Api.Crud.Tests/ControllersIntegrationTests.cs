@@ -74,6 +74,21 @@ public sealed class ControllersIntegrationTests : IDisposable
     }
 
     [Fact]
+    public async Task GetPagedList_binds_filterBy_and_orderBy_from_the_query_string()
+    {
+        var client = CreateClient();
+
+        // v3 query syntax; the typed FilteringCollection<T>/SortingCollection<T> bind natively via TryParse.
+        var response = await client.GetAsync("/mvc/examples?filterBy=name:eq(Foo)&orderBy=name:desc");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var request = _factory.Examples.LastPagedRequest;
+        Assert.NotNull(request);
+        Assert.Equal(1, request!.FilterBy?.Count);
+        Assert.Equal(1, request.OrderBy?.Count);
+    }
+
+    [Fact]
     public async Task Update_existing_returns_200()
     {
         var seeded = _factory.Examples.Seed("Old");
