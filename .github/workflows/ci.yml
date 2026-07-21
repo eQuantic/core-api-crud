@@ -46,10 +46,12 @@ jobs:
           dotnet-version: |
             8.0.x
             10.0.x
+      - name: Build
+        run: dotnet build eQuantic.Core.Api.Crud.sln -c Release
       - name: Pack all packages
         run: |
           for project in src/*/*.csproj; do
-            dotnet pack "$project" -c Release
+            dotnet pack "$project" -c Release --no-build
           done
       - uses: actions/upload-artifact@v4
         with:
