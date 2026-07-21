@@ -1,7 +1,7 @@
 using System.Reflection;
 using eQuantic.Core.Domain.Attributes;
 using Humanizer;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace eQuantic.Core.Api.Crud.Extensions;
 
@@ -23,63 +23,63 @@ internal static class TypeExtensions
         var schema = new OpenApiSchema();
         if (type == typeof(DateTime))
         {
-            schema.Type = "string";
+            schema.Type = JsonSchemaType.String;
             schema.Format = "date-time";
             return schema;
         }
         if (type == typeof(DateOnly))
         {
-            schema.Type = "string";
+            schema.Type = JsonSchemaType.String;
             schema.Format = "date";
             return schema;
         }
         if (type == typeof(Guid))
         {
-            schema.Type = "string";
+            schema.Type = JsonSchemaType.String;
             schema.Format = "uuid";
             return schema;
         }
         if (type == typeof(short))
         {
-            schema.Type = "integer";
+            schema.Type = JsonSchemaType.Integer;
             return schema;
         }
         if (type == typeof(int))
         {
-            schema.Type = "integer";
+            schema.Type = JsonSchemaType.Integer;
             schema.Format = "int32";
             return schema;
         }
         if (type == typeof(long))
         {
-            schema.Type = "integer";
+            schema.Type = JsonSchemaType.Integer;
             schema.Format = "int64";
             return schema;
         }
         if (type == typeof(float))
         {
-            schema.Type = "number";
+            schema.Type = JsonSchemaType.Number;
             schema.Format = "float";
             return schema;
         }
         if (type == typeof(double))
         {
-            schema.Type = "number";
+            schema.Type = JsonSchemaType.Number;
             schema.Format = "double";
             return schema;
         }
         if (type == typeof(decimal))
         {
-            schema.Type = "number";
+            schema.Type = JsonSchemaType.Number;
             return schema;
         }
         if (type == typeof(bool))
         {
-            schema.Type = "boolean";
+            schema.Type = JsonSchemaType.Boolean;
             return schema;
         }
 
-        schema.Type = "string";
+        schema.Type = JsonSchemaType.String;
         return schema;
     }
 }

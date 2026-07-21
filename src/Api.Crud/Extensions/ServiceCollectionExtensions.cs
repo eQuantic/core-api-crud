@@ -1,7 +1,6 @@
 using eQuantic.Core.Api.Crud.Options;
 using eQuantic.Core.Api.Extensions;
 using eQuantic.Core.Api.Options;
-using eQuantic.Core.Domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,10 +27,7 @@ public static class ServiceCollectionExtensions
         Action<DocumentationOptions>? options = null,
         Action<SwaggerGenOptions>? swaggerGenOptions = null)
     {
-        return services.AddApiDocumentation(options, opt =>
-        {
-            opt.AddFilteringOperationFilter<FilteringCollection>();
-            swaggerGenOptions?.Invoke(opt);
-        });
+        // AddApiDocumentation already registers the paged-list (filterBy/orderBy) operation filter.
+        return services.AddApiDocumentation(options, opt => swaggerGenOptions?.Invoke(opt));
     }
 }

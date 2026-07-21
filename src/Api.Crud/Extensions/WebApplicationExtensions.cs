@@ -11,7 +11,6 @@ using eQuantic.Core.Application.Crud.Attributes;
 using eQuantic.Core.Application.Crud.Enums;
 using eQuantic.Core.Domain.Entities;
 using eQuantic.Core.Domain.Entities.Results;
-using Humanizer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -254,83 +253,21 @@ public static class WebApplicationExtensions
         });
     }
 
-    private static string GetPattern<TEntity, TKey>(
-        RouteFormat format,
-        bool withId = false, 
-        EndpointReferenceOptions? reference = null)
-        where TKey : notnull
-    {
-        var entityType = typeof(TEntity);
-        var entityName = entityType.GetEntityName();
-        var prefix = entityName.ChangeCase(format);
-        var pattern = $"/{prefix}";
-        if (reference != null)
-        {
-            pattern = $"/{reference.EntityType.GetEntityName().ChangeCase(format)}/{{{reference.Name}}}{pattern}";
-        }
-
-        if (!withId)
-            return pattern;
-
-        pattern = IsPrimitiveKey<TKey>()
-            ? $"{pattern}/{{id{GetRouteConstraint<TKey>()}}}"
-            : $"{pattern}/{{{string.Join("}/{", GetRoutesFromComplexKey<TKey>())}}}";
-
-        return pattern;
-    }
-
-    private static string GetRouteConstraint<TKey>() where TKey : notnull
-    {
-        var typeDict = new Dictionary<Type, string>
-        {
-            {typeof(int), ":int"},
-            {typeof(Guid), ":guid"},
-        };
-        
-        return typeDict.TryGetValue(typeof(TKey), out var routeConstraint) ? 
-            routeConstraint : 
-            string.Empty;
-    }
-    
-    private static string ChangeCase(this string name, RouteFormat format)
-    {
-        var route = name.Pluralize();
-        return format switch
-        {
-            RouteFormat.CamelCase => route.Camelize(),
-            RouteFormat.PascalCase => route.Pascalize(),
-            RouteFormat.SnakeCase => route.Kebaberize(),
-            _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
-        };
-    }
-
-    private static bool IsPrimitiveKey<TKey>() where TKey : notnull
-    {
-        var keyType = typeof(TKey);
-        return keyType == typeof(string) || keyType == typeof(Guid) || keyType.IsPrimitive;
-    }
-
-    private static string[] GetRoutesFromComplexKey<TKey>() where TKey : notnull
-    {
-        var keyType = typeof(TKey);
-        return keyType.GetProperties().Select(o => o.Name.Camelize()!).ToArray();
-    }
-
     private static IEndpointRouteBuilder MapGetById<TEntity, TService, TKey>(this IEndpointRouteBuilder app,
         CrudOptions<TEntity> options)
         where TEntity : class, IDomainEntity, new()
         where TService : IReaderService<TEntity, TKey>
         where TKey : notnull
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Get.Reference);
+        var pattern = RoutePatternBuilder.GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Get.Reference);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
         Delegate handler = options.Get.Reference != null
             ? (
-                IsPrimitiveKey<TKey>() ? 
+                RoutePatternBuilder.IsPrimitiveKey<TKey>() ? 
                     handlers.GetReferencedHandler(options.Get.Reference.KeyType, nameof(handlers.GetReferencedByIdDelegate)) :
                     handlers.GetReferencedHandler(options.Get.Reference.KeyType, nameof(handlers.GetReferencedByComplexIdDelegate))
               )
-            : (IsPrimitiveKey<TKey>() ? handlers.GetById : handlers.GetByComplexId);
+            : (RoutePatternBuilder.IsPrimitiveKey<TKey>() ? handlers.GetById : handlers.GetByComplexId);
 
         var endpoint = app
             .MapGet(pattern, handler)
@@ -350,7 +287,7 @@ public static class WebApplicationExtensions
         where TService : IReaderService<TEntity, TKey>
         where TKey : notnull
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.List.Reference);
+        var pattern = RoutePatternBuilder.GetPattern<TEntity, TKey>(options.RouteFormat, false, options.List.Reference);
         var handlers = new ReaderEndpointHandlers<TEntity, TService, TKey>(options);
         Delegate handler = options.List.Reference != null
             ? handlers.GetReferencedHandler(options.List.Reference.KeyType, nameof(handlers.GetReferencedPagedListDelegate))
@@ -375,7 +312,7 @@ public static class WebApplicationExtensions
         where TRequest : class
         where TKey : notnull
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, false, options.Create.Reference);
+        var pattern = RoutePatternBuilder.GetPattern<TEntity, TKey>(options.RouteFormat, false, options.Create.Reference);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         
         
@@ -402,15 +339,15 @@ public static class WebApplicationExtensions
         where TRequest : class
         where TKey : notnull
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Update.Reference);
+        var pattern = RoutePatternBuilder.GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Update.Reference);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Update.Reference != null
             ? (
-                IsPrimitiveKey<TKey>() ? 
+                RoutePatternBuilder.IsPrimitiveKey<TKey>() ? 
                     handlers.GetReferencedHandler(options.Update.Reference.KeyType, nameof(handlers.GetReferencedUpdateDelegate)) : 
                     handlers.GetReferencedHandler(options.Update.Reference.KeyType, nameof(handlers.GetReferencedUpdateByComplexIdDelegate))
               )
-            : (IsPrimitiveKey<TKey>() ? handlers.Update : handlers.UpdateByComplexId);
+            : (RoutePatternBuilder.IsPrimitiveKey<TKey>() ? handlers.Update : handlers.UpdateByComplexId);
         var endpoint = app
             .MapPut(pattern, handler)
             .SetOptions<TEntity, TRequest>(options.Update)
@@ -431,15 +368,15 @@ public static class WebApplicationExtensions
         where TRequest : class
         where TKey : notnull
     {
-        var pattern = GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Delete.Reference);
+        var pattern = RoutePatternBuilder.GetPattern<TEntity, TKey>(options.RouteFormat, true, options.Delete.Reference);
         var handlers = new CrudEndpointHandlers<TEntity, TRequest, TService, TKey>(options);
         Delegate handler = options.Delete.Reference != null
             ? (
-                IsPrimitiveKey<TKey>() ? 
+                RoutePatternBuilder.IsPrimitiveKey<TKey>() ? 
                     handlers.GetReferencedHandler(options.Delete.Reference.KeyType, nameof(handlers.GetReferencedDeleteDelegate)) : 
                     handlers.GetReferencedHandler(options.Delete.Reference.KeyType, nameof(handlers.GetReferencedDeleteByComplexIdDelegate))
                )
-            : (IsPrimitiveKey<TKey>() ? handlers.Delete : handlers.DeleteByComplexId);
+            : (RoutePatternBuilder.IsPrimitiveKey<TKey>() ? handlers.Delete : handlers.DeleteByComplexId);
         var endpoint = app
             .MapDelete(pattern, handler)
             .SetOptions<TEntity, TRequest>(options.Delete)
@@ -472,6 +409,9 @@ public static class WebApplicationExtensions
             endpoint.WithTags(options.Tags);
         }
 
+#if NET10_0_OR_GREATER
+        // Minimal-API OpenAPI operation enrichment requires Microsoft.OpenApi 2.x (net10-aligned); on net8 the
+        // documentation comes from the Swashbuckle operation filter instead.
         endpoint.WithOpenApi(o =>
         {
             if (options.Parameters.Count == 0)
@@ -484,6 +424,7 @@ public static class WebApplicationExtensions
 
             return o;
         });
+#endif
 
 
         if (options.RequireAuth == true)

@@ -6,8 +6,10 @@ namespace eQuantic.Core.Api.Crud.Extensions;
 internal static class HttpContextExtensions
 {
     public static TReferenceKey? GetReference<TReferenceKey>(this HttpContext context, EndpointOptions options)
+        => context.GetReference<TReferenceKey>(options.Reference?.Name ?? "referenceId");
+
+    public static TReferenceKey? GetReference<TReferenceKey>(this HttpContext context, string referenceName)
     {
-        var referenceName = options.Reference?.Name ?? "referenceId";
         var type = typeof(TReferenceKey);
         if (!context.Request.RouteValues.TryGetValue(referenceName, out var value))
             return default;

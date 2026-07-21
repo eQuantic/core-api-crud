@@ -9,10 +9,21 @@ public class AllCrudOptions
     private bool? _requireAuth = null;
     private bool? _withValidation = null;
     private RouteFormat? _routeFormat;
-    
+    private string? _group;
+
     public AllCrudOptions FromAssembly(Assembly assembly)
     {
         _assembly = assembly;
+        return this;
+    }
+
+    /// <summary>
+    /// Mounts every generated endpoint under a shared route group/prefix (e.g. <c>"mvc"</c>).
+    /// Honored by the MVC controllers registration; a per-entity <c>WithGroup</c> still overrides it.
+    /// </summary>
+    public AllCrudOptions WithGroup(string prefix)
+    {
+        _group = prefix;
         return this;
     }
     
@@ -50,6 +61,7 @@ public class AllCrudOptions
     internal bool? GetRequireAuth() => _requireAuth;
     internal RouteFormat? GetRouteFormat() => _routeFormat;
     internal bool? GetValidation() => _withValidation;
+    internal string? GetGroup() => _group;
     
     public class EntityCrudOptions<TEntity>(AllCrudOptions allCrudOptions)
     {

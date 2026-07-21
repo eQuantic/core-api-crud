@@ -11,44 +11,47 @@ using Microsoft.AspNetCore.Routing;
 namespace eQuantic.Core.Api.Crud.Controllers;
 
 /// <summary>
-/// CRUD controller base. Adds <c>Create</c>, <c>Update</c> and <c>Delete</c> on top of
-/// <see cref="ReaderControllerBase{TEntity, TKey}"/>, mirroring
-/// <see cref="Handlers.CrudEndpointHandlers{TEntity,TRequest,TService,TKey}"/>.
+/// CRUD controller base for entities owned by a referenced parent (e.g.
+/// <c>/examples/{exampleId}/childExamples</c>). Mirrors the referenced CRUD handlers.
 /// </summary>
 /// <typeparam name="TEntity"></typeparam>
 /// <typeparam name="TRequest"></typeparam>
 /// <typeparam name="TKey"></typeparam>
+/// <typeparam name="TReferenceEntity">The parent entity (defines the reference route segment name)</typeparam>
+/// <typeparam name="TReferenceKey">The parent identifier type</typeparam>
 [ApiController]
-public abstract class CrudControllerBase<TEntity, TRequest, TKey>
-    : ReaderControllerBase<TEntity, TKey>, ICrudController<TEntity, TRequest, TKey>
+public abstract class ReferencedCrudControllerBase<TEntity, TRequest, TKey, TReferenceEntity, TReferenceKey>
+    : ReferencedReaderControllerBase<TEntity, TKey, TReferenceEntity, TReferenceKey>,
+        ICrudController<TEntity, TRequest, TKey>
     where TEntity : class, IDomainEntity, new()
     where TKey : notnull
 {
     private readonly ICrudService<TEntity, TRequest, TKey> _service;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CrudControllerBase{TEntity, TRequest, TKey}"/> class
+    /// Initializes a new instance of the <see cref="ReferencedCrudControllerBase{TEntity, TRequest, TKey, TReferenceEntity, TReferenceKey}"/> class
     /// </summary>
     /// <param name="service"></param>
-    protected CrudControllerBase(ICrudService<TEntity, TRequest, TKey> service) : base(service)
+    protected ReferencedCrudControllerBase(ICrudService<TEntity, TRequest, TKey> service) : base(service)
     {
         _service = service;
     }
 
     /// <summary>
-    /// Create an entity
+    /// Create a referenced entity
     /// </summary>
     [HttpPost("")]
     public virtual async Task<ActionResult<TKey>> Create(
         [FromBody] TRequest request,
         CancellationToken cancellationToken = default)
     {
-        var result = await _service.CreateAsync(new CreateRequest<TRequest>(request), cancellationToken);
-        return CreatedResult(result);
+        var referenceId = GetReferenceId();
+        var result = await _service.CreateAsync(new CreateRequest<TRequest, TReferenceKey>(referenceId, request), cancellationToken);
+        return CreatedResult(result, referenceId);
     }
 
     /// <summary>
-    /// Update an entity by identifier
+    /// Update a referenced entity by identifier
     /// </summary>
     [HttpPut("{id}")]
     public virtual async Task<IActionResult> Update(
@@ -56,40 +59,27 @@ public abstract class CrudControllerBase<TEntity, TRequest, TKey>
         [FromBody] TRequest request,
         CancellationToken cancellationToken = default)
     {
-        var result = await _service.UpdateAsync(new UpdateRequest<TRequest, TKey>(id, request), cancellationToken);
+        var referenceId = GetReferenceId();
+        var result = await _service.UpdateAsync(new UpdateRequest<TRequest, TKey, TReferenceKey>(referenceId, id, request), cancellationToken);
         return result ? Ok() : BadRequest();
     }
 
     /// <summary>
-    /// Delete an entity by identifier
+    /// Delete a referenced entity by identifier
     /// </summary>
     [HttpDelete("{id}")]
     public virtual async Task<IActionResult> Delete(
         [ModelBinder(typeof(KeyModelBinder))] TKey id,
         CancellationToken cancellationToken = default)
     {
-        var result = await _service.DeleteAsync(new ItemRequest<TKey>(id), cancellationToken);
+        var referenceId = GetReferenceId();
+        var result = await _service.DeleteAsync(new ItemRequest<TKey, TReferenceKey>(referenceId, id), cancellationToken);
         return result ? Ok() : BadRequest();
     }
 
-    /// <summary>
-    /// Builds the 201 Created result, resolving the <c>GetById</c> location when possible.
-    /// </summary>
-    protected ActionResult<TKey> CreatedResult(TKey key)
+    private ActionResult<TKey> CreatedResult(TKey key, TReferenceKey referenceId)
     {
-        var url = Url.Action(nameof(GetById), GetCreatedRouteValues(key));
-        return url != null
-            ? Created(url, key)
-            : StatusCode(StatusCodes.Status201Created, key);
-    }
-
-    /// <summary>
-    /// Builds the route values used to resolve the created entity location.
-    /// Override to inject additional values (e.g. a referenced parent identifier).
-    /// </summary>
-    protected virtual RouteValueDictionary GetCreatedRouteValues(TKey key)
-    {
-        var values = new RouteValueDictionary();
+        var values = new RouteValueDictionary { [ReferenceName] = referenceId };
         if (RoutePatternBuilder.IsPrimitiveKey(typeof(TKey)))
         {
             values["id"] = key;
@@ -102,6 +92,9 @@ public abstract class CrudControllerBase<TEntity, TRequest, TKey>
             }
         }
 
-        return values;
+        var url = Url.Action(nameof(GetById), values);
+        return url != null
+            ? Created(url, key)
+            : StatusCode(StatusCodes.Status201Created, key);
     }
 }

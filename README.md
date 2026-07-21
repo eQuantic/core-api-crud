@@ -185,3 +185,49 @@ or
 app.MapAllCrud(opt => opt.FromAssembly(assembly));
 app.Run();
 ```
+
+## Using MVC Controllers (traditional style)
+
+Besides the Minimal API endpoints, the same services can be exposed through MVC controllers, with the
+same routes, references, complex keys, verbs and authorization. There are two ways to use it.
+
+### Auto-registered controllers
+
+Mirrors `MapAllCrud`: every service annotated with `[MapCrudEndpoints]` gets a generated controller.
+
+```csharp
+builder.Services
+    .AddControllers()
+    .AddCrudControllers(opt => opt.FromAssembly(assembly));
+
+// ...
+app.MapControllers();
+```
+
+`AddCrudControllers` reuses the same option model as `MapAllCrud` (route format, validation,
+authorization, references). Use `WithGroup("...")` to mount every generated controller under a shared
+prefix (useful, for example, to expose them side by side with the Minimal API endpoints):
+
+```csharp
+builder.Services
+    .AddControllers()
+    .AddCrudControllers(opt => opt.FromAssembly(assembly).WithGroup("mvc"));
+```
+
+### Explicit controllers
+
+Derive from `CrudControllerBase<TEntity, TRequest, TKey>` (or `ReaderControllerBase<TEntity, TKey>`
+for read-only) and declare a route:
+
+```csharp
+[Route("v1/orders")]
+public class OrdersController : CrudControllerBase<Order, OrderRequest, string>
+{
+    public OrdersController(IOrderService service) : base(service)
+    {
+    }
+}
+```
+
+Referenced and complex-key variants are also available
+(`ReferencedCrudControllerBase<...>`, `ReferencedReaderControllerBase<...>`).

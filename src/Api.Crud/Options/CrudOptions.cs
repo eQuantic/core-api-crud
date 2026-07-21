@@ -1,7 +1,7 @@
 using eQuantic.Core.Api.Crud.Extensions;
 using eQuantic.Core.Application.Crud.Enums;
 using Humanizer;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace eQuantic.Core.Api.Crud.Options;
 
