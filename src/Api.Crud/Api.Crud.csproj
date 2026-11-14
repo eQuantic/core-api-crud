@@ -41,7 +41,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="eQuantic.Core.Api" Version="3.0.0" />
+        <PackageReference Include="eQuantic.Core.Api" Version="5.0.0" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
