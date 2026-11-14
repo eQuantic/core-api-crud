@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.0.0](https://github.com/eQuantic/core-api-crud/compare/v2.0.0...v3.0.0) (2026-11-14)
+
+### ⚠ BREAKING CHANGES
+
+* core-api-crud now depends on core-api 5.0, which crosses several majors: IEntity lives in eQuantic.Core.DataModel (core-api 4.0), EntityBase<TKey> compares by identity instead of by reference (core-ddd 5.0), and the repositories come from eQuantic.Core.Data 7.0, which changes what some existing calls do, such as a duplicate key surfacing as DuplicateKeyException at commit (core-ddd 6.0). Applications get all of them through core-api-crud.
+
+### Features
+
+* move to core-api 5.0 and publish through trusted publishing ([#9](https://github.com/eQuantic/core-api-crud/issues/9)) ([7f4fe2a](https://github.com/eQuantic/core-api-crud/commit/7f4fe2ac8431e90e3d27beecdbfb5bc432991731))
+
 ## [2.0.0](https://github.com/eQuantic/core-api-crud/compare/v1.9.1...v2.0.0) (2026-07-21)
 
 ### ⚠ BREAKING CHANGES
