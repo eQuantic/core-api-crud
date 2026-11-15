@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="eQuantic.Core.Data.EntityFramework.SqlServer" Version="8.6.0" />
+        <PackageReference Include="eQuantic.Core.Data.EntityFramework.SqlServer" Version="8.7.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.15" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.29">
             <PrivateAssets>all</PrivateAssets>
