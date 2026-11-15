@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.1.0](https://github.com/eQuantic/core-api-crud/compare/v4.0.0...v4.1.0) (2026-11-15)
+
+### Features
+
+* move to core-api 6.1 and core-ddd 7.1 ([#13](https://github.com/eQuantic/core-api-crud/issues/13)) ([2a4a280](https://github.com/eQuantic/core-api-crud/commit/2a4a2807fbb68fa4ffc890723b94f7076abee508)), closes [#12](https://github.com/eQuantic/core-api-crud/issues/12)
+
 ## [4.0.0](https://github.com/eQuantic/core-api-crud/compare/v3.0.0...v4.0.0) (2026-11-15)
 
 ### ⚠ BREAKING CHANGES
