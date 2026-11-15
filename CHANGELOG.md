@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.0.0](https://github.com/eQuantic/core-api-crud/compare/v3.0.0...v4.0.0) (2026-11-15)
+
+### ⚠ BREAKING CHANGES
+
+* users get core-api 6.0 and core-ddd 7.0 through these packages. The ServiceRegistry overload of AddEndpointModules is gone (it now extends IServiceCollection), Lamar no longer comes through them, and eQuantic.Core.Application no longer brings an IoC container.
+
+### Features
+
+* move to core-api 6.0 and core-ddd 7.0 ([#11](https://github.com/eQuantic/core-api-crud/issues/11)) ([b1eb157](https://github.com/eQuantic/core-api-crud/commit/b1eb157427ab88605b938fa9b4cac3c55e6066d1)), closes [#10](https://github.com/eQuantic/core-api-crud/issues/10)
+
 ## [3.0.0](https://github.com/eQuantic/core-api-crud/compare/v2.0.0...v3.0.0) (2026-11-14)
 
 ### ⚠ BREAKING CHANGES

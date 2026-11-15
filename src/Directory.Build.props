@@ -4,7 +4,7 @@
          development default; releases stamp the real version via semantic-release (release-prepare.sh).
          Target frameworks stay per-project (the sample targets net8 only). -->
     <PropertyGroup>
-        <Version>3.0.0</Version>
+        <Version>4.0.0</Version>
         <Authors>eQuantic Tech</Authors>
         <Company>eQuantic Tech</Company>
         <Copyright>2026 eQuantic Tech</Copyright>
