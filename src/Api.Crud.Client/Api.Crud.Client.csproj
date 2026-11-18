@@ -50,7 +50,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="eQuantic.Core" Version="1.8.4" />
-        <PackageReference Include="eQuantic.Core.Api.Client" Version="6.2.0" />
+        <PackageReference Include="eQuantic.Core.Api.Client" Version="6.2.1" />
         <PackageReference Include="eQuantic.Linq" Version="3.7.1" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.404">
             <PrivateAssets>all</PrivateAssets>
